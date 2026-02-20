@@ -1,0 +1,9 @@
+## Interface: 110002
+## Title: Lib: LibSAdCore
+## Notes: LibSAdCore is a World of Warcraft addon library that provides core functionality with integrated compression and serialization support
+## Author: LibSAdCore Team
+## Version: @project-version@
+## X-Category: Library
+## X-License: MIT
+
+LibSAdCore.lua

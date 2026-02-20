@@ -1,0 +1,4 @@
+.dev/
+.release/
+**/.git/
+!/.git/

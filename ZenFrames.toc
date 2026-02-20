@@ -1,0 +1,44 @@
+## Interface: 120000, 120001
+## Title: ZenFrames
+## Author: Rôkk-Wyrmrest Accord
+## Version: 1.0
+## SavedVariables: ZenFramesSettings_Global
+## SavedVariablesPerCharacter: ZenFramesSettings_Char
+## OptionalDeps: LibSharedMedia-3.0
+## AddonCompartmentFunc: ZenFramesCompartment_Func
+## IconTexture: Interface\Icons\ability_monk_zenmeditation
+## X-oUF: SAdUnitFrames_oUF
+
+Libs\LibSAdCore\LibSAdCore.lua
+Libs\oUF\oUF.xml
+
+Config.lua
+
+Settings\Arena.lua
+Settings\Modules.lua
+Settings\Style.lua
+Settings\Party.lua
+Settings\CustomConfig.lua
+
+Modules\Media.lua
+Modules\Tags.lua
+Modules\UnitFrame.lua
+Modules\Castbar.lua
+Modules\Health.lua
+Modules\Power.lua
+Modules\Text.lua
+Modules\Absorbs.lua
+Modules\AuraFilter.lua
+Modules\CombatIndicator.lua
+Modules\RestingIndicator.lua
+Modules\RoleIcon.lua
+Modules\Trinket.lua
+Modules\ArenaTargets.lua
+Modules\DRTracker.lua
+Modules\TestFrames.lua
+Modules\DispelHighlight.lua
+Modules\AuraFilterDebug.lua
+Modules\FrameMover.lua
+
+ZenFrames.lua
+Localization.lua
