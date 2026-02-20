@@ -7,7 +7,7 @@
 ## OptionalDeps: LibSharedMedia-3.0
 ## AddonCompartmentFunc: ZenFramesCompartment_Func
 ## IconTexture: Interface\Icons\ability_monk_zenmeditation
-## X-oUF: SAdUnitFrames_oUF
+## X-oUF: ZenFrames_oUF
 
 Libs\LibSAdCore\LibSAdCore.lua
 Libs\oUF\oUF.xml
