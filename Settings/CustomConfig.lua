@@ -170,7 +170,7 @@ end
 -- ---------------------------------------------------------------------------
 -- Docs dialog
 -- ---------------------------------------------------------------------------
-local CUSTOM_CONFIG_DOCS_URL = "https://www.example.com"
+local CUSTOM_CONFIG_DOCS_URL = "https://github.com/rokk-wow/ZenFrames/blob/main/CustomConfig.md"
 
 function addon:ShowCustomConfigDocs()
     self:_ShowDialog({

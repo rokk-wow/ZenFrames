@@ -154,7 +154,7 @@ function addon:ShowTextTagHelp()
         controls = {{
             type = "inputBox",
             name = "textTagHelpURL",
-            default = "https://example.com",
+            default = "https://github.com/rokk-wow/ZenFrames/blob/main/TextTags.md",
             highlightText = true,
             sessionOnly = true,
         }},
