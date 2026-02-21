@@ -191,8 +191,6 @@ function addon:GetDefaultConfig()
                         name = "StaticPlayerBuffs",
                         enabled = true,
                         baseFilter = "HELPFUL",
-                        -- subFilters = {"NOT_CANCELABLE"},
-                        excludeSubFilters = {"CANCELABLE"},
                         disableMouse = false,
                         frameName = "frmdStaticPlayerBuffs",
                         anchor = "TOPRIGHT",
@@ -220,7 +218,8 @@ function addon:GetDefaultConfig()
                         name = "ActivePlayerBuffs",
                         enabled = true,
                         baseFilter = "HELPFUL",
-                        subFilters = {"CANCELABLE"},
+                        subFilters = {"RAID_IN_COMBAT"},
+                        excludeSubFilters = {"NOT_CANCELABLE"},
                         disableMouse = false,
                         frameName = "frmdActivePlayerBuffs",
                         anchor = "TOPRIGHT",
@@ -718,7 +717,7 @@ function addon:GetDefaultConfig()
                     cooldownDesaturate = true,
                     cooldownAlpha = 0.5,
                 },
-                castbar = { -- aassdd
+                castbar = {
                     enabled = true,
                     anchor = "BOTTOMLEFT",
                     relativePoint = "BOTTOMRIGHT",
@@ -1007,7 +1006,7 @@ function addon:GetDefaultConfig()
                     cooldownDesaturate = true,
                     cooldownAlpha = 0.5,
                 },
-                castbar = { -- aassdd
+                castbar = {
                     enabled = true,
                     anchor = "BOTTOMRIGHT",
                     relativePoint = "BOTTOMLEFT",

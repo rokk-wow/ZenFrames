@@ -190,6 +190,9 @@ function AuraFilterMixin:Init(cfg)
     end
 
     for _, unit in ipairs(self.units) do
+        if unit:match("^arena%d+$") then
+            self:RegisterEvent("ARENA_OPPONENT_UPDATE")
+        end
         local changeEvent = UNIT_CHANGE_EVENTS[unit]
         if changeEvent then
             self:RegisterEvent(changeEvent)
@@ -339,7 +342,8 @@ end
 function AuraFilterMixin:OnEvent(event, unit)
     if event == "GROUP_ROSTER_UPDATE"
         or event == "PLAYER_TARGET_CHANGED"
-        or event == "PLAYER_FOCUS_CHANGED" then
+        or event == "PLAYER_FOCUS_CHANGED"
+        or event == "ARENA_OPPONENT_UPDATE" then
         self:UpdateUnits()
         return
     end
