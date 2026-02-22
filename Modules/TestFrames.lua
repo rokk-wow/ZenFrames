@@ -3,7 +3,7 @@ local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
 local stateDrivers = {
-    party = "[group] show; hide",
+    party = "[@arena1,exists][pvpcombat,group,@raid5,noexists] show; [@player,group:raid] hide; [@player,group] show; hide",
     arena = "[@arena1,exists] show; hide",
 }
 
