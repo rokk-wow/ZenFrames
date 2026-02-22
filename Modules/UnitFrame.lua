@@ -361,7 +361,7 @@ function addon:SpawnGroupFrames(configKey, units)
     end)
 
     if configKey == "party" then
-        RegisterStateDriver(container, "visibility", "[group] show; hide")
+        RegisterStateDriver(container, "visibility", "[raid] hide; [group] show; hide")
     end
 
     if configKey == "arena" then
