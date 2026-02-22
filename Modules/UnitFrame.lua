@@ -188,6 +188,7 @@ function addon:SpawnGroupFrames(configKey, units)
     oUF:RegisterStyle(styleName, function(frame)
         frame:SetSize(unitW, unitH)
         frame:RegisterForClicks("AnyUp")
+        frame.isChild = true
 
         self:AddBackground(frame, { backgroundColor = cfg.unitBackgroundColor })
 
