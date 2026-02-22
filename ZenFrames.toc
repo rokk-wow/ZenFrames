@@ -35,7 +35,6 @@ Modules\RoleIcon.lua
 Modules\Trinket.lua
 Modules\ArenaTargets.lua
 Modules\DRTracker.lua
-Modules\TestFrames.lua
 Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua

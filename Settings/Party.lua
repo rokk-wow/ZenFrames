@@ -5,19 +5,11 @@ local addon = SAdCore:GetAddon(addonName)
 function addon:SetupPartySettingsPanel()
     local function refreshConfig()
         self.config = self:GetCustomConfig() or self:GetConfig()
-        self:RefreshTestFrames("party")
     end
 
     self:AddSettingsPanel("party", {
         title = "partyTitle",
         controls = {
-            {
-                type = "button",
-                name = "testFrames",
-                onClick = function()
-                    self:ToggleGroupTestModes()
-                end,
-            },
             {
                 type = "header",
                 name = "partyTrinketHeader",

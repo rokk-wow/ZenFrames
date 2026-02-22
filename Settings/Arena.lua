@@ -5,19 +5,11 @@ local addon = SAdCore:GetAddon(addonName)
 function addon:SetupArenaSettingsPanel()
     local function refreshConfig()
         self.config = self:GetCustomConfig() or self:GetConfig()
-        self:RefreshTestFrames("arena")
     end
 
     self:AddSettingsPanel("arena", {
         title = "arenaTitle",
         controls = {
-            {
-                type = "button",
-                name = "testFrames",
-                onClick = function()
-                    self:ToggleGroupTestModes()
-                end,
-            },
             {
                 type = "header",
                 name = "arenaTrinketHeader",

@@ -145,8 +145,6 @@ addon.locale.enEN = {
 	arenaReloadDescription = "Reload the UI to apply changes.",
 	enabled = "Enable Frame",
 	enabledTooltip = "Enable or disable this frame.",
-	testFrames = "Test Frames",
-	testFramesTooltip = "Show placeholder frames for layout testing.",
 	release_v1_1_0_desc_1 = "Added option to show the new Blizzard dispel icons.",
 
 	-- Custom Config panel
@@ -310,8 +308,6 @@ addon.locale.esES = {
 	arenaReloadDescription = "Recarga la IU para aplicar los cambios.",
 	enabled = "Habilitar marco",
 	enabledTooltip = "Activa o desactiva este marco.",
-	testFrames = "Marcos de prueba",
-	testFramesTooltip = "Muestra marcos de marcador de posición para probar el diseño.",
 	release_v1_1_0_desc_1 = "Se agregó la opción de mostrar los nuevos iconos de disipación de Blizzard.",
 
 	-- Custom Config panel
@@ -477,8 +473,6 @@ addon.locale.ptBR = {
 	arenaReloadDescription = "Recarregue a IU para aplicar as alterações.",
 	enabled = "Ativar quadro",
 	enabledTooltip = "Ativa ou desativa este quadro.",
-	testFrames = "Quadros de teste",
-	testFramesTooltip = "Mostra quadros de espaço reservado para testar o layout.",
 	release_v1_1_0_desc_1 = "Adicionada opção para mostrar os novos ícones de dissipação da Blizzard.",
 
 	-- Custom Config panel
@@ -642,8 +636,6 @@ addon.locale.frFR = {
 	arenaReloadDescription = "Rechargez l'interface pour appliquer les modifications.",
 	enabled = "Activer le cadre",
 	enabledTooltip = "Active ou désactive ce cadre.",
-	testFrames = "Cadres de test",
-	testFramesTooltip = "Affiche des cadres de remplacement pour tester la disposition.",
 	release_v1_1_0_desc_1 = "Ajout d'une option pour afficher les nouvelles icônes de dissipation de Blizzard.",
 
 	-- Custom Config panel
@@ -807,8 +799,6 @@ addon.locale.deDE = {
 	arenaReloadDescription = "Lade die UI neu, um Änderungen anzuwenden.",
 	enabled = "Rahmen aktivieren",
 	enabledTooltip = "Aktiviert oder deaktiviert diesen Rahmen.",
-	testFrames = "Testrahmen",
-	testFramesTooltip = "Zeigt Platzhalterrahmen zum Testen des Layouts an.",
 	release_v1_1_0_desc_1 = "Option zum Anzeigen der neuen Blizzard-Entzauberungssymbole hinzugefügt.",
 
 	-- Custom Config panel
@@ -972,8 +962,6 @@ addon.locale.ruRU = {
 	arenaReloadDescription = "Перезагрузите интерфейс, чтобы применить изменения.",
 	enabled = "Включить фрейм",
 	enabledTooltip = "Включает или отключает этот фрейм.",
-	testFrames = "Тестовые фреймы",
-	testFramesTooltip = "Показывает фреймы-заглушки для тестирования макета.",
 	release_v1_1_0_desc_1 = "Добавлена опция для отображения новых иконок рассеивания Blizzard.",
 
 	-- Custom Config panel

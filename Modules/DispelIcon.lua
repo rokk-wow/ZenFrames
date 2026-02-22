@@ -89,8 +89,6 @@ local function Update(self, event, unit)
     local element = self.DispelIcon
     if not element then return end
 
-    if addon.testMode then return end
-
     unit = self.unit
     if not unit or not UnitExists(unit) then
         element:Hide()

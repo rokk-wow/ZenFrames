@@ -115,7 +115,6 @@ function addon:AddTrinket(frame, cfg)
     end
 
     local function UpdateVisibility()
-        if addon.testMode then return end
         if IsInArena() then
             trinket:Show()
         else
