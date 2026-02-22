@@ -147,7 +147,7 @@ addon.locale.enEN = {
 	enabledTooltip = "Enable or disable this frame.",
 	testFrames = "Test Frames",
 	testFramesTooltip = "Show placeholder frames for layout testing.",
-	release_v1_1_0_desc_1 = "Added dispel type icons for party and arena frames.",
+	release_v1_1_0_desc_1 = "Added option to show the new Blizzard dispel icons.",
 
 	-- Custom Config panel
 	customConfigTitle = "Custom Config",
@@ -312,7 +312,7 @@ addon.locale.esES = {
 	enabledTooltip = "Activa o desactiva este marco.",
 	testFrames = "Marcos de prueba",
 	testFramesTooltip = "Muestra marcos de marcador de posición para probar el diseño.",
-	release_v1_1_0_desc_1 = "Se agregaron iconos de tipo de disipación para marcos de grupo y arena.",
+	release_v1_1_0_desc_1 = "Se agregó la opción de mostrar los nuevos iconos de disipación de Blizzard.",
 
 	-- Custom Config panel
 	customConfigTitle = "Configuración personalizada",
@@ -479,7 +479,7 @@ addon.locale.ptBR = {
 	enabledTooltip = "Ativa ou desativa este quadro.",
 	testFrames = "Quadros de teste",
 	testFramesTooltip = "Mostra quadros de espaço reservado para testar o layout.",
-	release_v1_1_0_desc_1 = "Adicionados ícones de tipo de dissipação para quadros de grupo e arena.",
+	release_v1_1_0_desc_1 = "Adicionada opção para mostrar os novos ícones de dissipação da Blizzard.",
 
 	-- Custom Config panel
 	customConfigTitle = "Configuração personalizada",
@@ -644,7 +644,7 @@ addon.locale.frFR = {
 	enabledTooltip = "Active ou désactive ce cadre.",
 	testFrames = "Cadres de test",
 	testFramesTooltip = "Affiche des cadres de remplacement pour tester la disposition.",
-	release_v1_1_0_desc_1 = "Ajout d'icônes de type de dissipation pour les cadres de groupe et d'arène.",
+	release_v1_1_0_desc_1 = "Ajout d'une option pour afficher les nouvelles icônes de dissipation de Blizzard.",
 
 	-- Custom Config panel
 	customConfigTitle = "Config personnalisée",
@@ -809,7 +809,7 @@ addon.locale.deDE = {
 	enabledTooltip = "Aktiviert oder deaktiviert diesen Rahmen.",
 	testFrames = "Testrahmen",
 	testFramesTooltip = "Zeigt Platzhalterrahmen zum Testen des Layouts an.",
-	release_v1_1_0_desc_1 = "Entzauberungstyp-Symbole für Gruppen- und Arenarahmen hinzugefügt.",
+	release_v1_1_0_desc_1 = "Option zum Anzeigen der neuen Blizzard-Entzauberungssymbole hinzugefügt.",
 
 	-- Custom Config panel
 	customConfigTitle = "Benutzerdefinierte Konfiguration",
@@ -974,7 +974,7 @@ addon.locale.ruRU = {
 	enabledTooltip = "Включает или отключает этот фрейм.",
 	testFrames = "Тестовые фреймы",
 	testFramesTooltip = "Показывает фреймы-заглушки для тестирования макета.",
-	release_v1_1_0_desc_1 = "Добавлены иконки типов рассеивания для групповых и аренных фреймов.",
+	release_v1_1_0_desc_1 = "Добавлена опция для отображения новых иконок рассеивания Blizzard.",
 
 	-- Custom Config panel
 	customConfigTitle = "Пользовательская конфигурация",
