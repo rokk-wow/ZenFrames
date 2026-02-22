@@ -169,7 +169,6 @@ function addon:SpawnFrames()
         end
 
         addon:RegisterHighlightEvent()
-        addon:SetupFrameMovers()
     end)
 end
 

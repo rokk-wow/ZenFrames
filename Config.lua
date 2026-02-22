@@ -1280,23 +1280,10 @@ local styleAppliesTo = { "player", "target", "targetTarget", "focus", "focusTarg
 local largeFrameKeys = { "player", "target" }
 local smallFrameKeys = { "targetTarget", "focus", "focusTarget", "pet" }
 
-local function applySavedFramePositions(cfg, savedVars)
-    local positions = savedVars and savedVars.data and savedVars.data.framePositions
-    if not positions then return end
-
-    for configKey, pos in pairs(positions) do
-        if cfg[configKey] then
-            cfg[configKey].offsetX = pos.offsetX
-            cfg[configKey].offsetY = pos.offsetY
-        end
-    end
-end
-
 function addon:GetCustomConfig()
     local customConfig = self.savedVars and self.savedVars.data and self.savedVars.data.customConfig
     if customConfig then
         local cfg = deepCopy(customConfig)
-        applySavedFramePositions(cfg, self.savedVars)
         return cfg
     end
     return nil
@@ -1443,8 +1430,6 @@ function addon:GetConfig()
             end
         end
     end
-
-    applySavedFramePositions(cfg, self.savedVars)
 
     return cfg
 end

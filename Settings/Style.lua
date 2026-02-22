@@ -16,17 +16,6 @@ function addon:SetupStyleSettingsPanel()
         controls = {
             {
                 type = "header",
-                name = "frameMoverHeader",
-            },
-            {
-                type = "button",
-                name = "resetFramePositions",
-                onClick = function()
-                    self:ResetFramePositions()
-                end,
-            },
-            {
-                type = "header",
                 name = "styleHeader",
             },
             {

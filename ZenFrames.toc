@@ -38,7 +38,6 @@ Modules\DRTracker.lua
 Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
-Modules\FrameMover.lua
 
 ZenFrames.lua
 Localization.lua

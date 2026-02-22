@@ -29,9 +29,6 @@ addon.locale.enEN = {
 
 	-- Style panel
 	styleTitle = "Style",
-	frameMoverHeader = "CTRL+SHIFT+Click to Move Frames",
-	resetFramePositions = "Reset Positions",
-	resetFramePositionsTooltip = "Reset all frame positions to their defaults.",
 	styleHeader = "Style Settings",
 	font = "Font",
 	fontTooltip = "Font used across all unit frames.",
@@ -192,9 +189,6 @@ addon.locale.esES = {
 
 	-- Style panel
 	styleTitle = "Estilo",
-	frameMoverHeader = "CTRL+SHIFT+Clic para mover marcos",
-	resetFramePositions = "Restablecer posiciones",
-	resetFramePositionsTooltip = "Restablece todas las posiciones de marcos a sus valores predeterminados.",
 	styleHeader = "Ajustes de estilo",
 	font = "Fuente",
 	fontTooltip = "Fuente usada en todos los marcos de unidad.",
@@ -357,9 +351,6 @@ addon.locale.ptBR = {
 
 	-- Style panel
 	styleTitle = "Estilo",
-	frameMoverHeader = "CTRL+SHIFT+Clique para mover quadros",
-	resetFramePositions = "Redefinir posições",
-	resetFramePositionsTooltip = "Redefine todas as posições dos quadros para o padrão.",
 	styleHeader = "Configurações de estilo",
 	font = "Fonte",
 	fontTooltip = "Fonte usada em todos os quadros de unidade.",
@@ -520,9 +511,6 @@ addon.locale.frFR = {
 
 	-- Style panel
 	styleTitle = "Style",
-	frameMoverHeader = "CTRL+SHIFT+Clic pour déplacer les cadres",
-	resetFramePositions = "Réinitialiser les positions",
-	resetFramePositionsTooltip = "Réinitialise toutes les positions de cadre à leurs valeurs par défaut.",
 	styleHeader = "Paramètres de style",
 	font = "Police",
 	fontTooltip = "Police utilisée sur tous les cadres d'unité.",
@@ -683,9 +671,6 @@ addon.locale.deDE = {
 
 	-- Style panel
 	styleTitle = "Stil",
-	frameMoverHeader = "STRG+UMSCHALT+Klick zum Verschieben der Rahmen",
-	resetFramePositions = "Positionen zurücksetzen",
-	resetFramePositionsTooltip = "Setzt alle Rahmenpositionen auf die Standardwerte zurück.",
 	styleHeader = "Stileinstellungen",
 	font = "Schriftart",
 	fontTooltip = "Schriftart, die für alle Einheitenrahmen verwendet wird.",
@@ -846,9 +831,6 @@ addon.locale.ruRU = {
 
 	-- Style panel
 	styleTitle = "Стиль",
-	frameMoverHeader = "CTRL+SHIFT+Клик для перемещения фреймов",
-	resetFramePositions = "Сбросить позиции",
-	resetFramePositionsTooltip = "Сбрасывает все позиции фреймов к значениям по умолчанию.",
 	styleHeader = "Настройки стиля",
 	font = "Шрифт",
 	fontTooltip = "Шрифт, используемый во всех фреймах юнитов.",
