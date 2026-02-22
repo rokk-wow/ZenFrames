@@ -183,6 +183,7 @@ function addon:AddTrinket(frame, cfg)
     trinket.unit = frame.unit
 
     frame.Trinket = trinket
+    addon:AttachPlaceholder(trinket)
 
     trinket:Hide()
 

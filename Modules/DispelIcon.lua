@@ -81,6 +81,7 @@ function addon:AddDispelIcon(frame, cfg)
     container:Hide()
 
     frame.DispelIcon = container
+    addon:AttachPlaceholder(container)
 end
 
 local function Update(self, event, unit)

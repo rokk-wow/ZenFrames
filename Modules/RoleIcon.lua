@@ -6,18 +6,18 @@ local oUF = ns.oUF
 function addon:AddRoleIcon(frame, cfg)
     local size = cfg.size or 12
     local container = CreateFrame("Frame", nil, frame)
-    container:SetAllPoints(frame)
-    container:SetFrameLevel(frame:GetFrameLevel() + 10)
-
-    local icon = container:CreateTexture(nil, "OVERLAY")
-    icon:SetSize(size, size)
-    icon:SetPoint(
+    container:SetSize(size, size)
+    container:SetPoint(
         cfg.anchor or "LEFT",
         cfg.relativeTo and _G[cfg.relativeTo] or frame,
         cfg.relativePoint or "LEFT",
         cfg.offsetX or 0,
         cfg.offsetY or 0
     )
+    container:SetFrameLevel(frame:GetFrameLevel() + 10)
+
+    local icon = container:CreateTexture(nil, "OVERLAY")
+    icon:SetAllPoints(container)
 
     if cfg.desaturate then
         icon:SetDesaturated(true)
@@ -49,4 +49,6 @@ function addon:AddRoleIcon(frame, cfg)
     end
 
     frame.GroupRoleIndicator = icon
+    frame.RoleIcon = container
+    addon:AttachPlaceholder(container)
 end

@@ -32,4 +32,5 @@ function addon:AddRestingIndicator(frame, cfg)
     end
 
     frame.RestingIndicator = RestingFrame
+    addon:AttachPlaceholder(RestingFrame)
 end

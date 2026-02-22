@@ -289,6 +289,7 @@ function addon:AddDRTracker(frame, cfg)
     end
 
     frame.DRTracker = container
+    addon:AttachPlaceholder(container)
 
     container:Hide()
 

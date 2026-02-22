@@ -81,6 +81,7 @@ function addon:AddCastbar(frame, cfg)
     end
 
     frame.Castbar = Castbar
+    addon:AttachPlaceholder(Castbar)
     addon:AddBackground(Castbar, cfg)
     addon:AddBorder(Castbar, cfg)
 end

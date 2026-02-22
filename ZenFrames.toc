@@ -20,6 +20,8 @@ Settings\Style.lua
 Settings\Party.lua
 Settings\CustomConfig.lua
 
+EditMode\Placeholder.lua
+
 Modules\Media.lua
 Modules\Tags.lua
 Modules\UnitFrame.lua
@@ -38,6 +40,9 @@ Modules\DRTracker.lua
 Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
+
+EditMode\EditMode.lua
+EditMode\Frames.lua
 
 ZenFrames.lua
 Localization.lua

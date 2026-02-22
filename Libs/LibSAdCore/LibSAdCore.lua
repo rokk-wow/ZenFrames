@@ -11,7 +11,7 @@ local LIBSTUB_MAJOR, LIBSTUB_MINOR = "LibStub", 2
 local LibStub = _G[LIBSTUB_MAJOR]
 
 -- SAdCore Version
-local SADCORE_MAJOR, SADCORE_MINOR = "SAdCore-1", 26
+local SADCORE_MAJOR, SADCORE_MINOR = "SAdCore-1", 27
 
 if not LibStub or LibStub.minor < LIBSTUB_MINOR then
     LibStub = LibStub or {
@@ -2046,19 +2046,19 @@ do -- Utility Functions
     end
 
     function addon:_coreInfo(text)
-        print("\124cffDB09FE" .. "SAdCore" .. ": " .. "\124cffBAFF1A" .. tostring(text))
+        print("\124cff00FF98" .. "SAdCore" .. ": " .. "\124cffFFFFFF" .. tostring(text))
     end
 
     function addon:_coreDebug(text)
         if self.savedVars and self.savedVars.main and self.savedVars.main.core_enableDebugging then
-            print("\124cffDB09FE" .. "SAdCore" .. " Debug: " .. "\124cffBAFF1A" .. tostring(text))
+            print("\124cff00FF98" .. "SAdCore" .. " Debug: " .. "\124cffFFFFFF" .. tostring(text))
         end
     end
 
     function addon:Info(text)
         text = callHook(self, "BeforeInfo", text)
 
-        print("\124cffDB09FE" .. self.addonName .. ": " .. "\124cffBAFF1A" .. tostring(text))
+        print("\124cff00FF98" .. self.addonName .. ": " .. "\124cffFFFFFF" .. tostring(text))
 
         local returnValue = true
         callHook(self, "AfterInfo", returnValue)
@@ -2068,7 +2068,7 @@ do -- Utility Functions
     function addon:Error(text)
         text = callHook(self, "BeforeError", text)
 
-        print("\124cffDB09FE" .. self.addonName .. ": " .. "\124cffBAFF1A" .. tostring(text))
+        print("\124cff00FF98" .. self.addonName .. ": " .. "\124cffFFFFFF" .. tostring(text))
 
         local returnValue = true
         callHook(self, "AfterError", returnValue)
@@ -2079,7 +2079,7 @@ do -- Utility Functions
         text = callHook(self, "BeforeDebug", text)
 
         if self.savedVars and self.savedVars.main and self.savedVars.main.core_enableDebugging then
-            print("\124cffDB09FE" .. self.addonName .. " Debug: " .. "\124cffBAFF1A" .. tostring(text))
+            print("\124cff00FF98" .. self.addonName .. " Debug: " .. "\124cffFFFFFF" .. tostring(text))
         end
 
         local returnValue = true

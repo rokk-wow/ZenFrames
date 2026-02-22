@@ -535,6 +535,7 @@ function addon:AddAuraFilter(frame, cfg)
 
     if localCfg.name then
         frame[localCfg.name] = filter
+        addon:AttachPlaceholder(filter)
     end
 
     return filter

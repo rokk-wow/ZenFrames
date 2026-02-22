@@ -361,7 +361,75 @@ function addon:SpawnGroupFrames(configKey, units)
     end)
 
     if configKey == "party" then
-        RegisterStateDriver(container, "visibility", "[@arena1,exists][pvpcombat,group,@raid5,noexists] show; [@player,group:raid] hide; [@player,group] show; hide")
+        container:Hide()
+
+        local partyPendingShow = false
+        local partyPendingHide = false
+
+        local function ShouldShowParty()
+            local inInstance, instanceType = IsInInstance()
+            if inInstance and instanceType == "arena" then
+                return true
+            end
+            return IsInGroup() and not IsInRaid()
+        end
+
+        local function ShowPartyContainer()
+            if InCombatLockdown() then
+                partyPendingShow = true
+                partyPendingHide = false
+                return
+            end
+            partyPendingShow = false
+            partyPendingHide = false
+            container:Show()
+        end
+
+        local function HidePartyContainer()
+            if InCombatLockdown() then
+                partyPendingHide = true
+                partyPendingShow = false
+                return
+            end
+            partyPendingShow = false
+            partyPendingHide = false
+            container:Hide()
+        end
+
+        local function UpdatePartyVisibility()
+            if ShouldShowParty() then
+                ShowPartyContainer()
+            else
+                HidePartyContainer()
+            end
+        end
+
+        local visFrame = CreateFrame("Frame")
+        visFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+        visFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+        visFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        visFrame:SetScript("OnEvent", function(_, event)
+            if event == "PLAYER_REGEN_ENABLED" then
+                if partyPendingShow then
+                    ShowPartyContainer()
+                elseif partyPendingHide then
+                    HidePartyContainer()
+                end
+            else
+                UpdatePartyVisibility()
+            end
+        end)
+
+        container._visibilityFrame = visFrame
+        container._visibilityEvents = {
+            "PLAYER_ENTERING_WORLD",
+            "GROUP_ROSTER_UPDATE",
+            "PLAYER_REGEN_ENABLED",
+        }
+
+        C_Timer.After(0.5, function()
+            UpdatePartyVisibility()
+        end)
     end
 
     if configKey == "arena" then
@@ -435,6 +503,14 @@ function addon:SpawnGroupFrames(configKey, units)
                 end
             end
         end)
+
+        container._visibilityFrame = visFrame
+        container._visibilityEvents = {
+            "PLAYER_ENTERING_WORLD",
+            "ARENA_PREP_OPPONENT_SPECIALIZATIONS",
+            "ARENA_OPPONENT_UPDATE",
+            "PLAYER_REGEN_ENABLED",
+        }
 
         C_Timer.After(0.5, function()
             local inInstance, instanceType = IsInInstance()

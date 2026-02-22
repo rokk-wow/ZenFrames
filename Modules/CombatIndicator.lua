@@ -40,4 +40,5 @@ function addon:AddCombatIndicator(frame, cfg)
     end
 
     frame.CombatIndicator = CombatFrame
+    addon:AttachPlaceholder(CombatFrame)
 end

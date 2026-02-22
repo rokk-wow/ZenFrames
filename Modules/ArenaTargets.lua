@@ -313,4 +313,5 @@ function addon:AddArenaTargets(frame, cfg, frameBorderWidth)
     C_Timer.After(0.2, UpdateVisibility)
 
     frame.ArenaTargets = container
+    addon:AttachPlaceholder(container)
 end
