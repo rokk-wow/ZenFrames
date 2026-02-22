@@ -95,6 +95,11 @@ addon.locale.enEN = {
 	partyImportantBuffsGlowTooltip = "Show a glow effect on important buff aura icons.",
 	partyImportantBuffsGlowColor = "Important Glow Color",
 	partyImportantBuffsGlowColorTooltip = "Color of the important buffs glow effect.",
+	partyDispelHeader = "Dispel",
+	partyDispelHighlightEnabled = "Show Dispel Borders",
+	partyDispelHighlightEnabledTooltip = "Highlight the unit frame border when a dispellable debuff is active.",
+	partyDispelIconEnabled = "Show Dispel Icons",
+	partyDispelIconEnabledTooltip = "Show a dispel type icon when a dispellable debuff is active.",
 	partyReloadDescription = "Reload the UI to apply changes.",
 
 	-- Arena panel
@@ -132,11 +137,17 @@ addon.locale.enEN = {
 	arenaDRTrackerHeader = "DR Tracker",
 	arenaDRTrackerEnabled = "Show DR Tracker",
 	arenaDRTrackerEnabledTooltip = "Show diminishing returns tracker on arena frames.",
+	arenaDispelHeader = "Dispel",
+	arenaDispelHighlightEnabled = "Show Dispel Borders",
+	arenaDispelHighlightEnabledTooltip = "Highlight the unit frame border when a dispellable debuff is active.",
+	arenaDispelIconEnabled = "Show Dispel Icons",
+	arenaDispelIconEnabledTooltip = "Show a dispel type icon when a dispellable debuff is active.",
 	arenaReloadDescription = "Reload the UI to apply changes.",
 	enabled = "Enable Frame",
 	enabledTooltip = "Enable or disable this frame.",
 	testFrames = "Test Frames",
 	testFramesTooltip = "Show placeholder frames for layout testing.",
+	release_v1_1_0_desc_1 = "Added dispel type icons for party and arena frames.",
 
 	-- Custom Config panel
 	customConfigTitle = "Custom Config",
@@ -249,6 +260,11 @@ addon.locale.esES = {
 	partyImportantBuffsGlowTooltip = "Muestra un efecto de brillo en los iconos de aura de mejoras importantes.",
 	partyImportantBuffsGlowColor = "Color del brillo importante",
 	partyImportantBuffsGlowColorTooltip = "Color del efecto de brillo de mejoras importantes.",
+	partyDispelHeader = "Disipación",
+	partyDispelHighlightEnabled = "Mostrar bordes de disipación",
+	partyDispelHighlightEnabledTooltip = "Resalta el borde del marco cuando hay un perjuicio disipable activo.",
+	partyDispelIconEnabled = "Mostrar iconos de disipación",
+	partyDispelIconEnabledTooltip = "Muestra un icono del tipo de disipación cuando hay un perjuicio disipable activo.",
 	partyReloadDescription = "Recarga la IU para aplicar los cambios.",
 
 	-- Arena panel
@@ -286,11 +302,17 @@ addon.locale.esES = {
 	arenaDRTrackerHeader = "Rastreador de DR",
 	arenaDRTrackerEnabled = "Mostrar rastreador de DR",
 	arenaDRTrackerEnabledTooltip = "Muestra el rastreador de rendimientos decrecientes en los marcos de arena.",
+	arenaDispelHeader = "Disipación",
+	arenaDispelHighlightEnabled = "Mostrar bordes de disipación",
+	arenaDispelHighlightEnabledTooltip = "Resalta el borde del marco cuando hay un perjuicio disipable activo.",
+	arenaDispelIconEnabled = "Mostrar iconos de disipación",
+	arenaDispelIconEnabledTooltip = "Muestra un icono del tipo de disipación cuando hay un perjuicio disipable activo.",
 	arenaReloadDescription = "Recarga la IU para aplicar los cambios.",
 	enabled = "Habilitar marco",
 	enabledTooltip = "Activa o desactiva este marco.",
 	testFrames = "Marcos de prueba",
 	testFramesTooltip = "Muestra marcos de marcador de posición para probar el diseño.",
+	release_v1_1_0_desc_1 = "Se agregaron iconos de tipo de disipación para marcos de grupo y arena.",
 
 	-- Custom Config panel
 	customConfigTitle = "Configuración personalizada",
@@ -405,6 +427,11 @@ addon.locale.ptBR = {
 	partyImportantBuffsGlowTooltip = "Mostra um efeito de brilho nos ícones de aura de buffs importantes.",
 	partyImportantBuffsGlowColor = "Cor do brilho importante",
 	partyImportantBuffsGlowColorTooltip = "Cor do efeito de brilho de buffs importantes.",
+	partyDispelHeader = "Dissipação",
+	partyDispelHighlightEnabled = "Mostrar bordas de dissipação",
+	partyDispelHighlightEnabledTooltip = "Destaca a borda do quadro quando houver um debuff dissipável ativo.",
+	partyDispelIconEnabled = "Mostrar ícones de dissipação",
+	partyDispelIconEnabledTooltip = "Mostra um ícone do tipo de dissipação quando houver um debuff dissipável ativo.",
 	partyReloadDescription = "Recarregue a IU para aplicar as alterações.",
 
 	-- Arena panel
@@ -442,11 +469,17 @@ addon.locale.ptBR = {
 	arenaDRTrackerHeader = "Rastreador de DR",
 	arenaDRTrackerEnabled = "Mostrar rastreador de DR",
 	arenaDRTrackerEnabledTooltip = "Mostra o rastreador de retornos decrescentes nos quadros de arena.",
+	arenaDispelHeader = "Dissipação",
+	arenaDispelHighlightEnabled = "Mostrar bordas de dissipação",
+	arenaDispelHighlightEnabledTooltip = "Destaca a borda do quadro quando houver um debuff dissipável ativo.",
+	arenaDispelIconEnabled = "Mostrar ícones de dissipação",
+	arenaDispelIconEnabledTooltip = "Mostra um ícone do tipo de dissipação quando houver um debuff dissipável ativo.",
 	arenaReloadDescription = "Recarregue a IU para aplicar as alterações.",
 	enabled = "Ativar quadro",
 	enabledTooltip = "Ativa ou desativa este quadro.",
 	testFrames = "Quadros de teste",
 	testFramesTooltip = "Mostra quadros de espaço reservado para testar o layout.",
+	release_v1_1_0_desc_1 = "Adicionados ícones de tipo de dissipação para quadros de grupo e arena.",
 
 	-- Custom Config panel
 	customConfigTitle = "Configuração personalizada",
@@ -559,6 +592,11 @@ addon.locale.frFR = {
 	partyImportantBuffsGlowTooltip = "Affiche un effet de lueur sur les icônes d'aura d'améliorations importantes.",
 	partyImportantBuffsGlowColor = "Couleur de lueur importante",
 	partyImportantBuffsGlowColorTooltip = "Couleur de l'effet de lueur des améliorations importantes.",
+	partyDispelHeader = "Dissipation",
+	partyDispelHighlightEnabled = "Afficher les bordures de dissipation",
+	partyDispelHighlightEnabledTooltip = "Met en évidence la bordure du cadre lorsqu'un affaiblissement dissipable est actif.",
+	partyDispelIconEnabled = "Afficher les icônes de dissipation",
+	partyDispelIconEnabledTooltip = "Affiche une icône du type de dissipation lorsqu'un affaiblissement dissipable est actif.",
 	partyReloadDescription = "Rechargez l'interface pour appliquer les modifications.",
 
 	-- Arena panel
@@ -596,11 +634,17 @@ addon.locale.frFR = {
 	arenaDRTrackerHeader = "Suivi DR",
 	arenaDRTrackerEnabled = "Afficher le suivi DR",
 	arenaDRTrackerEnabledTooltip = "Affiche le suivi des rendements décroissants sur les cadres d'arène.",
+	arenaDispelHeader = "Dissipation",
+	arenaDispelHighlightEnabled = "Afficher les bordures de dissipation",
+	arenaDispelHighlightEnabledTooltip = "Met en évidence la bordure du cadre lorsqu'un affaiblissement dissipable est actif.",
+	arenaDispelIconEnabled = "Afficher les icônes de dissipation",
+	arenaDispelIconEnabledTooltip = "Affiche une icône du type de dissipation lorsqu'un affaiblissement dissipable est actif.",
 	arenaReloadDescription = "Rechargez l'interface pour appliquer les modifications.",
 	enabled = "Activer le cadre",
 	enabledTooltip = "Active ou désactive ce cadre.",
 	testFrames = "Cadres de test",
 	testFramesTooltip = "Affiche des cadres de remplacement pour tester la disposition.",
+	release_v1_1_0_desc_1 = "Ajout d'icônes de type de dissipation pour les cadres de groupe et d'arène.",
 
 	-- Custom Config panel
 	customConfigTitle = "Config personnalisée",
@@ -713,6 +757,11 @@ addon.locale.deDE = {
 	partyImportantBuffsGlowTooltip = "Zeigt einen Leuchteffekt auf Aura-Symbolen wichtiger Buffs an.",
 	partyImportantBuffsGlowColor = "Farbe des wichtigen Leuchtens",
 	partyImportantBuffsGlowColorTooltip = "Farbe des Leuchteffekts wichtiger Buffs.",
+	partyDispelHeader = "Entzaubern",
+	partyDispelHighlightEnabled = "Entzauberungsränder anzeigen",
+	partyDispelHighlightEnabledTooltip = "Hebt den Rahmenrand hervor, wenn ein entfernbarer Debuff aktiv ist.",
+	partyDispelIconEnabled = "Entzauberungssymbole anzeigen",
+	partyDispelIconEnabledTooltip = "Zeigt ein Symbol für den Entzauberungstyp an, wenn ein entfernbarer Debuff aktiv ist.",
 	partyReloadDescription = "Lade die UI neu, um Änderungen anzuwenden.",
 
 	-- Arena panel
@@ -750,11 +799,17 @@ addon.locale.deDE = {
 	arenaDRTrackerHeader = "DR-Tracker",
 	arenaDRTrackerEnabled = "DR-Tracker anzeigen",
 	arenaDRTrackerEnabledTooltip = "Zeigt den Tracker für diminishing returns auf Arenarahmen an.",
+	arenaDispelHeader = "Entzaubern",
+	arenaDispelHighlightEnabled = "Entzauberungsränder anzeigen",
+	arenaDispelHighlightEnabledTooltip = "Hebt den Rahmenrand hervor, wenn ein entfernbarer Debuff aktiv ist.",
+	arenaDispelIconEnabled = "Entzauberungssymbole anzeigen",
+	arenaDispelIconEnabledTooltip = "Zeigt ein Symbol für den Entzauberungstyp an, wenn ein entfernbarer Debuff aktiv ist.",
 	arenaReloadDescription = "Lade die UI neu, um Änderungen anzuwenden.",
 	enabled = "Rahmen aktivieren",
 	enabledTooltip = "Aktiviert oder deaktiviert diesen Rahmen.",
 	testFrames = "Testrahmen",
 	testFramesTooltip = "Zeigt Platzhalterrahmen zum Testen des Layouts an.",
+	release_v1_1_0_desc_1 = "Entzauberungstyp-Symbole für Gruppen- und Arenarahmen hinzugefügt.",
 
 	-- Custom Config panel
 	customConfigTitle = "Benutzerdefinierte Konfiguration",
@@ -867,6 +922,11 @@ addon.locale.ruRU = {
 	partyImportantBuffsGlowTooltip = "Показывает эффект свечения на иконках аур важных баффов.",
 	partyImportantBuffsGlowColor = "Цвет важного свечения",
 	partyImportantBuffsGlowColorTooltip = "Цвет эффекта свечения важных баффов.",
+	partyDispelHeader = "Рассеивание",
+	partyDispelHighlightEnabled = "Показывать рамки рассеивания",
+	partyDispelHighlightEnabledTooltip = "Подсвечивает рамку фрейма, когда активен снимаемый дебафф.",
+	partyDispelIconEnabled = "Показывать иконки рассеивания",
+	partyDispelIconEnabledTooltip = "Показывает иконку типа рассеивания, когда активен снимаемый дебафф.",
 	partyReloadDescription = "Перезагрузите интерфейс, чтобы применить изменения.",
 
 	-- Arena panel
@@ -904,11 +964,17 @@ addon.locale.ruRU = {
 	arenaDRTrackerHeader = "Трекер DR",
 	arenaDRTrackerEnabled = "Показывать трекер DR",
 	arenaDRTrackerEnabledTooltip = "Показывает трекер убывающей эффективности на фреймах арены.",
+	arenaDispelHeader = "Рассеивание",
+	arenaDispelHighlightEnabled = "Показывать рамки рассеивания",
+	arenaDispelHighlightEnabledTooltip = "Подсвечивает рамку фрейма, когда активен снимаемый дебафф.",
+	arenaDispelIconEnabled = "Показывать иконки рассеивания",
+	arenaDispelIconEnabledTooltip = "Показывает иконку типа рассеивания, когда активен снимаемый дебафф.",
 	arenaReloadDescription = "Перезагрузите интерфейс, чтобы применить изменения.",
 	enabled = "Включить фрейм",
 	enabledTooltip = "Включает или отключает этот фрейм.",
 	testFrames = "Тестовые фреймы",
 	testFramesTooltip = "Показывает фреймы-заглушки для тестирования макета.",
+	release_v1_1_0_desc_1 = "Добавлены иконки типов рассеивания для групповых и аренных фреймов.",
 
 	-- Custom Config panel
 	customConfigTitle = "Пользовательская конфигурация",

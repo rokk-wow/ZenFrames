@@ -88,6 +88,10 @@ function addon:SpawnUnitFrame(unit, configKey)
             addon:AddDispelHighlight(frame, cfg.modules.dispelHighlight)
         end
 
+        if cfg.modules and cfg.modules.dispelIcon and cfg.modules.dispelIcon.enabled then
+            addon:AddDispelIcon(frame, cfg.modules.dispelIcon)
+        end
+
         if cfg.highlightSelected then
             local hr, hg, hb = addon:HexToRGB(addon.config.global.highlightColor)
             local borderW = cfg.borderWidth or 2
@@ -248,6 +252,10 @@ function addon:SpawnGroupFrames(configKey, units)
 
         if cfg.modules and cfg.modules.dispelHighlight and cfg.modules.dispelHighlight.enabled then
             self:AddDispelHighlight(frame, cfg.modules.dispelHighlight)
+        end
+
+        if cfg.modules and cfg.modules.dispelIcon and cfg.modules.dispelIcon.enabled then
+            self:AddDispelIcon(frame, cfg.modules.dispelIcon)
         end
 
         if cfg.highlightSelected then

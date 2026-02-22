@@ -250,7 +250,7 @@ function addon:AddDRTracker(frame, cfg)
     end
 
     local function UpdateVisibility(event)
-        if container._testMode then return end
+        if addon.testMode then return end
         local inArena = IsInArena()
         if inArena and arenaIndex then
             ShowDRTracker()

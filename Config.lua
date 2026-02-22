@@ -39,6 +39,16 @@ function addon:GetDefaultConfig()
                 default = "FFFFFFFF",
             },
 
+            dispelTextures = {
+                Magic   = "icons_64x64_magic",
+                Curse   = "icons_64x64_curse",
+                Disease = "icons_64x64_disease",
+                Poison  = "icons_64x64_poison",
+                Bleed   = "icons_64x64_bleed",
+                Enrage  = "icons_64x64_enrage",
+                default = "icons_64x64_deadly",
+            },
+
             roleIcons = {
                 TANK = "RaidFrame-Icon-MainTank",
                 HEALER = "icons_64x64_heal",
@@ -698,8 +708,19 @@ function addon:GetDefaultConfig()
                     defaultIcon = "common-button-square-gray-up",
                     defaultAlpha = 0.5,
                 },
-                dispelHighlight = {
+                dispelIcon = {
                     enabled = true,
+                    frameBorderWidth = 0,
+                    iconSize = 28,
+                    iconBorderWidth = 0,
+                    iconBorderColor = "00000000",
+                    anchor = "BOTTOMLEFT",
+                    relativePoint = "BOTTOMLEFT",
+                    offsetX = 3,
+                    offsetY = 3,
+                },
+                dispelHighlight = {
+                    enabled = false,
                     borderWidth = 4,
                 },
                 trinket = {
@@ -987,8 +1008,19 @@ function addon:GetDefaultConfig()
                     defaultIcon = "common-button-square-gray-up",
                     defaultAlpha = 0.5,
                 },
-                dispelHighlight = {
+                dispelIcon = {
                     enabled = true,
+                    frameBorderWidth = 0,
+                    iconSize = 28,
+                    iconBorderWidth = 0,
+                    iconBorderColor = "00000000",
+                    anchor = "BOTTOMRIGHT",
+                    relativePoint = "BOTTOMRIGHT",
+                    offsetX = -3,
+                    offsetY = 3,
+                },
+                dispelHighlight = {
+                    enabled = false,
                     borderWidth = 4,
                 },
                 trinket = {
@@ -1363,6 +1395,10 @@ function addon:GetConfig()
         { panelKey = "arena", configKey = "arena", module = "arenaTargets", enableSetting = "arenaArenaTargetsEnabled" },
         { panelKey = "arena", configKey = "arena", module = "castbar",      enableSetting = "arenaCastbarEnabled" },
         { panelKey = "arena", configKey = "arena", module = "drTracker",    enableSetting = "arenaDRTrackerEnabled" },
+        { panelKey = "party", configKey = "party", module = "dispelHighlight", enableSetting = "partyDispelHighlightEnabled" },
+        { panelKey = "party", configKey = "party", module = "dispelIcon",      enableSetting = "partyDispelIconEnabled" },
+        { panelKey = "arena", configKey = "arena", module = "dispelHighlight", enableSetting = "arenaDispelHighlightEnabled" },
+        { panelKey = "arena", configKey = "arena", module = "dispelIcon",      enableSetting = "arenaDispelIconEnabled" },
     }
 
     for _, mo in ipairs(moduleOverrides) do

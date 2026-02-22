@@ -68,7 +68,6 @@ end
 
 local function setModuleVisibility(child, moduleKey, enabled)
     if moduleKey == "trinket" and child.Trinket then
-        child.Trinket._testMode = enabled or nil
         if enabled then
             child.Trinket:Show()
         else
@@ -78,7 +77,6 @@ local function setModuleVisibility(child, moduleKey, enabled)
     end
 
     if moduleKey == "castbar" and child.Castbar then
-        child.Castbar._testMode = enabled or nil
         if enabled then
             child.Castbar:Show()
         else
@@ -88,7 +86,6 @@ local function setModuleVisibility(child, moduleKey, enabled)
     end
 
     if moduleKey == "arenaTargets" and child.ArenaTargets then
-        child.ArenaTargets._testMode = enabled or nil
         if child.ArenaTargets.widget then
             if enabled then
                 child.ArenaTargets.widget:Activate()
@@ -105,7 +102,6 @@ local function setModuleVisibility(child, moduleKey, enabled)
     end
 
     if moduleKey == "drTracker" and child.DRTracker then
-        child.DRTracker._testMode = enabled or nil
         if enabled then
             child.DRTracker:Show()
         else
@@ -239,6 +235,28 @@ function addon:RefreshTestFrames(configKey)
             setModuleVisibility(child, moduleKey, enabled)
         end
 
+        if child.DispelHighlight then
+            child.DispelHighlight:Hide()
+        end
+
+        if isModuleEnabled(self, configKey, "dispelIcon") then
+            if not child.DispelIcon then
+                local groupCfg = getGroupConfig(self, configKey)
+                local modules = groupCfg and groupCfg.modules
+                if modules and modules.dispelIcon then
+                    self:AddDispelIcon(child, modules.dispelIcon)
+                end
+            end
+            if child.DispelIcon then
+                local textures = self.config.global.dispelTextures or {}
+                local atlas = textures.Bleed or textures.default or "icons_64x64_deadly"
+                child.DispelIcon.Icon:SetAtlas(atlas)
+                child.DispelIcon:Show()
+            end
+        elseif child.DispelIcon then
+            child.DispelIcon:Hide()
+        end
+
         if child.UpdateAllElements then
             child:UpdateAllElements("RefreshTestFrames")
         end
@@ -260,6 +278,7 @@ function addon:ShowTestFrames(configKey)
     end
 
     container._testMode = true
+    self.testMode = true
     self:RefreshTestFrames(configKey)
 end
 
@@ -273,6 +292,10 @@ function addon:HideTestFrames(configKey)
         setModuleVisibility(child, "arenaTargets", false)
         setModuleVisibility(child, "castbar", false)
         setModuleVisibility(child, "drTracker", false)
+
+        if child.DispelIcon then
+            child.DispelIcon:Hide()
+        end
 
         local groupCfg = getGroupConfig(self, configKey)
         local filters = groupCfg and groupCfg.modules and groupCfg.modules.auraFilters
@@ -299,4 +322,22 @@ function addon:HideTestFrames(configKey)
     end
 
     container._testMode = false
+
+    local anyActive = false
+    for _, c in pairs(self.groupContainers) do
+        if c._testMode then
+            anyActive = true
+            break
+        end
+    end
+    self.testMode = anyActive
 end
+
+local resetFrame = CreateFrame("Frame")
+resetFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+resetFrame:SetScript("OnEvent", function()
+    if addon.testMode then
+        addon:HideTestFrames("party")
+        addon:HideTestFrames("arena")
+    end
+end)

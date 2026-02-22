@@ -114,6 +114,22 @@ function addon:SetupPartySettingsPanel()
                 default = "#55BBFF",
                 onValueChange = refreshConfig,
             },
+            {
+                type = "header",
+                name = "partyDispelHeader",
+            },
+            {
+                type = "checkbox",
+                name = "partyDispelIconEnabled",
+                default = true,
+                onValueChange = refreshConfig,
+            },
+            {
+                type = "checkbox",
+                name = "partyDispelHighlightEnabled",
+                default = false,
+                onValueChange = refreshConfig,
+            },
         }
     })
 end

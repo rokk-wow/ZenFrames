@@ -1,7 +1,7 @@
 ## Interface: 120000, 120001
 ## Title: ZenFrames
 ## Author: Rôkk-Wyrmrest Accord
-## Version: 1.0.2
+## Version: 1.1.0
 ## SavedVariables: ZenFramesSettings_Global
 ## SavedVariablesPerCharacter: ZenFramesSettings_Char
 ## OptionalDeps: LibSharedMedia-3.0
@@ -37,6 +37,7 @@ Modules\ArenaTargets.lua
 Modules\DRTracker.lua
 Modules\TestFrames.lua
 Modules\DispelHighlight.lua
+Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
 Modules\FrameMover.lua
 

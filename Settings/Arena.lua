@@ -124,6 +124,22 @@ function addon:SetupArenaSettingsPanel()
                 default = true,
                 onValueChange = refreshConfig,
             },
+            {
+                type = "header",
+                name = "arenaDispelHeader",
+            },
+            {
+                type = "checkbox",
+                name = "arenaDispelIconEnabled",
+                default = true,
+                onValueChange = refreshConfig,
+            },
+            {
+                type = "checkbox",
+                name = "arenaDispelHighlightEnabled",
+                default = false,
+                onValueChange = refreshConfig,
+            },
         }
     })
 end

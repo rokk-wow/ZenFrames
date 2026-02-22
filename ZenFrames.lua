@@ -6,6 +6,12 @@ local oUF = ns.oUF
 addon.sadCore.savedVarsGlobalName = "ZenFramesSettings_Global"
 addon.sadCore.savedVarsPerCharName = "ZenFramesSettings_Char"
 addon.sadCore.compartmentFuncName = "ZenFramesCompartment_Func"
+addon.sadCore.releaseNotes = {
+    version = "1.1.0",
+    notes = {
+        "release_v1_1_0_desc_1",
+    }
+}
 
 local unitConfigMap = {
     player = "player",
