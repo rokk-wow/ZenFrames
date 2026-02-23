@@ -15,6 +15,13 @@ function addon:EnableEditMode()
         addon:ShowEditModeFrames()
         addon:ShowEditModeDialog()
         addon:Info("Entering Edit Mode")
+        
+        -- Check for pending sub-dialog first (takes priority)
+        if self.savedVars and self.savedVars.data and self.savedVars.data.reopenSubDialog then
+            addon:CheckAndReopenSubDialog()
+        else
+            addon:CheckAndReopenSettingsDialog()
+        end
     end)
 end
 
@@ -45,7 +52,9 @@ eventFrame:SetScript("OnEvent", function()
     end
 
     if shouldResumeEditMode then
-        addon:EnableEditMode()
+        C_Timer.After(.5, function()
+            addon:EnableEditMode()
+        end)
     else
         addon:DisableEditMode()
     end
@@ -64,6 +73,10 @@ escapeFrame:SetScript("OnKeyDown", function(self, key)
     if key == "ESCAPE" and addon.editMode then
         if not self:IsProtected() then
             self:SetPropagateKeyboardInput(false)
+        end
+        if addon:IsEditModeSettingsDialogShown() then
+            addon:ReturnFromEditModeSettingsDialog()
+            return
         end
         local closedSubDialog = addon:HideAllEditModeSubDialogs()
         if not closedSubDialog then

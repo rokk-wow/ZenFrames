@@ -38,7 +38,18 @@ Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
 
 EditMode\Dialog.lua
-EditMode\EditModeDialog.lua
+EditMode\DialogUnitFrame.lua
+EditMode\DialogAuraFilter.lua
+EditMode\DialogArenaTargets.lua
+EditMode\DialogCastbar.lua
+EditMode\DialogCombatIndicator.lua
+EditMode\DialogDispelIcon.lua
+EditMode\DialogDRTracker.lua
+EditMode\DialogRestingIndicator.lua
+EditMode\DialogRoleIcon.lua
+EditMode\DialogTrinket.lua
+EditMode\DialogSettings.lua
+EditMode\DialogEditMode.lua
 EditMode\EditMode.lua
 EditMode\Frames.lua
 

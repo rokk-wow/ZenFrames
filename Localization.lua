@@ -153,6 +153,7 @@ addon.locale.enEN = {
 	resetConfirmText = "Reset this frame to default? This will clear all customizations for this specific frame.",
 	resetAllConfirmText = "Reset all ZenFrames settings to default? This will clear all customizations and reload your UI.",
 	editModeDialogTitle = "ZenFrames",
+	settingsTitle = "Settings",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
 
 	customConfigTitle = "Custom Config",
@@ -325,6 +326,7 @@ addon.locale.esES = {
 	resetConfirmText = "¿Restablecer este marco a los valores predeterminados? Esto borrará todas las personalizaciones de este marco específico.",
 	resetAllConfirmText = "¿Restablecer toda la configuración de ZenFrames a los valores predeterminados? Esto borrará todas las personalizaciones y recargará tu interfaz.",
 	editModeDialogTitle = "ZenFrames",
+	settingsTitle = "Ajustes",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
 
 	customConfigTitle = "Configuración personalizada",
@@ -499,6 +501,7 @@ addon.locale.ptBR = {
 	resetConfirmText = "Redefinir este quadro para o padrão? Isso limpará todas as personalizações deste quadro específico.",
 	resetAllConfirmText = "Redefinir todas as configurações do ZenFrames para o padrão? Isso limpará todas as personalizações e recarregará sua interface.",
 	editModeDialogTitle = "ZenFrames",
+	settingsTitle = "Configurações",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
 
 	customConfigTitle = "Configuração personalizada",
@@ -671,6 +674,7 @@ addon.locale.frFR = {
 	resetConfirmText = "Réinitialiser ce cadre par défaut ? Cela effacera toutes les personnalisations de ce cadre spécifique.",
 	resetAllConfirmText = "Réinitialiser tous les paramètres de ZenFrames par défaut ? Cela effacera toutes les personnalisations et rechargera votre interface.",
 	editModeDialogTitle = "ZenFrames",
+	settingsTitle = "Paramètres",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
 
 	customConfigTitle = "Config personnalisée",
@@ -843,6 +847,7 @@ addon.locale.deDE = {
 	resetConfirmText = "Diesen Rahmen auf Standard zurücksetzen? Dies löscht alle Anpassungen für diesen spezifischen Rahmen.",
 	resetAllConfirmText = "Alle ZenFrames-Einstellungen auf Standard zurücksetzen? Dies löscht alle Anpassungen und lädt deine Benutzeroberfläche neu.",
 	editModeDialogTitle = "ZenFrames",
+	settingsTitle = "Einstellungen",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
 
 	customConfigTitle = "Benutzerdefinierte Konfiguration",
@@ -1015,6 +1020,7 @@ addon.locale.ruRU = {
 	resetConfirmText = "Сбросить этот фрейм на значения по умолчанию? Это очистит все настройки для этого конкретного фрейма.",
 	resetAllConfirmText = "Сбросить все настройки ZenFrames на значения по умолчанию? Это очистит все настройки и перезагрузит интерфейс.",
 	editModeDialogTitle = "ZenFrames",
+	settingsTitle = "Настройки",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
 
 	customConfigTitle = "Пользовательская конфигурация",
