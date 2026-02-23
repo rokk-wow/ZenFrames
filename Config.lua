@@ -896,6 +896,10 @@ function addon:GetDefaultConfig()
                         enabled = true,
                         baseFilter = "HELPFUL",
                         subFilters = {"IMPORTANT"},
+                        excludeSubFilters = {
+                            "BIG_DEFENSIVE",
+                            "EXTERNAL_DEFENSIVE"
+                        },
                         disableMouse = true,
                         relativeToModule = {"PartyDefensives", "PartyCrowdControl", "ArenaTargets"},
                         anchor = "TOPLEFT",
@@ -1196,6 +1200,10 @@ function addon:GetDefaultConfig()
                         enabled = true,
                         baseFilter = "HELPFUL",
                         subFilters = {"IMPORTANT"},
+                        excludeSubFilters = {
+                            "BIG_DEFENSIVE",
+                            "EXTERNAL_DEFENSIVE"
+                        },
                         disableMouse = true,
                         relativeToModule = {"ArenaDefensives", "ArenaCrowdControl", "ArenaTargets"},
                         anchor = "TOPRIGHT",
