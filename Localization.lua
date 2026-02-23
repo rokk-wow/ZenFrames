@@ -145,7 +145,14 @@ addon.locale.enEN = {
 	release_v1_1_0_desc_1 = "Added option to show the new Blizzard dispel icons.",
 
 	-- Custom Config panel
+	editModeHeader = "Edit Mode",
+	editModeDescription = "Type /zf to toggle edit mode at any time.",
+	editModeButton = "Edit Mode",
+	editModeDialogTitle = "ZenFrames",
+	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+
 	customConfigTitle = "Custom Config",
+	customConfigNoticeHeader = "Notice",
 	customConfigHeader = "Config",
 	customConfigDocs = "Docs",
 	customConfigDocsTooltip = "Open the custom config documentation URL.",
@@ -156,6 +163,7 @@ addon.locale.enEN = {
 	customConfigCopyHint = "CTRL-C to Copy",
 	customConfigApply = "Apply",
 	customConfigRemove = "Remove Custom Config",
+	customConfigTemporaryNotice = "Custom Configs are temporary until Edit Mode is fully built. If you update versions of ZenFrames, be sure to generate a new config before editing.",
 	customConfigEmpty = "No config text provided.",
 	customConfigParseError = "Failed to parse config",
 	customConfigInvalid = "Config must be a valid Lua table.",
@@ -305,7 +313,14 @@ addon.locale.esES = {
 	release_v1_1_0_desc_1 = "Se agregó la opción de mostrar los nuevos iconos de disipación de Blizzard.",
 
 	-- Custom Config panel
+	editModeHeader = "Modo de edición",
+	editModeDescription = "Escribe /zf para alternar el modo de edición en cualquier momento.",
+	editModeButton = "Modo de edición",
+	editModeDialogTitle = "ZenFrames",
+	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+
 	customConfigTitle = "Configuración personalizada",
+	customConfigNoticeHeader = "Aviso",
 	customConfigHeader = "Configuración",
 	customConfigDocs = "Documentación",
 	customConfigDocsTooltip = "Abre la URL de documentación de configuración personalizada.",
@@ -316,6 +331,7 @@ addon.locale.esES = {
 	customConfigCopyHint = "CTRL-C para copiar",
 	customConfigApply = "Aplicar",
 	customConfigRemove = "Eliminar configuración personalizada",
+	customConfigTemporaryNotice = "Las configuraciones personalizadas son temporales hasta que el Modo de edición esté completamente terminado. Si actualizas versiones de ZenFrames, asegúrate de generar una configuración nueva antes de editar.",
 	customConfigEmpty = "No se proporcionó texto de configuración.",
 	customConfigParseError = "Error al analizar la configuración",
 	customConfigInvalid = "La configuración debe ser una tabla Lua válida.",
@@ -467,7 +483,14 @@ addon.locale.ptBR = {
 	release_v1_1_0_desc_1 = "Adicionada opção para mostrar os novos ícones de dissipação da Blizzard.",
 
 	-- Custom Config panel
+	editModeHeader = "Modo de edição",
+	editModeDescription = "Digite /zf para alternar o modo de edição a qualquer momento.",
+	editModeButton = "Modo de edição",
+	editModeDialogTitle = "ZenFrames",
+	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+
 	customConfigTitle = "Configuração personalizada",
+	customConfigNoticeHeader = "Aviso",
 	customConfigHeader = "Configuração",
 	customConfigDocs = "Documentação",
 	customConfigDocsTooltip = "Abre a URL da documentação de configuração personalizada.",
@@ -478,6 +501,7 @@ addon.locale.ptBR = {
 	customConfigCopyHint = "CTRL-C para copiar",
 	customConfigApply = "Aplicar",
 	customConfigRemove = "Remover configuração personalizada",
+	customConfigTemporaryNotice = "As configurações personalizadas são temporárias até que o Modo de Edição esteja totalmente concluído. Se você atualizar versões do ZenFrames, gere uma nova configuração antes de editar.",
 	customConfigEmpty = "Nenhum texto de configuração fornecido.",
 	customConfigParseError = "Falha ao analisar a configuração",
 	customConfigInvalid = "A configuração deve ser uma tabela Lua válida.",
@@ -627,7 +651,14 @@ addon.locale.frFR = {
 	release_v1_1_0_desc_1 = "Ajout d'une option pour afficher les nouvelles icônes de dissipation de Blizzard.",
 
 	-- Custom Config panel
+	editModeHeader = "Mode édition",
+	editModeDescription = "Tapez /zf pour basculer le mode édition à tout moment.",
+	editModeButton = "Mode édition",
+	editModeDialogTitle = "ZenFrames",
+	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+
 	customConfigTitle = "Config personnalisée",
+	customConfigNoticeHeader = "Avis",
 	customConfigHeader = "Config",
 	customConfigDocs = "Docs",
 	customConfigDocsTooltip = "Ouvre l'URL de la documentation de configuration personnalisée.",
@@ -638,6 +669,7 @@ addon.locale.frFR = {
 	customConfigCopyHint = "CTRL-C pour copier",
 	customConfigApply = "Appliquer",
 	customConfigRemove = "Supprimer la config personnalisée",
+	customConfigTemporaryNotice = "Les configurations personnalisées sont temporaires tant que le mode édition n'est pas entièrement finalisé. Si vous mettez à jour des versions de ZenFrames, assurez-vous de générer une nouvelle configuration avant de modifier.",
 	customConfigEmpty = "Aucun texte de configuration fourni.",
 	customConfigParseError = "Échec de l'analyse de la configuration",
 	customConfigInvalid = "La configuration doit être une table Lua valide.",
@@ -787,7 +819,14 @@ addon.locale.deDE = {
 	release_v1_1_0_desc_1 = "Option zum Anzeigen der neuen Blizzard-Entzauberungssymbole hinzugefügt.",
 
 	-- Custom Config panel
+	editModeHeader = "Bearbeitungsmodus",
+	editModeDescription = "Gib /zf ein, um den Bearbeitungsmodus jederzeit umzuschalten.",
+	editModeButton = "Bearbeitungsmodus",
+	editModeDialogTitle = "ZenFrames",
+	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+
 	customConfigTitle = "Benutzerdefinierte Konfiguration",
+	customConfigNoticeHeader = "Hinweis",
 	customConfigHeader = "Konfiguration",
 	customConfigDocs = "Doku",
 	customConfigDocsTooltip = "Öffnet die URL zur Dokumentation der benutzerdefinierten Konfiguration.",
@@ -798,6 +837,7 @@ addon.locale.deDE = {
 	customConfigCopyHint = "CTRL-C zum Kopieren",
 	customConfigApply = "Anwenden",
 	customConfigRemove = "Benutzerdefinierte Konfiguration entfernen",
+	customConfigTemporaryNotice = "Benutzerdefinierte Konfigurationen sind vorübergehend, bis der Bearbeitungsmodus vollständig fertig ist. Wenn du ZenFrames-Versionen aktualisierst, erstelle vor dem Bearbeiten unbedingt eine neue Konfiguration.",
 	customConfigEmpty = "Kein Konfigurationstext angegeben.",
 	customConfigParseError = "Konfiguration konnte nicht geparst werden",
 	customConfigInvalid = "Die Konfiguration muss eine gültige Lua-Tabelle sein.",
@@ -947,7 +987,14 @@ addon.locale.ruRU = {
 	release_v1_1_0_desc_1 = "Добавлена опция для отображения новых иконок рассеивания Blizzard.",
 
 	-- Custom Config panel
+	editModeHeader = "Режим редактирования",
+	editModeDescription = "Введите /zf для переключения режима редактирования в любое время.",
+	editModeButton = "Режим редактирования",
+	editModeDialogTitle = "ZenFrames",
+	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+
 	customConfigTitle = "Пользовательская конфигурация",
+	customConfigNoticeHeader = "Внимание",
 	customConfigHeader = "Конфигурация",
 	customConfigDocs = "Документация",
 	customConfigDocsTooltip = "Открывает URL документации пользовательской конфигурации.",
@@ -958,6 +1005,7 @@ addon.locale.ruRU = {
 	customConfigCopyHint = "CTRL-C для копирования",
 	customConfigApply = "Применить",
 	customConfigRemove = "Удалить пользовательскую конфигурацию",
+	customConfigTemporaryNotice = "Пользовательские конфигурации временные, пока режим редактирования не будет полностью готов. Если вы обновляете версии ZenFrames, обязательно создавайте новую конфигурацию перед редактированием.",
 	customConfigEmpty = "Текст конфигурации не предоставлен.",
 	customConfigParseError = "Не удалось разобрать конфигурацию",
 	customConfigInvalid = "Конфигурация должна быть корректной таблицей Lua.",

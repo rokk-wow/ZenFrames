@@ -37,6 +37,8 @@ Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
 
+EditMode\Dialog.lua
+EditMode\EditModeDialog.lua
 EditMode\EditMode.lua
 EditMode\Frames.lua
 

@@ -65,7 +65,16 @@ end
 function addon:SetupCustomConfigSettingsPanel()
     self:AddSettingsPanel("customConfig", {
         title = "customConfigTitle",
-        controls = {},
+        controls = {
+            {
+                type = "header",
+                name = "customConfigNoticeHeader",
+            },
+            {
+                type = "description",
+                name = "customConfigTemporaryNotice",
+            },
+        },
     })
 end
 
@@ -77,7 +86,7 @@ function addon:AfterBuildSettingsPanelHelper(panel)
 
     local content = panel.ScrollFrame.Content
     local ui = self.sadCore.ui
-    local yOffset = ui.spacing.panelTop - 10
+    local yOffset = -(content:GetHeight() - ui.spacing.panelBottom) - 10
 
     -- Scroll container for multiline editbox
     local boxHeight = 300

@@ -89,6 +89,31 @@ local groupConfigMap = {
 function addon:Initialize()
     self.author = "Rôkk-Wyrmrest Accord"
 
+    self:AddSettingsPanel("main", {
+        controls = {
+            {
+                type = "header",
+                name = "editModeHeader",
+            },
+            {
+                type = "description",
+                name = "editModeDescription",
+            },
+            {
+                type = "button",
+                name = "editModeButton",
+                onClick = function()
+                    C_Timer.After(0, function()
+                        if SettingsPanel and SettingsPanel:IsShown() then
+                            HideUIPanel(SettingsPanel)
+                        end
+                        self:EnableEditMode()
+                    end)
+                end,
+            },
+        },
+    })
+
     self:SetupCustomConfigSettingsPanel()
 
     -- ---------------------------------------------------------------------------
@@ -99,6 +124,7 @@ function addon:Initialize()
     -- Implemented 2/22/2026 - can remove any time after 3/22/2026.
     -- ---------------------------------------------------------------------------
     self:MigrateConfig()
+    self:MigrateFrameNamePrefix()
     -- End Migration Segment
 
     self.config = self:GetCustomConfig() or self:GetConfig()
@@ -255,6 +281,46 @@ end
 -- once this is dead code.
 -- Implemented 2/22/2026 - can remove any time after 3/22/2026.
 -- ---------------------------------------------------------------------------
+local function MigratePrefixInFrameReferences(tbl)
+    if type(tbl) ~= "table" then return false end
+
+    local migrated = false
+    for key, value in pairs(tbl) do
+        if type(value) == "table" then
+            if MigratePrefixInFrameReferences(value) then
+                migrated = true
+            end
+        elseif (key == "frameName" or key == "relativeTo") and type(value) == "string" then
+            local updatedValue = value:gsub("^frmd", "zf")
+            if updatedValue ~= value then
+                tbl[key] = updatedValue
+                migrated = true
+            end
+        end
+    end
+
+    return migrated
+end
+
+function addon:MigrateFrameNamePrefix()
+    if not self.savedVars then return false end
+    self.savedVars.data = self.savedVars.data or {}
+    if self.savedVars.data.frameNamePrefixMigrated then return false end
+
+    local migrated = false
+
+    if MigratePrefixInFrameReferences(self.savedVars.data.overrides) then
+        migrated = true
+    end
+
+    if MigratePrefixInFrameReferences(self.savedVars.data.customConfig) then
+        migrated = true
+    end
+
+    self.savedVars.data.frameNamePrefixMigrated = true
+    return migrated
+end
+
 function addon:MigrateConfig()
     if not self.savedVars then return end
     self.savedVars.data = self.savedVars.data or {}
