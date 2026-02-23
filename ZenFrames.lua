@@ -13,6 +13,65 @@ addon.sadCore.releaseNotes = {
     }
 }
 
+local function deepCopy(src)
+    if type(src) ~= "table" then return src end
+    local copy = {}
+    for k, v in pairs(src) do
+        copy[k] = deepCopy(v)
+    end
+    return copy
+end
+
+local function deepMerge(defaults, overrides)
+    local result = deepCopy(defaults)
+    if type(overrides) ~= "table" then return result end
+    for k, v in pairs(overrides) do
+        if type(v) == "table" and type(result[k]) == "table" then
+            result[k] = deepMerge(result[k], v)
+        else
+            result[k] = v
+        end
+    end
+    return result
+end
+
+local function setNested(tbl, keys, value)
+    local current = tbl
+    for i = 1, #keys - 1 do
+        local key = keys[i]
+        if type(current[key]) ~= "table" then
+            current[key] = {}
+        end
+        current = current[key]
+    end
+    current[keys[#keys]] = value
+end
+
+function addon:GetOverrides()
+    if not self.savedVars then return {} end
+    self.savedVars.data = self.savedVars.data or {}
+    return self.savedVars.data.overrides or {}
+end
+
+function addon:SetOverride(pathSegments, value)
+    if not self.savedVars then return end
+    self.savedVars.data = self.savedVars.data or {}
+    self.savedVars.data.overrides = self.savedVars.data.overrides or {}
+    setNested(self.savedVars.data.overrides, pathSegments, value)
+end
+
+function addon:GetCustomConfig()
+    local customConfig = self.savedVars and self.savedVars.data and self.savedVars.data.customConfig
+    if customConfig then
+        return deepCopy(customConfig)
+    end
+    return nil
+end
+
+function addon:GetConfig()
+    return deepMerge(self:GetDefaultConfig(), self:GetOverrides())
+end
+
 local unitConfigMap = {
     player = "player",
     target = "target",
@@ -30,11 +89,17 @@ local groupConfigMap = {
 function addon:Initialize()
     self.author = "Rôkk-Wyrmrest Accord"
 
-    self:SetupModulesSettingsPanel()
-    self:SetupStyleSettingsPanel()
-    self:SetupPartySettingsPanel()
-    self:SetupArenaSettingsPanel()
     self:SetupCustomConfigSettingsPanel()
+
+    -- ---------------------------------------------------------------------------
+    -- Migration from legacy flat saved variables
+    --
+    -- Remove later - once all users with legacy settings have played at least
+    -- once this is dead code.
+    -- Implemented 2/22/2026 - can remove any time after 3/22/2026.
+    -- ---------------------------------------------------------------------------
+    self:MigrateConfig()
+    -- End Migration Segment
 
     self.config = self:GetCustomConfig() or self:GetConfig()
     self.unitFrames = {}
@@ -183,131 +248,198 @@ function addon:SpawnAuraFilters()
     end
 end
 
-local function ApplyFontToFontString(addonInstance, fs, fontPath)
-    if not fs or not fs.GetFont or not fs.SetFont then return end
+-- ---------------------------------------------------------------------------
+-- Migration from legacy flat saved variables
+--
+-- Remove later - once all users with legacy settings have played at least
+-- once this is dead code.
+-- Implemented 2/22/2026 - can remove any time after 3/22/2026.
+-- ---------------------------------------------------------------------------
+function addon:MigrateConfig()
+    if not self.savedVars then return end
+    self.savedVars.data = self.savedVars.data or {}
+    if self.savedVars.data.configMigrated then return end
 
-    local _, size, flags = fs:GetFont()
-    local resolvedSize = size or (addonInstance.config and addonInstance.config.global and addonInstance.config.global.normalFont) or 14
-    local resolvedFlags = flags or "OUTLINE"
+    local overrides = self.savedVars.data.overrides or {}
+    local migrated = false
 
-    fs:SetFont(fontPath, resolvedSize, resolvedFlags)
-    fs:SetText(fs:GetText() or "")
-end
-
-local function RefreshFontsRecursively(addonInstance, rootFrame, fontPath)
-    if not rootFrame then return end
-
-    local regions = { rootFrame:GetRegions() }
-    for _, region in ipairs(regions) do
-        if region and region.GetObjectType and region:GetObjectType() == "FontString" then
-            ApplyFontToFontString(addonInstance, region, fontPath)
-        end
-    end
-
-    local children = { rootFrame:GetChildren() }
-    for _, child in ipairs(children) do
-        RefreshFontsRecursively(addonInstance, child, fontPath)
-    end
-end
-
-function addon:RefreshFrameStyle(frame, fontPath, healthTex, powerTex, castbarTex, absorbTex)
-    if not frame then return end
-
-    if frame.Health and healthTex then
-        frame.Health:SetStatusBarTexture(healthTex)
-    end
-
-    if frame.Power and powerTex then
-        frame.Power:SetStatusBarTexture(powerTex)
-    end
-
-    if frame.Castbar then
-        if castbarTex then
-            frame.Castbar:SetStatusBarTexture(castbarTex)
-        end
-        if frame.Castbar.Text then
-            local _, size, flags = frame.Castbar.Text:GetFont()
-            frame.Castbar.Text:SetFont(fontPath, size, flags)
-            frame.Castbar.Text:SetText(frame.Castbar.Text:GetText() or "")
-        end
-        if frame.Castbar.Time then
-            local _, size, flags = frame.Castbar.Time:GetFont()
-            frame.Castbar.Time:SetFont(fontPath, size, flags)
-            frame.Castbar.Time:SetText(frame.Castbar.Time:GetText() or "")
-        end
-    end
-
-    if frame.HealthPrediction and frame.HealthPrediction.damageAbsorb and absorbTex then
-        frame.HealthPrediction.damageAbsorb:SetStatusBarTexture(absorbTex)
-    end
-
-    if frame.Texts then
-        for _, fs in pairs(frame.Texts) do
-            if fs and fs.GetFont then
-                ApplyFontToFontString(self, fs, fontPath)
+    local modules = self.savedVars.modules
+    if type(modules) == "table" then
+        local moduleMap = {
+            playerEnabled       = "player",
+            targetEnabled       = "target",
+            targetTargetEnabled = "targetTarget",
+            focusEnabled        = "focus",
+            focusTargetEnabled  = "focusTarget",
+            petEnabled          = "pet",
+            partyEnabled        = "party",
+            arenaEnabled        = "arena",
+        }
+        for setting, configKey in pairs(moduleMap) do
+            if type(modules[setting]) == "boolean" then
+                setNested(overrides, {configKey, "enabled"}, modules[setting])
+                setNested(overrides, {configKey, "hideBlizzard"}, modules[setting])
+                migrated = true
             end
         end
     end
 
-    RefreshFontsRecursively(self, frame, fontPath)
-
-    if frame.UpdateTags then
-        frame:UpdateTags()
-    end
-
-    if frame.UpdateAllElements then
-        frame:UpdateAllElements("RefreshStyle")
-    end
-end
-
-function addon:RefreshTextFormats(frame, textConfigs)
-    if not frame or not frame.Texts or not textConfigs then return end
-
-    for i, fs in pairs(frame.Texts) do
-        local cfg = textConfigs[i]
-        if fs and cfg and cfg.format then
-            frame:Untag(fs)
-            frame:Tag(fs, cfg.format)
+    local style = self.savedVars.style
+    if type(style) == "table" then
+        if type(style.font) == "string" then
+            setNested(overrides, {"global", "font"}, style.font)
+            migrated = true
         end
-    end
 
-    if frame.UpdateTags then
-        frame:UpdateTags()
-    end
-end
+        local allUnits = {"player", "target", "targetTarget", "focus", "focusTarget", "pet"}
+        local largeUnits = {"player", "target"}
+        local smallUnits = {"targetTarget", "focus", "focusTarget", "pet"}
 
-function addon:RefreshStyle()
-    local cfg = self.config
-    local fontPath   = self:FetchFont(cfg.global.font)
-    local healthTex  = self:FetchStatusbar(self:GetValue("style", "healthTexture"))
-    local powerTex   = self:FetchStatusbar(self:GetValue("style", "powerTexture"))
-    local castbarTex = self:FetchStatusbar(self:GetValue("style", "castbarTexture"))
-    local absorbTex  = self:FetchStatusbar(self:GetValue("style", "absorbTexture"))
-
-    if self.unitFrames then
-        for unit, frame in pairs(self.unitFrames) do
-            local configKey = unitConfigMap[unit]
-            if configKey and cfg[configKey] and cfg[configKey].modules then
-                self:RefreshTextFormats(frame, cfg[configKey].modules.text)
+        if type(style.healthTexture) == "string" then
+            for _, key in ipairs(allUnits) do
+                setNested(overrides, {key, "modules", "health", "texture"}, style.healthTexture)
             end
+            migrated = true
+        end
 
-            self:RefreshFrameStyle(frame, fontPath, healthTex, powerTex, castbarTex, absorbTex)
+        if type(style.powerTexture) == "string" then
+            for _, key in ipairs(allUnits) do
+                setNested(overrides, {key, "modules", "power", "texture"}, style.powerTexture)
+            end
+            migrated = true
+        end
+
+        if type(style.castbarTexture) == "string" then
+            for _, key in ipairs(largeUnits) do
+                setNested(overrides, {key, "modules", "castbar", "texture"}, style.castbarTexture)
+            end
+            migrated = true
+        end
+
+        if type(style.absorbTexture) == "string" then
+            for _, key in ipairs(largeUnits) do
+                setNested(overrides, {key, "modules", "absorbs", "texture"}, style.absorbTexture)
+            end
+            migrated = true
+        end
+
+        if type(style.largeFrameLeftText) == "string" then
+            for _, key in ipairs(largeUnits) do
+                setNested(overrides, {key, "modules", "text", 1, "format"}, style.largeFrameLeftText)
+            end
+            migrated = true
+        end
+
+        if type(style.largeFrameRightText) == "string" then
+            for _, key in ipairs(largeUnits) do
+                setNested(overrides, {key, "modules", "text", 2, "format"}, style.largeFrameRightText)
+            end
+            migrated = true
+        end
+
+        if type(style.smallFrameText) == "string" then
+            for _, key in ipairs(smallUnits) do
+                setNested(overrides, {key, "modules", "text", 1, "format"}, style.smallFrameText)
+            end
+            migrated = true
+        end
+
+        if type(style.partyFrameLeftText) == "string" then
+            setNested(overrides, {"party", "modules", "text", 1, "format"}, style.partyFrameLeftText)
+            migrated = true
+        end
+        if type(style.partyFrameRightText) == "string" then
+            setNested(overrides, {"party", "modules", "text", 2, "format"}, style.partyFrameRightText)
+            migrated = true
+        end
+        if type(style.arenaFrameLeftText) == "string" then
+            setNested(overrides, {"arena", "modules", "text", 1, "format"}, style.arenaFrameLeftText)
+            migrated = true
+        end
+        if type(style.arenaFrameRightText) == "string" then
+            setNested(overrides, {"arena", "modules", "text", 2, "format"}, style.arenaFrameRightText)
+            migrated = true
         end
     end
 
-    if self.groupContainers then
-        for configKey, container in pairs(self.groupContainers) do
-            if container.frames then
-                for _, child in ipairs(container.frames) do
-                    if cfg[configKey] and cfg[configKey].modules then
-                        self:RefreshTextFormats(child, cfg[configKey].modules.text)
-                    end
+    local party = self.savedVars.party
+    if type(party) == "table" then
+        local partyModuleMap = {
+            partyTrinketEnabled         = {"party", "modules", "trinket", "enabled"},
+            partyArenaTargetsEnabled    = {"party", "modules", "arenaTargets", "enabled"},
+            partyCastbarEnabled         = {"party", "modules", "castbar", "enabled"},
+            partyDispelIconEnabled      = {"party", "modules", "dispelIcon", "enabled"},
+            partyDispelHighlightEnabled = {"party", "modules", "dispelHighlight", "enabled"},
+        }
+        for setting, path in pairs(partyModuleMap) do
+            if type(party[setting]) == "boolean" then
+                setNested(overrides, path, party[setting])
+                migrated = true
+            end
+        end
 
-                    self:RefreshFrameStyle(child, fontPath, healthTex, powerTex, castbarTex, absorbTex)
-                end
+        local partyFilterMap = {
+            { enable = "partyCrowdControlEnabled",    glow = "partyCrowdControlGlow",    color = "partyCrowdControlGlowColor",    index = 3 },
+            { enable = "partyDefensivesEnabled",      glow = "partyDefensivesGlow",      color = "partyDefensivesGlowColor",      index = 4 },
+            { enable = "partyImportantBuffsEnabled",  glow = "partyImportantBuffsGlow",  color = "partyImportantBuffsGlowColor",  index = 5 },
+        }
+        for _, f in ipairs(partyFilterMap) do
+            if type(party[f.enable]) == "boolean" then
+                setNested(overrides, {"party", "modules", "auraFilters", f.index, "enabled"}, party[f.enable])
+                migrated = true
+            end
+            if type(party[f.glow]) == "boolean" then
+                setNested(overrides, {"party", "modules", "auraFilters", f.index, "showGlow"}, party[f.glow])
+                migrated = true
+            end
+            if type(party[f.color]) == "string" then
+                setNested(overrides, {"party", "modules", "auraFilters", f.index, "glowColor"}, party[f.color]:gsub("^#", ""))
+                migrated = true
             end
         end
     end
+
+    local arena = self.savedVars.arena
+    if type(arena) == "table" then
+        local arenaModuleMap = {
+            arenaTrinketEnabled         = {"arena", "modules", "trinket", "enabled"},
+            arenaArenaTargetsEnabled    = {"arena", "modules", "arenaTargets", "enabled"},
+            arenaCastbarEnabled         = {"arena", "modules", "castbar", "enabled"},
+            arenaDRTrackerEnabled       = {"arena", "modules", "drTracker", "enabled"},
+            arenaDispelIconEnabled      = {"arena", "modules", "dispelIcon", "enabled"},
+            arenaDispelHighlightEnabled = {"arena", "modules", "dispelHighlight", "enabled"},
+        }
+        for setting, path in pairs(arenaModuleMap) do
+            if type(arena[setting]) == "boolean" then
+                setNested(overrides, path, arena[setting])
+                migrated = true
+            end
+        end
+
+        local arenaFilterMap = {
+            { enable = "arenaCrowdControlEnabled",    glow = "arenaCrowdControlGlow",    color = "arenaCrowdControlGlowColor",    index = 3 },
+            { enable = "arenaDefensivesEnabled",      glow = "arenaDefensivesGlow",      color = "arenaDefensivesGlowColor",      index = 4 },
+            { enable = "arenaImportantBuffsEnabled",  glow = "arenaImportantBuffsGlow",  color = "arenaImportantBuffsGlowColor",  index = 5 },
+        }
+        for _, f in ipairs(arenaFilterMap) do
+            if type(arena[f.enable]) == "boolean" then
+                setNested(overrides, {"arena", "modules", "auraFilters", f.index, "enabled"}, arena[f.enable])
+                migrated = true
+            end
+            if type(arena[f.glow]) == "boolean" then
+                setNested(overrides, {"arena", "modules", "auraFilters", f.index, "showGlow"}, arena[f.glow])
+                migrated = true
+            end
+            if type(arena[f.color]) == "string" then
+                setNested(overrides, {"arena", "modules", "auraFilters", f.index, "glowColor"}, arena[f.color]:gsub("^#", ""))
+                migrated = true
+            end
+        end
+    end
+
+    if migrated then
+        self.savedVars.data.overrides = overrides
+    end
+    self.savedVars.data.configMigrated = true
 end
-
-
+-- End Migration Segment

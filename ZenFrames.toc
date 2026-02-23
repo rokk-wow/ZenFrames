@@ -14,10 +14,6 @@ Libs\oUF\oUF.xml
 
 Config.lua
 
-Settings\Arena.lua
-Settings\Modules.lua
-Settings\Style.lua
-Settings\Party.lua
 Settings\CustomConfig.lua
 
 EditMode\Placeholder.lua
