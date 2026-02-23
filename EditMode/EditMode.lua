@@ -53,15 +53,25 @@ end)
 
 local escapeFrame = CreateFrame("Frame", "ZenFramesEditModeEscape", UIParent)
 escapeFrame:EnableKeyboard(false)
-escapeFrame:SetPropagateKeyboardInput(true)
+if not escapeFrame:IsProtected() then
+    escapeFrame:SetPropagateKeyboardInput(true)
+end
 escapeFrame:SetScript("OnKeyDown", function(self, key)
+    if InCombatLockdown() then
+        return
+    end
+    
     if key == "ESCAPE" and addon.editMode then
-        self:SetPropagateKeyboardInput(false)
+        if not self:IsProtected() then
+            self:SetPropagateKeyboardInput(false)
+        end
         local closedSubDialog = addon:HideAllEditModeSubDialogs()
         if not closedSubDialog then
             addon:DisableEditMode()
         end
     else
-        self:SetPropagateKeyboardInput(true)
+        if not self:IsProtected() then
+            self:SetPropagateKeyboardInput(true)
+        end
     end
 end)

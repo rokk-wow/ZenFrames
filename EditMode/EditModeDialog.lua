@@ -57,6 +57,20 @@ local function GetModuleDisplayName(moduleKey)
     return ToPascalCase(moduleKey)
 end
 
+-- Convert module key (camelCase) to frame property name (PascalCase)
+-- Special handling for acronyms like drTracker -> DRTracker
+local function GetModuleFrameName(moduleKey)
+    if not moduleKey then return nil end
+    
+    -- Special cases for acronyms
+    if moduleKey == "drTracker" then
+        return "DRTracker"
+    end
+    
+    -- Default: uppercase first letter only
+    return moduleKey:sub(1, 1):upper() .. moduleKey:sub(2)
+end
+
 local function BuildSubDialog()
     if subDialog then return subDialog end
 
@@ -65,6 +79,10 @@ local function BuildSubDialog()
     subDialog:SetFrameStrata("TOOLTIP")
     subDialog:SetFrameLevel(300)
     subDialog.title:SetFont(subDialog._fontPath, SUB_DIALOG_TITLE_FONT_SIZE, "OUTLINE")
+
+    -- Add divider below title
+    local dividerY = -(subDialog._borderWidth + subDialog._padding + SUB_DIALOG_TITLE_FONT_SIZE + 20)
+    addon:DialogAddDivider(subDialog, dividerY)
 
     if dialog then
         subDialog:SetSize(dialog:GetWidth(), dialog:GetHeight())
@@ -90,6 +108,10 @@ local function BuildConfirmDialog()
     confirmDialog:SetFrameLevel(500)
     confirmDialog.title:SetFont(confirmDialog._fontPath, CONFIRM_DIALOG_TITLE_FONT_SIZE, "OUTLINE")
     confirmDialog.title:SetText(addon:L("resetButton"))
+
+    -- Add divider below title
+    local dividerY = -(confirmDialog._borderWidth + confirmDialog._padding + CONFIRM_DIALOG_TITLE_FONT_SIZE + 20)
+    addon:DialogAddDivider(confirmDialog, dividerY)
 
     -- Message text
     local msgY = confirmDialog._contentTop
@@ -160,6 +182,8 @@ local function BuildConfirmDialog()
 end
 
 function addon:ShowResetConfirmDialog(configKey, moduleKey)
+    if InCombatLockdown() then return end
+    
     local confirm = BuildConfirmDialog()
     
     confirm.onConfirm = function()
@@ -243,8 +267,8 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
                         local offsetX = moduleCfg.offsetX or 0
                         local offsetY = moduleCfg.offsetY or 0
                         
-                        -- Convert module key to PascalCase to access frame property
-                        local moduleName = moduleKey:sub(1, 1):upper() .. moduleKey:sub(2)
+                        -- Convert module key to PascalCase to access frame property (e.g., "trinket" -> "Trinket", "drTracker" -> "DRTracker")
+                        local moduleName = GetModuleFrameName(moduleKey)
                         
                         for i, unitFrame in ipairs(container.frames) do
                             local module = unitFrame[moduleName]
@@ -287,13 +311,27 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
     confirm:Show()
 end
 
+-- Clear all dynamic controls from subdialog
+local function ClearSubDialogControls()
+    if not subDialog or not subDialog._controls then return end
+    
+    for _, control in ipairs(subDialog._controls) do
+        control:Hide()
+        control:SetParent(nil)
+    end
+    subDialog._controls = {}
+end
+
 function addon:HideAllEditModeSubDialogs()
+    if InCombatLockdown() then return false end
+    
     if confirmDialog then
         confirmDialog:Hide()
     end
     
     if subDialog then
         local wasShown = subDialog:IsShown()
+        ClearSubDialogControls()
         subDialog:Hide()
         return wasShown
     end
@@ -301,7 +339,77 @@ function addon:HideAllEditModeSubDialogs()
     return false
 end
 
+-- Populate trinket module controls
+local function PopulateTrinketControls(configKey, moduleKey)
+    if not subDialog then return end
+    
+    local cfg = addon.config[configKey]
+    if not cfg or not cfg.modules or not cfg.modules[moduleKey] then return end
+    
+    local moduleCfg = cfg.modules[moduleKey]
+    subDialog._controls = subDialog._controls or {}
+    
+    local yOffset = -(subDialog._borderWidth + subDialog._padding + SUB_DIALOG_TITLE_FONT_SIZE + 40)
+    
+    -- Size slider
+    local sizeRow, newY = addon:DialogAddSlider(subDialog, yOffset, "Icon Size", 10, 250, moduleCfg.iconSize or 36, 1, function(value)
+        addon:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
+        addon.config = addon:GetConfig()
+        
+        -- Update all instances for group frames
+        if configKey == "party" or configKey == "arena" then
+            local containerName = configKey == "party" and "zfPartyContainer" or "zfArenaContainer"
+            local container = _G[containerName]
+            if container and container.frames then
+                local moduleName = GetModuleFrameName(moduleKey)
+                for _, frame in ipairs(container.frames) do
+                    local module = frame[moduleName]
+                    if module then
+                        module:SetSize(value + (moduleCfg.frameBorderWidth or 0) * 2, value + (moduleCfg.frameBorderWidth or 0) * 2)
+                        if module.icon then
+                            module.icon:SetSize(value, value)
+                        end
+                    end
+                end
+            end
+        else
+            -- Single frame update
+            local frameName = addon.config[configKey].frameName
+            local frame = _G[frameName]
+            if frame then
+                local moduleName = GetModuleFrameName(moduleKey)
+                local module = frame[moduleName]
+                if module then
+                    module:SetSize(value + (moduleCfg.frameBorderWidth or 0) * 2, value + (moduleCfg.frameBorderWidth or 0) * 2)
+                    if module.icon then
+                        module.icon:SetSize(value, value)
+                    end
+                end
+            end
+        end
+    end)
+    table.insert(subDialog._controls, sizeRow)
+    yOffset = newY - 5
+    
+    -- Show Swipe checkbox
+    local swipeRow, newY = addon:DialogAddCheckbox(subDialog, yOffset, "Show Swipe", moduleCfg.showSwipe, function(value)
+        addon:SetOverride({configKey, "modules", moduleKey, "showSwipe"}, value)
+        addon.config = addon:GetConfig()
+    end)
+    table.insert(subDialog._controls, swipeRow)
+    yOffset = newY - 2
+    
+    -- Show Cooldown Numbers checkbox
+    local cooldownRow, newY = addon:DialogAddCheckbox(subDialog, yOffset, "Show Cooldown Numbers", moduleCfg.showCooldownNumbers, function(value)
+        addon:SetOverride({configKey, "modules", moduleKey, "showCooldownNumbers"}, value)
+        addon.config = addon:GetConfig()
+    end)
+    table.insert(subDialog._controls, cooldownRow)
+    yOffset = newY - 2
+end
+
 function addon:ShowEditModeSubDialog(configKey, moduleKey)
+    if InCombatLockdown() then return end
     if not configKey then return end
 
     local existingX, existingY
@@ -329,7 +437,7 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
 
     local title = GetConfigDisplayName(configKey)
     if moduleKey then
-        title = title .. " > " .. GetModuleDisplayName(moduleKey)
+        title = title .. "." .. GetModuleDisplayName(moduleKey)
     end
     sub.title:SetText(title)
 
@@ -348,6 +456,13 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
 
     sub:ClearAllPoints()
     sub:SetPoint("CENTER", UIParent, "BOTTOMLEFT", dialogX, dialogY)
+    
+    -- Clear old controls and populate new ones based on module
+    ClearSubDialogControls()
+    if moduleKey == "trinket" then
+        PopulateTrinketControls(configKey, moduleKey)
+    end
+    
     sub:Show()
 end
 
@@ -468,6 +583,8 @@ end
 -- ---------------------------------------------------------------------------
 
 function addon:ShowEditModeDialog()
+    if InCombatLockdown() then return end
+    
     local dlg = BuildDialog()
     ResetVisibilityState()
 
@@ -486,6 +603,8 @@ function addon:ShowEditModeDialog()
 end
 
 function addon:HideEditModeDialog()
+    if InCombatLockdown() then return end
+    
     self:HideAllEditModeSubDialogs()
 
     if dialog then
@@ -499,6 +618,8 @@ end
 -- ---------------------------------------------------------------------------
 
 function addon:EditModeToggleFrameVisibility(configKey, visible)
+    if InCombatLockdown() then return end
+    
     if self.unitFrames then
         for unit, frame in pairs(self.unitFrames) do
             local unitConfig = ({

@@ -177,6 +177,8 @@ local function HidePlaceholders(frame, configKey)
 end
 
 function addon:ShowEditModeFrames()
+    if InCombatLockdown() then return end
+    
     for unit, frame in pairs(self.unitFrames) do
         AssignPlayerUnit(frame)
         frame:Show()
@@ -224,6 +226,8 @@ function addon:ShowEditModeFrames()
 end
 
 function addon:HideEditModeFrames()
+    if InCombatLockdown() then return end
+    
     for unit, frame in pairs(self.unitFrames) do
         if frame.HidePlaceholder then
             frame:HidePlaceholder()

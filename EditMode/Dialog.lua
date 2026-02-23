@@ -144,6 +144,241 @@ function addon:DialogAddToggleRow(dialog, yOffset, label, checked, visible, onCh
 end
 
 -- ---------------------------------------------------------------------------
+-- AddDropdown - dropdown selector
+-- ---------------------------------------------------------------------------
+
+local DROPDOWN_ROW_HEIGHT = 50
+local DROPDOWN_HEIGHT = 32
+local DROPDOWN_LABEL_FONT_SIZE = 12
+
+function addon:DialogAddDropdown(dialog, yOffset, label, options, currentValue, onChange)
+    local row = CreateFrame("Frame", nil, dialog)
+    row:SetHeight(DROPDOWN_ROW_HEIGHT)
+    row:SetPoint("LEFT", dialog, "LEFT", BORDER_WIDTH + PADDING, 0)
+    row:SetPoint("RIGHT", dialog, "RIGHT", -(BORDER_WIDTH + PADDING), 0)
+    row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+
+    -- Label
+    local labelText = row:CreateFontString(nil, "OVERLAY")
+    labelText:SetFont(dialog._fontPath, DROPDOWN_LABEL_FONT_SIZE, "OUTLINE")
+    labelText:SetTextColor(1, 1, 1)
+    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+    labelText:SetText(label)
+    row.label = labelText
+
+    -- Dropdown
+    local dropdown = CreateFrame("Frame", nil, row, "UIDropDownMenuTemplate")
+    dropdown:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", -15, -2)
+    dropdown:SetFrameStrata("TOOLTIP")
+    
+    UIDropDownMenu_SetWidth(dropdown, row:GetWidth() - 30)
+    UIDropDownMenu_SetText(dropdown, currentValue or "")
+    
+    UIDropDownMenu_Initialize(dropdown, function(self, level)
+        for _, option in ipairs(options) do
+            local info = UIDropDownMenu_CreateInfo()
+            info.text = option
+            info.value = option
+            info.checked = (option == currentValue)
+            info.func = function(btn)
+                UIDropDownMenu_SetText(dropdown, btn.value)
+                if onChange then
+                    onChange(btn.value)
+                end
+            end
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end)
+    
+    row.dropdown = dropdown
+    return row, yOffset - DROPDOWN_ROW_HEIGHT
+end
+
+-- ---------------------------------------------------------------------------
+-- AddSlider - slider with value display
+-- ---------------------------------------------------------------------------
+
+local SLIDER_ROW_HEIGHT = 50
+local SLIDER_HEIGHT = 16
+local SLIDER_LABEL_FONT_SIZE = 12
+
+function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentValue, step, onChange)
+    local row = CreateFrame("Frame", nil, dialog)
+    row:SetHeight(SLIDER_ROW_HEIGHT)
+    row:SetPoint("LEFT", dialog, "LEFT", BORDER_WIDTH + PADDING, 0)
+    row:SetPoint("RIGHT", dialog, "RIGHT", -(BORDER_WIDTH + PADDING), 0)
+    row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+
+    -- Label with current value
+    local labelText = row:CreateFontString(nil, "OVERLAY")
+    labelText:SetFont(dialog._fontPath, SLIDER_LABEL_FONT_SIZE, "OUTLINE")
+    labelText:SetTextColor(1, 1, 1)
+    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+    labelText:SetText(label .. ": " .. currentValue)
+    row.label = labelText
+
+    -- Slider
+    local slider = CreateFrame("Slider", nil, row, "OptionsSliderTemplate")
+    slider:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 3, -8)
+    slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -3, -20)
+    slider:SetMinMaxValues(minVal, maxVal)
+    slider:SetValue(currentValue)
+    slider:SetValueStep(step or 1)
+    slider:SetObeyStepOnDrag(true)
+    
+    -- Remove default labels
+    slider.Low:SetText("")
+    slider.High:SetText("")
+    slider.Text:SetText("")
+    
+    slider:SetScript("OnValueChanged", function(self, value)
+        value = math.floor(value + 0.5)
+        labelText:SetText(label .. ": " .. value)
+        if onChange then
+            onChange(value)
+        end
+    end)
+    
+    row.slider = slider
+    return row, yOffset - SLIDER_ROW_HEIGHT
+end
+
+-- ---------------------------------------------------------------------------
+-- AddCheckbox - simple checkbox
+-- ---------------------------------------------------------------------------
+
+local CHECKBOX_ROW_HEIGHT = 32
+
+function addon:DialogAddCheckbox(dialog, yOffset, label, checked, onChange)
+    local row = CreateFrame("Frame", nil, dialog)
+    row:SetHeight(CHECKBOX_ROW_HEIGHT)
+    row:SetPoint("LEFT", dialog, "LEFT", BORDER_WIDTH + PADDING, 0)
+    row:SetPoint("RIGHT", dialog, "RIGHT", -(BORDER_WIDTH + PADDING), 0)
+    row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+
+    local cb = CreateFrame("CheckButton", nil, row, "UICheckButtonTemplate")
+    cb:SetSize(CHECKBOX_SIZE, CHECKBOX_SIZE)
+    cb:SetPoint("LEFT", row, "LEFT", 0, 0)
+    cb:SetChecked(checked)
+    cb:SetScript("OnClick", function(self)
+        if onChange then
+            onChange(self:GetChecked())
+        end
+    end)
+    row.checkbox = cb
+
+    local text = row:CreateFontString(nil, "OVERLAY")
+    text:SetFont(dialog._fontPath, LABEL_FONT_SIZE, "OUTLINE")
+    text:SetTextColor(1, 1, 1)
+    text:SetPoint("LEFT", cb, "RIGHT", 8, 0)
+    text:SetText(label)
+    row.label = text
+
+    return row, yOffset - CHECKBOX_ROW_HEIGHT
+end
+
+-- ---------------------------------------------------------------------------
+-- AddColorPicker - color picker button
+-- ---------------------------------------------------------------------------
+
+local COLOR_PICKER_ROW_HEIGHT = 50
+local COLOR_SWATCH_SIZE = 32
+
+function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChange)
+    local row = CreateFrame("Frame", nil, dialog)
+    row:SetHeight(COLOR_PICKER_ROW_HEIGHT)
+    row:SetPoint("LEFT", dialog, "LEFT", BORDER_WIDTH + PADDING, 0)
+    row:SetPoint("RIGHT", dialog, "RIGHT", -(BORDER_WIDTH + PADDING), 0)
+    row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+
+    -- Label
+    local labelText = row:CreateFontString(nil, "OVERLAY")
+    labelText:SetFont(dialog._fontPath, DROPDOWN_LABEL_FONT_SIZE, "OUTLINE")
+    labelText:SetTextColor(1, 1, 1)
+    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+    labelText:SetText(label)
+    row.label = labelText
+
+    -- Color swatch button
+    local swatch = CreateFrame("Button", nil, row)
+    swatch:SetSize(COLOR_SWATCH_SIZE, COLOR_SWATCH_SIZE)
+    swatch:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 0, -4)
+
+    local swatchBg = swatch:CreateTexture(nil, "BACKGROUND")
+    swatchBg:SetColorTexture(1, 1, 1, 1)
+    swatchBg:SetAllPoints()
+
+    local swatchColor = swatch:CreateTexture(nil, "ARTWORK")
+    swatchColor:SetPoint("TOPLEFT", 2, -2)
+    swatchColor:SetPoint("BOTTOMRIGHT", -2, 2)
+    
+    -- Parse hex color
+    local function ParseHexColor(hex)
+        if not hex or hex == "" then return 1, 1, 1, 1 end
+        local r = tonumber(hex:sub(1, 2), 16) or 255
+        local g = tonumber(hex:sub(3, 4), 16) or 255
+        local b = tonumber(hex:sub(5, 6), 16) or 255
+        local a = tonumber(hex:sub(7, 8), 16) or 255
+        return r/255, g/255, b/255, a/255
+    end
+    
+    local r, g, b, a = ParseHexColor(currentColor)
+    swatchColor:SetColorTexture(r, g, b, a)
+
+    swatch:SetScript("OnClick", function()
+        local r, g, b, a = ParseHexColor(currentColor)
+        ColorPickerFrame:SetupColorPickerAndShow({
+            r = r,
+            g = g,
+            b = b,
+            opacity = a,
+            hasOpacity = true,
+            swatchFunc = function()
+                local nr, ng, nb = ColorPickerFrame:GetColorRGB()
+                local na = ColorPickerFrame:GetColorAlpha()
+                swatchColor:SetColorTexture(nr, ng, nb, na)
+                
+                -- Convert to hex
+                local hex = string.format("%02x%02x%02x%02x",
+                    math.floor(nr * 255 + 0.5),
+                    math.floor(ng * 255 + 0.5),
+                    math.floor(nb * 255 + 0.5),
+                    math.floor(na * 255 + 0.5))
+                
+                currentColor = hex
+                if onChange then
+                    onChange(hex)
+                end
+            end,
+            opacityFunc = function()
+                local nr, ng, nb = ColorPickerFrame:GetColorRGB()
+                local na = ColorPickerFrame:GetColorAlpha()
+                swatchColor:SetColorTexture(nr, ng, nb, na)
+                
+                -- Convert to hex
+                local hex = string.format("%02x%02x%02x%02x",
+                    math.floor(nr * 255 + 0.5),
+                    math.floor(ng * 255 + 0.5),
+                    math.floor(nb * 255 + 0.5),
+                    math.floor(na * 255 + 0.5))
+                
+                currentColor = hex
+                if onChange then
+                    onChange(hex)
+                end
+            end,
+            cancelFunc = function()
+                local r, g, b, a = ParseHexColor(currentColor)
+                swatchColor:SetColorTexture(r, g, b, a)
+            end,
+        })
+    end)
+    
+    row.swatch = swatch
+    return row, yOffset - COLOR_PICKER_ROW_HEIGHT
+end
+
+-- ---------------------------------------------------------------------------
 -- FinalizeDialog - resize height to fit content
 -- ---------------------------------------------------------------------------
 

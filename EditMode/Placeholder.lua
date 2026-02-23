@@ -13,6 +13,20 @@ local LEVEL_OFFSET = 50
 local placeholderGroups = {}
 local selectedOverlay = nil
 
+-- Convert module key (camelCase) to frame property name (PascalCase)
+-- Special handling for acronyms like drTracker -> DRTracker
+local function GetModuleFrameName(moduleKey)
+    if not moduleKey then return nil end
+    
+    -- Special cases for acronyms
+    if moduleKey == "drTracker" then
+        return "DRTracker"
+    end
+    
+    -- Default: uppercase first letter only
+    return moduleKey:sub(1, 1):upper() .. moduleKey:sub(2)
+end
+
 local function GetConfigPath(overlay)
     local path = overlay._configKey or ""
     if overlay._moduleKey then
@@ -156,8 +170,8 @@ local function UpdatePlaceholderPosition(overlay)
             if unitFrame then
                 local container = unitFrame:GetParent()
                 if container and container.frames then
-                    -- Convert module key to PascalCase to access frame property (e.g., "trinket" -> "Trinket")
-                    local moduleName = overlay._moduleKey:sub(1, 1):upper() .. overlay._moduleKey:sub(2)
+                    -- Convert module key to PascalCase to access frame property (e.g., "trinket" -> "Trinket", "drTracker" -> "DRTracker")
+                    local moduleName = GetModuleFrameName(overlay._moduleKey)
                     
                     for _, frame in ipairs(container.frames) do
                         local module = frame[moduleName]
@@ -232,6 +246,8 @@ function addon:AttachPlaceholder(element)
     if not element or element._placeholder then return end
 
     function element:ShowPlaceholder(configKey, moduleKey)
+        if InCombatLockdown() then return end
+        
         if not self._placeholder then
             local overlay = CreateFrame("Frame", nil, self)
             overlay:SetPoint("TOPLEFT", self, "TOPLEFT", -PADDING, PADDING)
@@ -297,8 +313,16 @@ function addon:AttachPlaceholder(element)
             end)
 
             overlay:SetScript("OnMouseDown", function(self, button)
+                if InCombatLockdown() then return end
+                
                 if button == "LeftButton" and self._configKey then
                     addon:ShowEditModeSubDialog(self._configKey, self._moduleKey)
+                    
+                    -- Deselect previously selected overlay
+                    if selectedOverlay and selectedOverlay ~= self then
+                        selectedOverlay:EnableKeyboard(false)
+                        selectedOverlay:SetPropagateKeyboardInput(true)
+                    end
                     
                     -- Set this as the selected overlay for keyboard input
                     selectedOverlay = self
@@ -326,6 +350,11 @@ function addon:AttachPlaceholder(element)
             end)
 
             overlay:SetScript("OnKeyDown", function(self, key)
+                if InCombatLockdown() then
+                    self:SetPropagateKeyboardInput(true)
+                    return
+                end
+                
                 if key == "ESCAPE" then
                     -- Deselect on escape
                     self:EnableKeyboard(false)
@@ -383,7 +412,8 @@ function addon:AttachPlaceholder(element)
 
         RegisterPlaceholder(overlay)
 
-        if not self._savedHide then
+        -- Only override Hide on non-secure frames to avoid taint
+        if not self._savedHide and not self:IsProtected() then
             self._savedHide = self.Hide
             self.Hide = function() end
         end
