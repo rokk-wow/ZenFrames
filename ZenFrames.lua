@@ -60,6 +60,76 @@ function addon:SetOverride(pathSegments, value)
     setNested(self.savedVars.data.overrides, pathSegments, value)
 end
 
+function addon:ClearOverrides(pathSegments)
+    if not self.savedVars or not self.savedVars.data or not self.savedVars.data.overrides then return end
+    
+    local current = self.savedVars.data.overrides
+    for i = 1, #pathSegments - 1 do
+        local key = pathSegments[i]
+        if type(current[key]) ~= "table" then
+            return
+        end
+        current = current[key]
+    end
+    
+    current[pathSegments[#pathSegments]] = nil
+end
+
+function addon:ResetAllSettings()
+    if not self.savedVars then return end
+    self.savedVars.data = self.savedVars.data or {}
+    self.savedVars.data.overrides = {}
+    self.savedVars.data.customConfig = nil
+    ReloadUI()
+end
+
+function addon:RefreshFrame(configKey)
+    if not configKey then return end
+    
+    local cfg = self.config[configKey]
+    if not cfg or not cfg.frameName then return end
+    
+    local frame = _G[cfg.frameName]
+    if not frame then return end
+    if InCombatLockdown() then return end
+    
+    if cfg.width and cfg.height then
+        frame:SetSize(cfg.width, cfg.height)
+    end
+    
+    frame:ClearAllPoints()
+    frame:SetPoint(cfg.anchor, _G[cfg.relativeTo], cfg.relativePoint, cfg.offsetX, cfg.offsetY)
+    
+    if frame.UpdateAllElements then
+        frame:UpdateAllElements("RefreshConfig")
+    end
+end
+
+function addon:RefreshModule(configKey, moduleKey)
+    if not configKey or not moduleKey then return end
+    
+    local cfg = self.config[configKey]
+    if not cfg or not cfg.modules or not cfg.modules[moduleKey] then return end
+    
+    local moduleCfg = cfg.modules[moduleKey]
+    if not moduleCfg.frameName then return end
+    
+    local frame = _G[moduleCfg.frameName]
+    if not frame then return end
+    if InCombatLockdown() then return end
+    
+    if moduleCfg.width and moduleCfg.height then
+        frame:SetSize(moduleCfg.width, moduleCfg.height)
+    end
+    
+    frame:ClearAllPoints()
+    frame:SetPoint(moduleCfg.anchor, _G[moduleCfg.relativeTo], moduleCfg.relativePoint, moduleCfg.offsetX, moduleCfg.offsetY)
+    
+    if frame.UpdateAllElements then
+        frame:UpdateAllElements("RefreshConfig")
+    end
+end
+
 function addon:GetCustomConfig()
     local customConfig = self.savedVars and self.savedVars.data and self.savedVars.data.customConfig
     if customConfig then
@@ -111,8 +181,28 @@ function addon:Initialize()
                     end)
                 end,
             },
+            {
+                type = "button",
+                name = "resetAllButton",
+                onClick = function()
+                    StaticPopup_Show("ZENFRAMES_RESET_ALL_CONFIRM")
+                end,
+            },
         },
     })
+
+    StaticPopupDialogs["ZENFRAMES_RESET_ALL_CONFIRM"] = {
+        text = self:L("resetAllConfirmText"),
+        button1 = self:L("resetAllButton"),
+        button2 = "Cancel",
+        OnAccept = function()
+            self:ResetAllSettings()
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
 
     self:SetupCustomConfigSettingsPanel()
 

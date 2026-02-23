@@ -27,7 +27,7 @@ function addon:CreateDialog(name, titleText, width)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     frame:SetFrameStrata("DIALOG")
     frame:SetFrameLevel(200)
-    frame:SetClampedToScreen(true)
+    frame:SetClampedToScreen(false)
 
     frame:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",

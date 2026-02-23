@@ -516,6 +516,8 @@ function addon:AddAuraFilter(frame, cfg)
     end
     localCfg.parent = localCfg.parent or frame
 
+    -- DEPRECATED: relativeToModule is deprecated. Use direct frame anchoring with calculated offsets instead.
+    -- This logic remains for backwards compatibility with existing custom configs.
     if localCfg.relativeToModule then
         local ref = localCfg.relativeToModule
         if type(ref) == "table" then

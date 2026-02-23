@@ -28,7 +28,9 @@ local visibilityState = {}
 local initialEnabledState = {}
 local dialog
 local subDialog
+local confirmDialog
 local SUB_DIALOG_TITLE_FONT_SIZE = 16
+local CONFIRM_DIALOG_TITLE_FONT_SIZE = 18
 
 local function ToPascalCase(value)
     if not value then return "" end
@@ -68,10 +70,228 @@ local function BuildSubDialog()
         subDialog:SetSize(dialog:GetWidth(), dialog:GetHeight())
     end
 
+    local resetY = -(subDialog:GetHeight() - subDialog._borderWidth - subDialog._padding)
+    local resetBtn = addon:DialogAddButton(subDialog, resetY, addon:L("resetButton"), function()
+        if subDialog._configKey then
+            addon:ShowResetConfirmDialog(subDialog._configKey, subDialog._moduleKey)
+        end
+    end)
+    subDialog._resetButton = resetBtn
+
     return subDialog
 end
 
+local function BuildConfirmDialog()
+    if confirmDialog then return confirmDialog end
+
+    local width = 350
+    confirmDialog = addon:CreateDialog("ZenFramesResetConfirmDialog", "", width)
+    confirmDialog:SetFrameStrata("FULLSCREEN")
+    confirmDialog:SetFrameLevel(500)
+    confirmDialog.title:SetFont(confirmDialog._fontPath, CONFIRM_DIALOG_TITLE_FONT_SIZE, "OUTLINE")
+    confirmDialog.title:SetText(addon:L("resetButton"))
+
+    -- Message text
+    local msgY = confirmDialog._contentTop
+    local message = confirmDialog:CreateFontString(nil, "OVERLAY")
+    message:SetFont(confirmDialog._fontPath, 14, "OUTLINE")
+    message:SetTextColor(1, 1, 1)
+    message:SetPoint("TOP", confirmDialog, "TOP", 0, msgY)
+    message:SetWidth(width - 2 * (confirmDialog._borderWidth + confirmDialog._padding))
+    message:SetJustifyH("LEFT")
+    message:SetWordWrap(true)
+    message:SetText(addon:L("resetConfirmText"))
+    confirmDialog.message = message
+
+    local msgHeight = message:GetStringHeight()
+    local buttonY = msgY - msgHeight - 15
+
+    -- Two buttons side by side
+    local buttonWidth = (width - 2 * (confirmDialog._borderWidth + confirmDialog._padding) - 10) / 2
+    local buttonHeight = 28
+
+    -- Reset button (left side)
+    local resetBtn = CreateFrame("Button", nil, confirmDialog, "UIPanelButtonTemplate")
+    resetBtn:SetSize(buttonWidth, buttonHeight)
+    resetBtn:SetPoint("TOPLEFT", confirmDialog, "TOPLEFT", confirmDialog._borderWidth + confirmDialog._padding, buttonY)
+    resetBtn:SetText(addon:L("resetButton"))
+    resetBtn:GetFontString():SetFont(confirmDialog._fontPath, 13, "OUTLINE")
+    resetBtn:SetScript("OnClick", function()
+        if confirmDialog.onConfirm then
+            confirmDialog.onConfirm()
+        end
+        confirmDialog:Hide()
+    end)
+    confirmDialog.resetButton = resetBtn
+
+    -- Cancel button (right side)
+    local cancelBtn = CreateFrame("Button", nil, confirmDialog, "UIPanelButtonTemplate")
+    cancelBtn:SetSize(buttonWidth, buttonHeight)
+    cancelBtn:SetPoint("LEFT", resetBtn, "RIGHT", 10, 0)
+    cancelBtn:SetText("Cancel")
+    cancelBtn:GetFontString():SetFont(confirmDialog._fontPath, 13, "OUTLINE")
+    cancelBtn:SetScript("OnClick", function()
+        confirmDialog:Hide()
+    end)
+    confirmDialog.cancelButton = cancelBtn
+
+    -- Size the dialog to fit
+    local totalHeight = math.abs(buttonY - buttonHeight) + confirmDialog._borderWidth + confirmDialog._padding
+    confirmDialog:SetHeight(totalHeight)
+
+    -- Handle Escape key
+    confirmDialog:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:Hide()
+        end
+    end)
+    confirmDialog:EnableKeyboard(true)
+
+    confirmDialog:SetScript("OnShow", function(self)
+        self:SetPropagateKeyboardInput(false)
+    end)
+
+    confirmDialog:SetScript("OnHide", function(self)
+        self:SetPropagateKeyboardInput(true)
+        self.onConfirm = nil
+    end)
+
+    return confirmDialog
+end
+
+function addon:ShowResetConfirmDialog(configKey, moduleKey)
+    local confirm = BuildConfirmDialog()
+    
+    confirm.onConfirm = function()
+        local cfg = self.config[configKey]
+        local targetCfg = cfg
+        
+        -- Handle auraFilters (stored as arrays)
+        local isAuraFilter = false
+        local auraFilterIndex = nil
+        if moduleKey and cfg.modules and cfg.modules.auraFilters then
+            for i, filter in ipairs(cfg.modules.auraFilters) do
+                if filter.name == moduleKey then
+                    targetCfg = filter
+                    isAuraFilter = true
+                    auraFilterIndex = i
+                    break
+                end
+            end
+        end
+        
+        -- If not an auraFilter, check regular modules
+        if not isAuraFilter and moduleKey and cfg.modules and cfg.modules[moduleKey] then
+            targetCfg = cfg.modules[moduleKey]
+        end
+        
+        local preserveEnabled = targetCfg.enabled
+        local preserveHideBlizzard = targetCfg.hideBlizzard
+        
+        if isAuraFilter then
+            self:ClearOverrides({configKey, "modules", "auraFilters", auraFilterIndex})
+            if preserveEnabled ~= nil then
+                self:SetOverride({configKey, "modules", "auraFilters", auraFilterIndex, "enabled"}, preserveEnabled)
+            end
+            if preserveHideBlizzard ~= nil then
+                self:SetOverride({configKey, "modules", "auraFilters", auraFilterIndex, "hideBlizzard"}, preserveHideBlizzard)
+            end
+        elseif moduleKey then
+            self:ClearOverrides({configKey, "modules", moduleKey})
+            if preserveEnabled ~= nil then
+                self:SetOverride({configKey, "modules", moduleKey, "enabled"}, preserveEnabled)
+            end
+            if preserveHideBlizzard ~= nil then
+                self:SetOverride({configKey, "modules", moduleKey, "hideBlizzard"}, preserveHideBlizzard)
+            end
+        else
+            self:ClearOverrides({configKey})
+            if preserveEnabled ~= nil then
+                self:SetOverride({configKey, "enabled"}, preserveEnabled)
+            end
+            if preserveHideBlizzard ~= nil then
+                self:SetOverride({configKey, "hideBlizzard"}, preserveHideBlizzard)
+            end
+        end
+        
+        self.config = self:GetConfig()
+        
+        if moduleKey then
+            self:RefreshModule(configKey, moduleKey)
+            
+            -- For group frame modules (party/arena), also reposition all instances
+            if configKey == "party" or configKey == "arena" then
+                local containerName = configKey == "party" and "zfPartyContainer" or "zfArenaContainer"
+                local container = _G[containerName]
+                
+                if container and container.frames then
+                    -- Get the DEFAULT module config (without any overrides)
+                    local defaultConfig = self:GetDefaultConfig()
+                    local defaultFrameCfg = defaultConfig[configKey]
+                    
+                    local moduleCfg = defaultFrameCfg.modules[moduleKey]
+                    if not moduleCfg then
+                        -- Check if it's an auraFilter
+                        if isAuraFilter and auraFilterIndex then
+                            moduleCfg = defaultFrameCfg.modules.auraFilters[auraFilterIndex]
+                        end
+                    end
+                    
+                    if moduleCfg then
+                        local anchorPoint = moduleCfg.anchor
+                        local relativePoint = moduleCfg.relativePoint
+                        local offsetX = moduleCfg.offsetX or 0
+                        local offsetY = moduleCfg.offsetY or 0
+                        
+                        -- Convert module key to PascalCase to access frame property
+                        local moduleName = moduleKey:sub(1, 1):upper() .. moduleKey:sub(2)
+                        
+                        for i, unitFrame in ipairs(container.frames) do
+                            local module = unitFrame[moduleName]
+                            
+                            if module and anchorPoint and relativePoint then
+                                -- Determine the anchor frame for this module instance
+                                local moduleAnchorFrame = unitFrame
+                                
+                                -- DEPRECATED: relativeToModule is deprecated but supported for backwards compatibility
+                                if moduleCfg.relativeToModule then
+                                    local ref = moduleCfg.relativeToModule
+                                    if type(ref) == "table" then
+                                        for _, key in ipairs(ref) do
+                                            if unitFrame[key] then
+                                                moduleAnchorFrame = unitFrame[key]
+                                                break
+                                            end
+                                        end
+                                    else
+                                        moduleAnchorFrame = unitFrame[ref] or unitFrame
+                                    end
+                                end
+                                
+                                local moduleRelativeFrame = moduleCfg.relativeTo and _G[moduleCfg.relativeTo] or moduleAnchorFrame
+                                
+                                if moduleRelativeFrame then
+                                    module:ClearAllPoints()
+                                    module:SetPoint(anchorPoint, moduleRelativeFrame, relativePoint, offsetX, offsetY)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            self:RefreshFrame(configKey)
+        end
+    end
+    
+    confirm:Show()
+end
+
 function addon:HideAllEditModeSubDialogs()
+    if confirmDialog then
+        confirmDialog:Hide()
+    end
+    
     if subDialog then
         local wasShown = subDialog:IsShown()
         subDialog:Hide()
@@ -84,6 +304,19 @@ end
 function addon:ShowEditModeSubDialog(configKey, moduleKey)
     if not configKey then return end
 
+    local existingX, existingY
+    if subDialog and subDialog:IsShown() then
+        local left = subDialog:GetLeft()
+        local bottom = subDialog:GetBottom()
+        local width = subDialog:GetWidth()
+        local height = subDialog:GetHeight()
+        
+        if left and bottom and width and height then
+            existingX = left + (width / 2)
+            existingY = bottom + (height / 2)
+        end
+    end
+
     self:HideAllEditModeSubDialogs()
 
     local sub = BuildSubDialog()
@@ -91,18 +324,27 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
         sub:SetSize(dialog:GetWidth(), dialog:GetHeight())
     end
 
+    sub._configKey = configKey
+    sub._moduleKey = moduleKey
+
     local title = GetConfigDisplayName(configKey)
     if moduleKey then
-        title = title .. "." .. GetModuleDisplayName(moduleKey)
+        title = title .. " > " .. GetModuleDisplayName(moduleKey)
     end
     sub.title:SetText(title)
 
-    local cursorX = GetCursorPosition()
-    local scale = UIParent:GetEffectiveScale()
-    local uiX = cursorX / scale
-    local screenWidth = UIParent:GetWidth()
-    local dialogX = (uiX <= screenWidth * 0.5) and (screenWidth * 0.75) or (screenWidth * 0.25)
-    local dialogY = UIParent:GetHeight() * 0.5
+    local dialogX, dialogY
+    if existingX and existingY then
+        dialogX = existingX
+        dialogY = existingY
+    else
+        local cursorX = GetCursorPosition()
+        local scale = UIParent:GetEffectiveScale()
+        local uiX = cursorX / scale
+        local screenWidth = UIParent:GetWidth()
+        dialogX = (uiX <= screenWidth * 0.5) and (screenWidth * 0.75) or (screenWidth * 0.25)
+        dialogY = UIParent:GetHeight() * 0.5
+    end
 
     sub:ClearAllPoints()
     sub:SetPoint("CENTER", UIParent, "BOTTOMLEFT", dialogX, dialogY)

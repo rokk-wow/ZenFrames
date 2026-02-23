@@ -43,6 +43,8 @@ function addon:AddDRTracker(frame, cfg)
     self:AddTextureBorder(container, containerBorderWidth, cfg.containerBorderColor or "00000000")
 
     local anchorFrame = frame
+    -- DEPRECATED: relativeToModule is deprecated. Use direct frame anchoring with calculated offsets instead.
+    -- This logic remains for backwards compatibility with existing custom configs.
     if cfg.relativeToModule then
         local ref = cfg.relativeToModule
         if type(ref) == "table" then

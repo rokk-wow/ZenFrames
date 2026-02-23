@@ -58,6 +58,8 @@ local function CreateIndicator(parent, width, height, borderWidth, borderColor)
     return indicator
 end
 
+-- DEPRECATED: relativeToModule is deprecated. Use direct frame anchoring with calculated offsets instead.
+-- This function remains for backwards compatibility with existing custom configs.
 local function ResolveAnchorFrame(frame, relativeToModule)
     local anchorFrame = frame
     if relativeToModule then
