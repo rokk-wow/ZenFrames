@@ -57,7 +57,10 @@ escapeFrame:SetPropagateKeyboardInput(true)
 escapeFrame:SetScript("OnKeyDown", function(self, key)
     if key == "ESCAPE" and addon.editMode then
         self:SetPropagateKeyboardInput(false)
-        addon:DisableEditMode()
+        local closedSubDialog = addon:HideAllEditModeSubDialogs()
+        if not closedSubDialog then
+            addon:DisableEditMode()
+        end
     else
         self:SetPropagateKeyboardInput(true)
     end

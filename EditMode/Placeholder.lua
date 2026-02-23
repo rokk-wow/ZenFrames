@@ -119,11 +119,7 @@ function addon:AttachPlaceholder(element)
 
             overlay:SetScript("OnMouseDown", function()
                 if overlay._configKey then
-                    local path = overlay._configKey
-                    if overlay._moduleKey then
-                        path = path .. "." .. overlay._moduleKey
-                    end
-                    addon:Info("Config: " .. path)
+                    addon:ShowEditModeSubDialog(overlay._configKey, overlay._moduleKey)
                 end
             end)
 

@@ -27,6 +27,87 @@ local DISABLED_FRAMES = {
 local visibilityState = {}
 local initialEnabledState = {}
 local dialog
+local subDialog
+local SUB_DIALOG_TITLE_FONT_SIZE = 16
+
+local function ToPascalCase(value)
+    if not value then return "" end
+
+    local parts = {}
+    for part in tostring(value):gmatch("[^_%-%s%.]+") do
+        part = part:gsub("^%l", string.upper)
+        parts[#parts + 1] = part
+    end
+
+    local merged = table.concat(parts)
+    if merged == "" then
+        return ""
+    end
+
+    return merged:gsub("^%l", string.upper)
+end
+
+local function GetConfigDisplayName(configKey)
+    return ToPascalCase(configKey)
+end
+
+local function GetModuleDisplayName(moduleKey)
+    return ToPascalCase(moduleKey)
+end
+
+local function BuildSubDialog()
+    if subDialog then return subDialog end
+
+    local width = dialog and dialog:GetWidth() or 320
+    subDialog = addon:CreateDialog("ZenFramesEditModeSubDialog", "", width)
+    subDialog:SetFrameStrata("TOOLTIP")
+    subDialog:SetFrameLevel(300)
+    subDialog.title:SetFont(subDialog._fontPath, SUB_DIALOG_TITLE_FONT_SIZE, "OUTLINE")
+
+    if dialog then
+        subDialog:SetSize(dialog:GetWidth(), dialog:GetHeight())
+    end
+
+    return subDialog
+end
+
+function addon:HideAllEditModeSubDialogs()
+    if subDialog then
+        local wasShown = subDialog:IsShown()
+        subDialog:Hide()
+        return wasShown
+    end
+
+    return false
+end
+
+function addon:ShowEditModeSubDialog(configKey, moduleKey)
+    if not configKey then return end
+
+    self:HideAllEditModeSubDialogs()
+
+    local sub = BuildSubDialog()
+    if dialog then
+        sub:SetSize(dialog:GetWidth(), dialog:GetHeight())
+    end
+
+    local title = GetConfigDisplayName(configKey)
+    if moduleKey then
+        title = title .. "." .. GetModuleDisplayName(moduleKey)
+    end
+    sub.title:SetText(title)
+
+    local cursorX = GetCursorPosition()
+    local scale = UIParent:GetEffectiveScale()
+    local uiX = cursorX / scale
+    local screenWidth = UIParent:GetWidth()
+    local dialogX = (uiX <= screenWidth * 0.5) and (screenWidth * 0.75) or (screenWidth * 0.25)
+    local dialogY = UIParent:GetHeight() * 0.5
+
+    sub:ClearAllPoints()
+    sub:SetPoint("CENTER", UIParent, "BOTTOMLEFT", dialogX, dialogY)
+    sub:Show()
+end
 
 local function ResetVisibilityState()
     for k in pairs(visibilityState) do
@@ -163,6 +244,8 @@ function addon:ShowEditModeDialog()
 end
 
 function addon:HideEditModeDialog()
+    self:HideAllEditModeSubDialogs()
+
     if dialog then
         dialog:Hide()
     end
