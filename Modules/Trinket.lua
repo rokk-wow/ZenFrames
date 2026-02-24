@@ -11,7 +11,7 @@ end
 
 function addon:AddTrinket(frame, cfg)
     local size = cfg.iconSize or 36
-    local borderWidth = cfg.iconBorderWidth or 1
+    local borderWidth = cfg.borderWidth or 1
 
     local trinket = CreateFrame("Frame", nil, frame)
     trinket:SetSize(size, size)
@@ -52,7 +52,7 @@ function addon:AddTrinket(frame, cfg)
         icon:SetTexture(defaultTexture)
     end
 
-    addon:AddTextureBorder(trinket, borderWidth, cfg.iconBorderColor or "000000FF")
+    addon:AddTextureBorder(trinket, borderWidth, cfg.borderColor or "000000FF")
 
     local cooldown = CreateFrame("Cooldown", nil, trinket, "CooldownFrameTemplate")
     cooldown:SetAllPoints(trinket)

@@ -1,7 +1,7 @@
 ## Interface: 120000, 120001
 ## Title: ZenFrames
 ## Author: Rôkk-Wyrmrest Accord
-## Version: 1.1.3
+## Version: 1.2.0
 ## SavedVariables: ZenFramesSettings_Global
 ## SavedVariablesPerCharacter: ZenFramesSettings_Char
 ## OptionalDeps: LibSharedMedia-3.0
@@ -13,8 +13,6 @@ Libs\LibSAdCore\LibSAdCore.lua
 Libs\oUF\oUF.xml
 
 Config.lua
-
-Settings\CustomConfig.lua
 
 EditMode\Placeholder.lua
 
@@ -53,5 +51,6 @@ EditMode\DialogEditMode.lua
 EditMode\EditMode.lua
 EditMode\Frames.lua
 
+Migrations.lua
 ZenFrames.lua
 Localization.lua

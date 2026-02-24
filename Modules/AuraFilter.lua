@@ -126,7 +126,7 @@ function AuraFilterMixin:Init(cfg)
     end
 
     self.iconSize = cfg.iconSize or 30
-    self.iconBorderWidth = cfg.iconBorderWidth or 1
+    self.iconBorderWidth = cfg.borderWidth or 1
     self.spacingX = cfg.spacingX or 2
     self.spacingY = cfg.spacingY or 2
     self.maxIcons = cfg.maxIcons or 10
@@ -286,8 +286,8 @@ function AuraFilterMixin:CreateIcons(cfg)
         end
 
         addon:StyleAuraButton(icon,
-            cfg.iconBorderWidth or 1,
-            cfg.iconBorderColor or "000000FF",
+            cfg.borderWidth or 1,
+            cfg.borderColor or "000000FF",
             {
                 showSwipe = cfg.showSwipe,
                 showCooldownNumbers = cfg.showCooldownNumbers,

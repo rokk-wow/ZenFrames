@@ -11,7 +11,7 @@ local BLIZZARD_ICON_SIZE = 26
 
 function addon:AddDRTracker(frame, cfg)
     local iconSize = cfg.iconSize or BLIZZARD_ICON_SIZE
-    local iconBorderWidth = cfg.iconBorderWidth or 1
+    local iconBorderWidth = cfg.borderWidth or 1
     local maxIcons = cfg.maxIcons or 6
     local perRow = cfg.perRow or maxIcons
     local growthX = cfg.growthX or "RIGHT"
@@ -22,7 +22,7 @@ function addon:AddDRTracker(frame, cfg)
 
     local trayScale = iconSize / BLIZZARD_ICON_SIZE
     local scaledBorderWidth = iconBorderWidth / trayScale
-    local bR, bG, bB, bA = addon:HexToRGB(cfg.iconBorderColor or "000000FF")
+    local bR, bG, bB, bA = addon:HexToRGB(cfg.borderColor or "000000FF")
     local scaledSpacing = spacingX / trayScale
     local cols = math.min(perRow, maxIcons)
     local rows = math.ceil(maxIcons / cols)

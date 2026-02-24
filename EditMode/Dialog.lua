@@ -1107,10 +1107,9 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
                 local container = _G[containerName]
 
                 if container and container.frames then
-                    local defaultConfig = self:GetDefaultConfig()
-                    local defaultFrameCfg = defaultConfig[configKey]
+                    local frameCfg = self.config[configKey]
 
-                    local moduleCfg = defaultFrameCfg.modules[moduleKey]
+                    local moduleCfg = frameCfg.modules[moduleKey]
                     if not moduleCfg then
                         if isAuraFilter and auraFilterIndex then
                             moduleCfg = defaultFrameCfg.modules.auraFilters[auraFilterIndex]

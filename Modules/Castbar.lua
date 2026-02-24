@@ -10,8 +10,8 @@ function addon:AddCastbar(frame, cfg)
     Castbar:SetHeight(cfg.height)
     Castbar:SetWidth(cfg.width or frame:GetWidth())
 
-    if cfg.texture then
-        local texturePath = addon:FetchStatusbar(cfg.texture)
+    if cfg.castbarTexture then
+        local texturePath = addon:FetchStatusbar(cfg.castbarTexture)
         if texturePath then
             Castbar:SetStatusBarTexture(texturePath)
         end

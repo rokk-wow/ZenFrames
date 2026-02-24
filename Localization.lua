@@ -143,36 +143,20 @@ addon.locale.enEN = {
 	enabled = "Enable Frame",
 	enabledTooltip = "Enable or disable this frame.",
 	release_v1_1_0_desc_1 = "Added option to show the new Blizzard dispel icons.",
+	release_v1_2_0_desc_1 = "Removed Custom Config in favor of Edit Mode.",
 
-	-- Custom Config panel
+	-- Edit Mode / Settings panel
 	editModeHeader = "Edit Mode",
 	editModeDescription = "Type /zf to toggle edit mode at any time.",
 	editModeButton = "Edit Mode",
 	resetAllButton = "Reset All",
 	resetButton = "Reset",
-	resetConfirmText = "Reset this frame to default? This will clear all customizations for this specific frame.",
+	resetConfirmText = "Reset this frame to default? This will clear all customizations for this frame.",
 	resetAllConfirmText = "Reset all ZenFrames settings to default? This will clear all customizations and reload your UI.",
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Settings",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
-
-	customConfigTitle = "Custom Config",
-	customConfigNoticeHeader = "Notice",
-	customConfigHeader = "Config",
-	customConfigDocs = "Docs",
-	customConfigDocsTooltip = "Open the custom config documentation URL.",
-	customConfigDocsTitle = "Custom Config Docs",
-	customConfigDocsURL = "CTRL-C to Copy",
-	customConfigGetCurrent = "Get Current Config",
-	customConfigGetCurrentTitle = "Current Configuration",
-	customConfigCopyHint = "CTRL-C to Copy",
-	customConfigApply = "Apply",
-	customConfigRemove = "Remove Custom Config",
-	customConfigTemporaryNotice = "Custom Configs are temporary until Edit Mode is fully built. If you update versions of ZenFrames, be sure to generate a new config before editing.",
-	customConfigEmpty = "No config text provided.",
-	customConfigParseError = "Failed to parse config",
-	customConfigInvalid = "Config must be a valid Lua table.",
-	customConfigNoneActive = "No custom config is currently active.",
+	customConfigRemoved = "Full edit mode has been implemented and Custom Config removed. If you need help, reach out to reddit.com/u/rokk--/.",
 }
 
 -- Spanish
@@ -316,6 +300,7 @@ addon.locale.esES = {
 	enabled = "Habilitar marco",
 	enabledTooltip = "Activa o desactiva este marco.",
 	release_v1_1_0_desc_1 = "Se agregó la opción de mostrar los nuevos iconos de disipación de Blizzard.",
+	release_v1_2_0_desc_1 = "Se eliminó la configuración personalizada en favor del Modo de edición.",
 
 	-- Custom Config panel
 	editModeHeader = "Modo de edición",
@@ -328,24 +313,7 @@ addon.locale.esES = {
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Ajustes",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
-
-	customConfigTitle = "Configuración personalizada",
-	customConfigNoticeHeader = "Aviso",
-	customConfigHeader = "Configuración",
-	customConfigDocs = "Documentación",
-	customConfigDocsTooltip = "Abre la URL de documentación de configuración personalizada.",
-	customConfigDocsTitle = "Documentación de configuración personalizada",
-	customConfigDocsURL = "CTRL-C para copiar",
-	customConfigGetCurrent = "Obtener configuración actual",
-	customConfigGetCurrentTitle = "Configuración actual",
-	customConfigCopyHint = "CTRL-C para copiar",
-	customConfigApply = "Aplicar",
-	customConfigRemove = "Eliminar configuración personalizada",
-	customConfigTemporaryNotice = "Las configuraciones personalizadas son temporales hasta que el Modo de edición esté completamente terminado. Si actualizas versiones de ZenFrames, asegúrate de generar una configuración nueva antes de editar.",
-	customConfigEmpty = "No se proporcionó texto de configuración.",
-	customConfigParseError = "Error al analizar la configuración",
-	customConfigInvalid = "La configuración debe ser una tabla Lua válida.",
-	customConfigNoneActive = "No hay ninguna configuración personalizada activa actualmente.",
+	customConfigRemoved = "La configuración personalizada ha sido eliminada. Si necesitas ayuda, contacta a /u/rokk-- en Reddit.",
 }
 
 addon.locale.esMX = addon.locale.esES
@@ -491,6 +459,7 @@ addon.locale.ptBR = {
 	enabled = "Ativar quadro",
 	enabledTooltip = "Ativa ou desativa este quadro.",
 	release_v1_1_0_desc_1 = "Adicionada opção para mostrar os novos ícones de dissipação da Blizzard.",
+	release_v1_2_0_desc_1 = "Removida a configuração personalizada em favor do Modo de Edição.",
 
 	-- Custom Config panel
 	editModeHeader = "Modo de edição",
@@ -503,24 +472,7 @@ addon.locale.ptBR = {
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Configurações",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
-
-	customConfigTitle = "Configuração personalizada",
-	customConfigNoticeHeader = "Aviso",
-	customConfigHeader = "Configuração",
-	customConfigDocs = "Documentação",
-	customConfigDocsTooltip = "Abre a URL da documentação de configuração personalizada.",
-	customConfigDocsTitle = "Documentação de configuração personalizada",
-	customConfigDocsURL = "CTRL-C para copiar",
-	customConfigGetCurrent = "Obter configuração atual",
-	customConfigGetCurrentTitle = "Configuração atual",
-	customConfigCopyHint = "CTRL-C para copiar",
-	customConfigApply = "Aplicar",
-	customConfigRemove = "Remover configuração personalizada",
-	customConfigTemporaryNotice = "As configurações personalizadas são temporárias até que o Modo de Edição esteja totalmente concluído. Se você atualizar versões do ZenFrames, gere uma nova configuração antes de editar.",
-	customConfigEmpty = "Nenhum texto de configuração fornecido.",
-	customConfigParseError = "Falha ao analisar a configuração",
-	customConfigInvalid = "A configuração deve ser uma tabela Lua válida.",
-	customConfigNoneActive = "Nenhuma configuração personalizada está ativa no momento.",
+	customConfigRemoved = "A configuração personalizada foi removida. Se precisar de ajuda, entre em contato com /u/rokk-- no Reddit.",
 }
 
 -- French
@@ -664,6 +616,7 @@ addon.locale.frFR = {
 	enabled = "Activer le cadre",
 	enabledTooltip = "Active ou désactive ce cadre.",
 	release_v1_1_0_desc_1 = "Ajout d'une option pour afficher les nouvelles icônes de dissipation de Blizzard.",
+	release_v1_2_0_desc_1 = "Suppression de la configuration personnalisée au profit du mode édition.",
 
 	-- Custom Config panel
 	editModeHeader = "Mode édition",
@@ -676,24 +629,7 @@ addon.locale.frFR = {
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Paramètres",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
-
-	customConfigTitle = "Config personnalisée",
-	customConfigNoticeHeader = "Avis",
-	customConfigHeader = "Config",
-	customConfigDocs = "Docs",
-	customConfigDocsTooltip = "Ouvre l'URL de la documentation de configuration personnalisée.",
-	customConfigDocsTitle = "Docs de config personnalisée",
-	customConfigDocsURL = "CTRL-C pour copier",
-	customConfigGetCurrent = "Obtenir la config actuelle",
-	customConfigGetCurrentTitle = "Configuration actuelle",
-	customConfigCopyHint = "CTRL-C pour copier",
-	customConfigApply = "Appliquer",
-	customConfigRemove = "Supprimer la config personnalisée",
-	customConfigTemporaryNotice = "Les configurations personnalisées sont temporaires tant que le mode édition n'est pas entièrement finalisé. Si vous mettez à jour des versions de ZenFrames, assurez-vous de générer une nouvelle configuration avant de modifier.",
-	customConfigEmpty = "Aucun texte de configuration fourni.",
-	customConfigParseError = "Échec de l'analyse de la configuration",
-	customConfigInvalid = "La configuration doit être une table Lua valide.",
-	customConfigNoneActive = "Aucune configuration personnalisée n'est actuellement active.",
+	customConfigRemoved = "La configuration personnalisée a été supprimée. Si vous avez besoin d'aide, contactez /u/rokk-- sur Reddit.",
 }
 
 -- German
@@ -837,6 +773,7 @@ addon.locale.deDE = {
 	enabled = "Rahmen aktivieren",
 	enabledTooltip = "Aktiviert oder deaktiviert diesen Rahmen.",
 	release_v1_1_0_desc_1 = "Option zum Anzeigen der neuen Blizzard-Entzauberungssymbole hinzugefügt.",
+	release_v1_2_0_desc_1 = "Benutzerdefinierte Konfiguration zugunsten des Bearbeitungsmodus entfernt.",
 
 	-- Custom Config panel
 	editModeHeader = "Bearbeitungsmodus",
@@ -849,24 +786,7 @@ addon.locale.deDE = {
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Einstellungen",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
-
-	customConfigTitle = "Benutzerdefinierte Konfiguration",
-	customConfigNoticeHeader = "Hinweis",
-	customConfigHeader = "Konfiguration",
-	customConfigDocs = "Doku",
-	customConfigDocsTooltip = "Öffnet die URL zur Dokumentation der benutzerdefinierten Konfiguration.",
-	customConfigDocsTitle = "Doku zur benutzerdefinierten Konfiguration",
-	customConfigDocsURL = "CTRL-C zum Kopieren",
-	customConfigGetCurrent = "Aktuelle Konfiguration abrufen",
-	customConfigGetCurrentTitle = "Aktuelle Konfiguration",
-	customConfigCopyHint = "CTRL-C zum Kopieren",
-	customConfigApply = "Anwenden",
-	customConfigRemove = "Benutzerdefinierte Konfiguration entfernen",
-	customConfigTemporaryNotice = "Benutzerdefinierte Konfigurationen sind vorübergehend, bis der Bearbeitungsmodus vollständig fertig ist. Wenn du ZenFrames-Versionen aktualisierst, erstelle vor dem Bearbeiten unbedingt eine neue Konfiguration.",
-	customConfigEmpty = "Kein Konfigurationstext angegeben.",
-	customConfigParseError = "Konfiguration konnte nicht geparst werden",
-	customConfigInvalid = "Die Konfiguration muss eine gültige Lua-Tabelle sein.",
-	customConfigNoneActive = "Derzeit ist keine benutzerdefinierte Konfiguration aktiv.",
+	customConfigRemoved = "Die benutzerdefinierte Konfiguration wurde entfernt. Wenn du Hilfe brauchst, wende dich an /u/rokk-- auf Reddit.",
 }
 
 -- Russian
@@ -1010,6 +930,7 @@ addon.locale.ruRU = {
 	enabled = "Включить фрейм",
 	enabledTooltip = "Включает или отключает этот фрейм.",
 	release_v1_1_0_desc_1 = "Добавлена опция для отображения новых иконок рассеивания Blizzard.",
+	release_v1_2_0_desc_1 = "Удалена пользовательская конфигурация в пользу режима редактирования.",
 
 	-- Custom Config panel
 	editModeHeader = "Режим редактирования",
@@ -1022,22 +943,5 @@ addon.locale.ruRU = {
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Настройки",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
-
-	customConfigTitle = "Пользовательская конфигурация",
-	customConfigNoticeHeader = "Внимание",
-	customConfigHeader = "Конфигурация",
-	customConfigDocs = "Документация",
-	customConfigDocsTooltip = "Открывает URL документации пользовательской конфигурации.",
-	customConfigDocsTitle = "Документация пользовательской конфигурации",
-	customConfigDocsURL = "CTRL-C для копирования",
-	customConfigGetCurrent = "Получить текущую конфигурацию",
-	customConfigGetCurrentTitle = "Текущая конфигурация",
-	customConfigCopyHint = "CTRL-C для копирования",
-	customConfigApply = "Применить",
-	customConfigRemove = "Удалить пользовательскую конфигурацию",
-	customConfigTemporaryNotice = "Пользовательские конфигурации временные, пока режим редактирования не будет полностью готов. Если вы обновляете версии ZenFrames, обязательно создавайте новую конфигурацию перед редактированием.",
-	customConfigEmpty = "Текст конфигурации не предоставлен.",
-	customConfigParseError = "Не удалось разобрать конфигурацию",
-	customConfigInvalid = "Конфигурация должна быть корректной таблицей Lua.",
-	customConfigNoneActive = "Сейчас нет активной пользовательской конфигурации.",
+	customConfigRemoved = "Пользовательская конфигурация была удалена. Если вам нужна помощь, обратитесь к /u/rokk-- на Reddit.",
 }

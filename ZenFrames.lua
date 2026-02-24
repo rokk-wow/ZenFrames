@@ -7,9 +7,9 @@ addon.sadCore.savedVarsGlobalName = "ZenFramesSettings_Global"
 addon.sadCore.savedVarsPerCharName = "ZenFramesSettings_Char"
 addon.sadCore.compartmentFuncName = "ZenFramesCompartment_Func"
 addon.sadCore.releaseNotes = {
-    version = "1.1.0",
+    version = "1.2.0",
     notes = {
-        "release_v1_1_0_desc_1",
+        "release_v1_2_0_desc_1",
     }
 }
 
@@ -79,7 +79,6 @@ function addon:ResetAllSettings()
     if not self.savedVars then return end
     self.savedVars.data = self.savedVars.data or {}
     self.savedVars.data.overrides = {}
-    self.savedVars.data.customConfig = nil
     ReloadUI()
 end
 
@@ -128,14 +127,6 @@ function addon:RefreshModule(configKey, moduleKey)
     if frame.UpdateAllElements then
         frame:UpdateAllElements("RefreshConfig")
     end
-end
-
-function addon:GetCustomConfig()
-    local customConfig = self.savedVars and self.savedVars.data and self.savedVars.data.customConfig
-    if customConfig then
-        return deepCopy(customConfig)
-    end
-    return nil
 end
 
 function addon:GetConfig()
@@ -204,20 +195,9 @@ function addon:Initialize()
         preferredIndex = 3,
     }
 
-    self:SetupCustomConfigSettingsPanel()
+    self:RunMigrations()
 
-    -- ---------------------------------------------------------------------------
-    -- Migration from legacy flat saved variables
-    --
-    -- Remove later - once all users with legacy settings have played at least
-    -- once this is dead code.
-    -- Implemented 2/22/2026 - can remove any time after 3/22/2026.
-    -- ---------------------------------------------------------------------------
-    self:MigrateConfig()
-    self:MigrateFrameNamePrefix()
-    -- End Migration Segment
-
-    self.config = self:GetCustomConfig() or self:GetConfig()
+    self.config = self:GetConfig()
     self.unitFrames = {}
 
     self:OverridePowerColors()
@@ -364,238 +344,4 @@ function addon:SpawnAuraFilters()
     end
 end
 
--- ---------------------------------------------------------------------------
--- Migration from legacy flat saved variables
---
--- Remove later - once all users with legacy settings have played at least
--- once this is dead code.
--- Implemented 2/22/2026 - can remove any time after 3/22/2026.
--- ---------------------------------------------------------------------------
-local function MigratePrefixInFrameReferences(tbl)
-    if type(tbl) ~= "table" then return false end
 
-    local migrated = false
-    for key, value in pairs(tbl) do
-        if type(value) == "table" then
-            if MigratePrefixInFrameReferences(value) then
-                migrated = true
-            end
-        elseif (key == "frameName" or key == "relativeTo") and type(value) == "string" then
-            local updatedValue = value:gsub("^frmd", "zf")
-            if updatedValue ~= value then
-                tbl[key] = updatedValue
-                migrated = true
-            end
-        end
-    end
-
-    return migrated
-end
-
-function addon:MigrateFrameNamePrefix()
-    if not self.savedVars then return false end
-    self.savedVars.data = self.savedVars.data or {}
-    if self.savedVars.data.frameNamePrefixMigrated then return false end
-
-    local migrated = false
-
-    if MigratePrefixInFrameReferences(self.savedVars.data.overrides) then
-        migrated = true
-    end
-
-    if MigratePrefixInFrameReferences(self.savedVars.data.customConfig) then
-        migrated = true
-    end
-
-    self.savedVars.data.frameNamePrefixMigrated = true
-    return migrated
-end
-
-function addon:MigrateConfig()
-    if not self.savedVars then return end
-    self.savedVars.data = self.savedVars.data or {}
-    if self.savedVars.data.configMigrated then return end
-
-    local overrides = self.savedVars.data.overrides or {}
-    local migrated = false
-
-    local modules = self.savedVars.modules
-    if type(modules) == "table" then
-        local moduleMap = {
-            playerEnabled       = "player",
-            targetEnabled       = "target",
-            targetTargetEnabled = "targetTarget",
-            focusEnabled        = "focus",
-            focusTargetEnabled  = "focusTarget",
-            petEnabled          = "pet",
-            partyEnabled        = "party",
-            arenaEnabled        = "arena",
-        }
-        for setting, configKey in pairs(moduleMap) do
-            if type(modules[setting]) == "boolean" then
-                setNested(overrides, {configKey, "enabled"}, modules[setting])
-                setNested(overrides, {configKey, "hideBlizzard"}, modules[setting])
-                migrated = true
-            end
-        end
-    end
-
-    local style = self.savedVars.style
-    if type(style) == "table" then
-        if type(style.font) == "string" then
-            setNested(overrides, {"global", "font"}, style.font)
-            migrated = true
-        end
-
-        local allUnits = {"player", "target", "targetTarget", "focus", "focusTarget", "pet"}
-        local largeUnits = {"player", "target"}
-        local smallUnits = {"targetTarget", "focus", "focusTarget", "pet"}
-
-        if type(style.healthTexture) == "string" then
-            for _, key in ipairs(allUnits) do
-                setNested(overrides, {key, "modules", "health", "texture"}, style.healthTexture)
-            end
-            migrated = true
-        end
-
-        if type(style.powerTexture) == "string" then
-            for _, key in ipairs(allUnits) do
-                setNested(overrides, {key, "modules", "power", "texture"}, style.powerTexture)
-            end
-            migrated = true
-        end
-
-        if type(style.castbarTexture) == "string" then
-            for _, key in ipairs(largeUnits) do
-                setNested(overrides, {key, "modules", "castbar", "texture"}, style.castbarTexture)
-            end
-            migrated = true
-        end
-
-        if type(style.absorbTexture) == "string" then
-            for _, key in ipairs(largeUnits) do
-                setNested(overrides, {key, "modules", "absorbs", "texture"}, style.absorbTexture)
-            end
-            migrated = true
-        end
-
-        if type(style.largeFrameLeftText) == "string" then
-            for _, key in ipairs(largeUnits) do
-                setNested(overrides, {key, "modules", "text", 1, "format"}, style.largeFrameLeftText)
-            end
-            migrated = true
-        end
-
-        if type(style.largeFrameRightText) == "string" then
-            for _, key in ipairs(largeUnits) do
-                setNested(overrides, {key, "modules", "text", 2, "format"}, style.largeFrameRightText)
-            end
-            migrated = true
-        end
-
-        if type(style.smallFrameText) == "string" then
-            for _, key in ipairs(smallUnits) do
-                setNested(overrides, {key, "modules", "text", 1, "format"}, style.smallFrameText)
-            end
-            migrated = true
-        end
-
-        if type(style.partyFrameLeftText) == "string" then
-            setNested(overrides, {"party", "modules", "text", 1, "format"}, style.partyFrameLeftText)
-            migrated = true
-        end
-        if type(style.partyFrameRightText) == "string" then
-            setNested(overrides, {"party", "modules", "text", 2, "format"}, style.partyFrameRightText)
-            migrated = true
-        end
-        if type(style.arenaFrameLeftText) == "string" then
-            setNested(overrides, {"arena", "modules", "text", 1, "format"}, style.arenaFrameLeftText)
-            migrated = true
-        end
-        if type(style.arenaFrameRightText) == "string" then
-            setNested(overrides, {"arena", "modules", "text", 2, "format"}, style.arenaFrameRightText)
-            migrated = true
-        end
-    end
-
-    local party = self.savedVars.party
-    if type(party) == "table" then
-        local partyModuleMap = {
-            partyTrinketEnabled         = {"party", "modules", "trinket", "enabled"},
-            partyArenaTargetsEnabled    = {"party", "modules", "arenaTargets", "enabled"},
-            partyCastbarEnabled         = {"party", "modules", "castbar", "enabled"},
-            partyDispelIconEnabled      = {"party", "modules", "dispelIcon", "enabled"},
-            partyDispelHighlightEnabled = {"party", "modules", "dispelHighlight", "enabled"},
-        }
-        for setting, path in pairs(partyModuleMap) do
-            if type(party[setting]) == "boolean" then
-                setNested(overrides, path, party[setting])
-                migrated = true
-            end
-        end
-
-        local partyFilterMap = {
-            { enable = "partyCrowdControlEnabled",    glow = "partyCrowdControlGlow",    color = "partyCrowdControlGlowColor",    index = 3 },
-            { enable = "partyDefensivesEnabled",      glow = "partyDefensivesGlow",      color = "partyDefensivesGlowColor",      index = 4 },
-            { enable = "partyImportantBuffsEnabled",  glow = "partyImportantBuffsGlow",  color = "partyImportantBuffsGlowColor",  index = 5 },
-        }
-        for _, f in ipairs(partyFilterMap) do
-            if type(party[f.enable]) == "boolean" then
-                setNested(overrides, {"party", "modules", "auraFilters", f.index, "enabled"}, party[f.enable])
-                migrated = true
-            end
-            if type(party[f.glow]) == "boolean" then
-                setNested(overrides, {"party", "modules", "auraFilters", f.index, "showGlow"}, party[f.glow])
-                migrated = true
-            end
-            if type(party[f.color]) == "string" then
-                setNested(overrides, {"party", "modules", "auraFilters", f.index, "glowColor"}, party[f.color]:gsub("^#", ""))
-                migrated = true
-            end
-        end
-    end
-
-    local arena = self.savedVars.arena
-    if type(arena) == "table" then
-        local arenaModuleMap = {
-            arenaTrinketEnabled         = {"arena", "modules", "trinket", "enabled"},
-            arenaArenaTargetsEnabled    = {"arena", "modules", "arenaTargets", "enabled"},
-            arenaCastbarEnabled         = {"arena", "modules", "castbar", "enabled"},
-            arenaDRTrackerEnabled       = {"arena", "modules", "drTracker", "enabled"},
-            arenaDispelIconEnabled      = {"arena", "modules", "dispelIcon", "enabled"},
-            arenaDispelHighlightEnabled = {"arena", "modules", "dispelHighlight", "enabled"},
-        }
-        for setting, path in pairs(arenaModuleMap) do
-            if type(arena[setting]) == "boolean" then
-                setNested(overrides, path, arena[setting])
-                migrated = true
-            end
-        end
-
-        local arenaFilterMap = {
-            { enable = "arenaCrowdControlEnabled",    glow = "arenaCrowdControlGlow",    color = "arenaCrowdControlGlowColor",    index = 3 },
-            { enable = "arenaDefensivesEnabled",      glow = "arenaDefensivesGlow",      color = "arenaDefensivesGlowColor",      index = 4 },
-            { enable = "arenaImportantBuffsEnabled",  glow = "arenaImportantBuffsGlow",  color = "arenaImportantBuffsGlowColor",  index = 5 },
-        }
-        for _, f in ipairs(arenaFilterMap) do
-            if type(arena[f.enable]) == "boolean" then
-                setNested(overrides, {"arena", "modules", "auraFilters", f.index, "enabled"}, arena[f.enable])
-                migrated = true
-            end
-            if type(arena[f.glow]) == "boolean" then
-                setNested(overrides, {"arena", "modules", "auraFilters", f.index, "showGlow"}, arena[f.glow])
-                migrated = true
-            end
-            if type(arena[f.color]) == "string" then
-                setNested(overrides, {"arena", "modules", "auraFilters", f.index, "glowColor"}, arena[f.color]:gsub("^#", ""))
-                migrated = true
-            end
-        end
-    end
-
-    if migrated then
-        self.savedVars.data.overrides = overrides
-    end
-    self.savedVars.data.configMigrated = true
-end
--- End Migration Segment
