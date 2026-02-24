@@ -670,6 +670,8 @@ end
 -- AddEnableControl - checkbox + "Reload UI" button (Enable Control)
 -- ---------------------------------------------------------------------------
 
+local ShowEditModeConfirmDialog
+
 function addon:DialogAddEnableControl(dialog, yOffset, label, checked, configKey, moduleKey, onChange)
     local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Match visibility control spacing
     local buttonWidth = 80
@@ -732,12 +734,35 @@ function addon:DialogAddEnableControl(dialog, yOffset, label, checked, configKey
 
     -- Reload button click handler
     reloadBtn:SetScript("OnClick", function()
-        -- Save sub-dialog state to reopen after reload
-        addon:SetPendingSubDialogReopen(configKey, moduleKey)
-        if addon.savedVars and addon.savedVars.data then
-            addon.savedVars.data.resumeEditModeAfterReload = true
+        local function ReloadForPendingChange()
+            addon:SetPendingSubDialogReopen(configKey, moduleKey)
+            if addon.savedVars and addon.savedVars.data then
+                addon.savedVars.data.resumeEditModeAfterReload = true
+            end
+            ReloadUI()
         end
-        ReloadUI()
+
+        local currentValue = cb:GetChecked()
+        local isDisabling = originalValue == true and currentValue == false
+
+        if isDisabling and ShowEditModeConfirmDialog then
+            ShowEditModeConfirmDialog({
+                title = addon:L("reloadUI"),
+                message = addon:L("disableModuleConfirmText"),
+                confirmText = addon:L("reloadUI"),
+                onConfirm = ReloadForPendingChange,
+                onCancel = function()
+                    cb:SetChecked(originalValue)
+                    if onChange then
+                        onChange(originalValue)
+                    end
+                    UpdateReloadButton(originalValue)
+                end,
+            })
+            return
+        end
+
+        ReloadForPendingChange()
     end)
 
     return row, yOffset - rowHeight - spacingAfter
@@ -1252,7 +1277,7 @@ local function BuildConfirmDialog()
         end
         confirmDialog:Hide()
     end)
-    confirmDialog.resetButton = resetBtn
+    confirmDialog.confirmButton = resetBtn
 
     local cancelBtn = CreateFrame("Button", nil, confirmDialog, "UIPanelButtonTemplate")
     cancelBtn:SetSize(buttonWidth, buttonHeight)
@@ -1260,6 +1285,9 @@ local function BuildConfirmDialog()
     cancelBtn:SetText("Cancel")
     cancelBtn:GetFontString():SetFont(confirmDialog._fontPath, 13, "OUTLINE")
     cancelBtn:SetScript("OnClick", function()
+        if confirmDialog.onCancel then
+            confirmDialog.onCancel()
+        end
         confirmDialog:Hide()
     end)
     confirmDialog.cancelButton = cancelBtn
@@ -1281,9 +1309,63 @@ local function BuildConfirmDialog()
     confirmDialog:SetScript("OnHide", function(self)
         self:SetPropagateKeyboardInput(true)
         self.onConfirm = nil
+        self.onCancel = nil
     end)
 
     return confirmDialog
+end
+
+ShowEditModeConfirmDialog = function(options)
+    if InCombatLockdown() then return end
+
+    local confirm = BuildConfirmDialog()
+    if not confirm then return end
+
+    local titleText = options and options.title or addon:L("resetButton")
+    local messageText = options and options.message or addon:L("resetConfirmText")
+    local confirmText = options and options.confirmText or addon:L("resetButton")
+
+    confirm.title:SetText(titleText)
+    confirm.message:SetText(messageText)
+
+    if confirm.confirmButton then
+        confirm.confirmButton:SetText(confirmText)
+    end
+
+    confirm.onConfirm = options and options.onConfirm
+    confirm.onCancel = options and options.onCancel
+
+    local msgHeight = confirm.message:GetStringHeight()
+    local buttonY = confirm._contentTop - msgHeight - 15
+
+    if confirm.confirmButton then
+        confirm.confirmButton:ClearAllPoints()
+        confirm.confirmButton:SetPoint("TOPLEFT", confirm, "TOPLEFT", confirm._borderWidth + confirm._padding, buttonY)
+    end
+
+    if confirm.cancelButton and confirm.confirmButton then
+        confirm.cancelButton:ClearAllPoints()
+        confirm.cancelButton:SetPoint("LEFT", confirm.confirmButton, "RIGHT", 10, 0)
+    end
+
+    local buttonHeight = confirm.confirmButton and confirm.confirmButton:GetHeight() or 28
+    local totalHeight = math.abs(buttonY - buttonHeight) + confirm._borderWidth + confirm._padding
+    confirm:SetHeight(totalHeight)
+
+    local parentDialog = addon._editModeSubDialog
+    if not (parentDialog and parentDialog:IsShown()) then
+        parentDialog = addon._editModeSettingsDialog
+    end
+    if not (parentDialog and parentDialog:IsShown()) then
+        parentDialog = addon._editModeDialog
+    end
+
+    if parentDialog and parentDialog:IsShown() then
+        confirm:ClearAllPoints()
+        confirm:SetPoint("CENTER", parentDialog, "CENTER", 0, 0)
+    end
+
+    confirm:Show()
 end
 
 function addon:HideAllEditModeSubDialogs()
@@ -1466,9 +1548,11 @@ end
 function addon:ShowResetConfirmDialog(configKey, moduleKey)
     if InCombatLockdown() then return end
 
-    local confirm = BuildConfirmDialog()
-
-    confirm.onConfirm = function()
+    ShowEditModeConfirmDialog({
+        title = self:L("resetButton"),
+        message = self:L("resetConfirmText"),
+        confirmText = self:L("resetButton"),
+        onConfirm = function()
         local cfg = self.config[configKey]
         local targetCfg = cfg
 
@@ -1602,9 +1686,8 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
         if subDialog and subDialog:IsShown() then
             self:ShowEditModeSubDialog(configKey, moduleKey)
         end
-    end
-
-    confirm:Show()
+        end,
+    })
 end
 
 -- ---------------------------------------------------------------------------

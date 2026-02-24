@@ -133,6 +133,7 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "select",
             rightClick = "contextMenu",
+            hideInArena = true,
 
             modules = {
                 health = {
@@ -338,6 +339,7 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "inspect",
             rightClick = "contextMenu",
+            hideInArena = true,
 
             modules = {
                 health = {
@@ -520,6 +522,8 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "select",
             rightClick = "contextMenu",
+            hideInArena = true,
+
             modules = {
                 health = {
                     enabled = true,
@@ -557,6 +561,8 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "select",
             rightClick = "contextMenu",
+            hideInArena = false,
+
             modules = {
                 health = {
                     enabled = true,
@@ -594,6 +600,8 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "select",
             rightClick = "contextMenu",
+            hideInArena = false,
+
             modules = {
                 health = {
                     enabled = true,
@@ -630,6 +638,8 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "select",
             rightClick = "contextMenu",
+            hideInArena = false,
+
             modules = {
                 health = {
                     enabled = true,
@@ -680,6 +690,7 @@ function addon:GetDefaultConfig()
             highlightSelected = true,
             leftClick = "select",
             rightClick = "contextMenu",
+            hideInArena = false,
 
             modules = {
                 health = {
@@ -978,6 +989,7 @@ function addon:GetDefaultConfig()
 
             leftClick = "select",
             rightClick = "contextMenu",
+            hideInArena = false,
 
             modules = {
                 health = {

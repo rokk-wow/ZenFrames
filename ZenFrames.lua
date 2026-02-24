@@ -179,6 +179,10 @@ function addon:RefreshFrame(configKey, skipElementUpdate)
     
     frame:ClearAllPoints()
     frame:SetPoint(cfg.anchor, _G[cfg.relativeTo], cfg.relativePoint, cfg.offsetX, cfg.offsetY)
+
+    if self.UpdateArenaFrameVisibility then
+        self:UpdateArenaFrameVisibility()
+    end
     
     if not skipElementUpdate and frame.UpdateAllElements then
         frame:UpdateAllElements("RefreshConfig")

@@ -4,6 +4,21 @@ local addon = SAdCore:GetAddon(addonName)
 local oUF = ns.oUF
 
 local highlightUpdaters = {}
+local arenaVisibilityEventFrame
+
+local unitToConfigKeyMap = {
+    player = "player",
+    target = "target",
+    targettarget = "targetTarget",
+    focus = "focus",
+    focustarget = "focusTarget",
+    pet = "pet",
+}
+
+local function IsArenaInstance()
+    local inInstance, instanceType = IsInInstance()
+    return inInstance and instanceType == "arena"
+end
 
 local CLICK_ACTION_DEFAULT_LEFT = "select"
 local CLICK_ACTION_DEFAULT_RIGHT = "contextMenu"
@@ -203,12 +218,75 @@ function addon:SpawnUnitFrame(unit, configKey)
 
     local frame = self.unitFrames[unit]
     if frame then
+        frame._zfConfigKey = configKey
+
+        if not frame._zfArenaVisibilityHooked then
+            frame:HookScript("OnShow", function(self)
+                if self._zfHideInArenaActive and not InCombatLockdown() then
+                    self:Hide()
+                end
+            end)
+            frame._zfArenaVisibilityHooked = true
+        end
+
         C_Timer.After(addon.config.global.refreshDelay, function()
             if frame then
                 frame:UpdateAllElements("RefreshUnit")
             end
         end)
     end
+
+    self:EnsureArenaVisibilityEventFrame()
+    self:UpdateArenaFrameVisibility()
+end
+
+function addon:UpdateArenaFrameVisibility()
+    local inArena = IsArenaInstance()
+
+    if InCombatLockdown() then
+        self._zfPendingArenaVisibilityUpdate = true
+        return
+    end
+
+    self._zfPendingArenaVisibilityUpdate = false
+
+    for unit, frame in pairs(self.unitFrames or {}) do
+        local configKey = unitToConfigKeyMap[unit]
+        local cfg = configKey and self.config and self.config[configKey]
+
+        if frame and cfg and cfg.enabled then
+            local shouldHide = cfg.hideInArena == true and inArena
+            frame._zfHideInArenaActive = shouldHide
+
+            if shouldHide then
+                frame:Hide()
+            else
+                frame:Show()
+            end
+        end
+    end
+end
+
+function addon:EnsureArenaVisibilityEventFrame()
+    if arenaVisibilityEventFrame then return end
+
+    arenaVisibilityEventFrame = CreateFrame("Frame")
+    arenaVisibilityEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    arenaVisibilityEventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+    arenaVisibilityEventFrame:RegisterEvent("ARENA_PREP_OPPONENT_SPECIALIZATIONS")
+    arenaVisibilityEventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    arenaVisibilityEventFrame:SetScript("OnEvent", function(_, event)
+        if event == "PLAYER_REGEN_ENABLED" then
+            if addon._zfPendingArenaVisibilityUpdate then
+                addon:UpdateArenaFrameVisibility()
+            end
+            return
+        end
+
+        addon:UpdateArenaFrameVisibility()
+    end)
+
+    addon._zfArenaVisibilityEventFrame = arenaVisibilityEventFrame
 end
 
 function addon:SpawnGroupFrames(configKey, units)
@@ -445,7 +523,7 @@ function addon:SpawnGroupFrames(configKey, units)
         local function ShouldShowParty()
             local inInstance, instanceType = IsInInstance()
             if inInstance and instanceType == "arena" then
-                return true
+                return cfg.hideInArena ~= true
             end
             return IsInGroup() and not IsInRaid()
         end
@@ -482,6 +560,7 @@ function addon:SpawnGroupFrames(configKey, units)
 
         local visFrame = CreateFrame("Frame")
         visFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+        visFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
         visFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
         visFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
         visFrame:SetScript("OnEvent", function(_, event)
@@ -499,6 +578,7 @@ function addon:SpawnGroupFrames(configKey, units)
         container._visibilityFrame = visFrame
         container._visibilityEvents = {
             "PLAYER_ENTERING_WORLD",
+            "ZONE_CHANGED_NEW_AREA",
             "GROUP_ROSTER_UPDATE",
             "PLAYER_REGEN_ENABLED",
         }
@@ -548,6 +628,7 @@ function addon:SpawnGroupFrames(configKey, units)
 
         local visFrame = CreateFrame("Frame")
         visFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+        visFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
         visFrame:RegisterEvent("ARENA_PREP_OPPONENT_SPECIALIZATIONS")
         visFrame:RegisterEvent("ARENA_OPPONENT_UPDATE")
         visFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -569,11 +650,19 @@ function addon:SpawnGroupFrames(configKey, units)
                     HideArenaContainer()
                 end
             elseif event == "ARENA_PREP_OPPONENT_SPECIALIZATIONS" then
-                ShowArenaContainer()
+                if cfg.hideInArena then
+                    HideArenaContainer()
+                else
+                    ShowArenaContainer()
+                end
             elseif event == "PLAYER_ENTERING_WORLD" then
                 local inInstance, instanceType = IsInInstance()
                 if inInstance and instanceType == "arena" then
-                    ShowArenaContainer()
+                    if cfg.hideInArena then
+                        HideArenaContainer()
+                    else
+                        ShowArenaContainer()
+                    end
                 else
                     HideArenaContainer()
                 end
@@ -583,6 +672,7 @@ function addon:SpawnGroupFrames(configKey, units)
         container._visibilityFrame = visFrame
         container._visibilityEvents = {
             "PLAYER_ENTERING_WORLD",
+            "ZONE_CHANGED_NEW_AREA",
             "ARENA_PREP_OPPONENT_SPECIALIZATIONS",
             "ARENA_OPPONENT_UPDATE",
             "PLAYER_REGEN_ENABLED",
@@ -590,7 +680,7 @@ function addon:SpawnGroupFrames(configKey, units)
 
         C_Timer.After(0.5, function()
             local inInstance, instanceType = IsInInstance()
-            if inInstance and instanceType == "arena" then
+            if inInstance and instanceType == "arena" and not cfg.hideInArena then
                 ShowArenaContainer()
             end
         end)
@@ -598,6 +688,9 @@ function addon:SpawnGroupFrames(configKey, units)
 
     self.groupContainers = self.groupContainers or {}
     self.groupContainers[configKey] = container
+
+    self:EnsureArenaVisibilityEventFrame()
+    self:UpdateArenaFrameVisibility()
 
     return container
 end
