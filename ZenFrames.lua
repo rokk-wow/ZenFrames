@@ -35,6 +35,31 @@ local function deepMerge(defaults, overrides)
     return result
 end
 
+local function replaceGlobalTokens(config)
+    if type(config) ~= "table" then return config end
+
+    local globals = config.global
+    if type(globals) ~= "table" then return config end
+
+    local function walk(tbl, path)
+        for key, value in pairs(tbl) do
+            if type(value) == "table" then
+                walk(value, path .. "." .. tostring(key))
+            elseif value == "_GLOBAL_" and globals[key] ~= nil then
+                tbl[key] = deepCopy(globals[key])
+            end
+        end
+    end
+
+    for sectionKey, sectionValue in pairs(config) do
+        if sectionKey ~= "global" and type(sectionValue) == "table" then
+            walk(sectionValue, tostring(sectionKey))
+        end
+    end
+
+    return config
+end
+
 local function setNested(tbl, keys, value)
     local current = tbl
     for i = 1, #keys - 1 do
@@ -130,7 +155,8 @@ function addon:RefreshModule(configKey, moduleKey)
 end
 
 function addon:GetConfig()
-    return deepMerge(self:GetDefaultConfig(), self:GetOverrides())
+    local mergedConfig = deepMerge(self:GetDefaultConfig(), self:GetOverrides())
+    return replaceGlobalTokens(mergedConfig)
 end
 
 function addon:RefreshConfig()

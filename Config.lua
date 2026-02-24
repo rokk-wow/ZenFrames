@@ -27,8 +27,8 @@ function addon:GetDefaultConfig()
             castbarNonInterruptibleColor = "888888",
             castbarEmpowerColor = "5588dd",
 
-            borderWidth = "",
-            borderColor = "",
+            borderWidth = 2,
+            borderColor = "000000FF",
             font = "DorisPP",
             healthTexture = "",
             powerTexture = "",
@@ -129,8 +129,8 @@ function addon:GetDefaultConfig()
             width = 203,
             height = 41,
             backgroundColor = "00000088",
-            borderWidth = 2,
-            borderColor = "000000FF",
+            borderWidth = "_GLOBAL_",
+            borderColor = "_GLOBAL_",
 
             modules = {
                 health = {
