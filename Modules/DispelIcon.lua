@@ -41,8 +41,8 @@ local function GetDispelType(unit, auraInstanceID)
 end
 
 function addon:AddDispelIcon(frame, cfg)
-    local size = cfg.iconSize or 36
-    local borderWidth = cfg.borderWidth or 1
+    local size = cfg.iconSize
+    local borderWidth = cfg.borderWidth
 
     local container = CreateFrame("Frame", nil, frame)
     container:SetSize(size, size)
@@ -64,20 +64,19 @@ function addon:AddDispelIcon(frame, cfg)
         end
     end
 
-    local frameBorderWidth = cfg.frameBorderWidth or 0
     container:SetPoint(
-        cfg.anchor or "TOPLEFT",
+        cfg.anchor,
         anchorFrame,
-        cfg.relativePoint or "TOPRIGHT",
-        cfg.offsetX or 0,
-        (cfg.offsetY or 0) + frameBorderWidth - borderWidth
+        cfg.relativePoint,
+        cfg.offsetX,
+        cfg.offsetY + borderWidth
     )
 
     local icon = container:CreateTexture(nil, "ARTWORK")
     icon:SetAllPoints(container)
     container.Icon = icon
 
-    addon:AddTextureBorder(container, borderWidth, cfg.borderColor or "000000FF")
+    addon:AddTextureBorder(container, borderWidth, cfg.borderColor)
 
     container:SetFrameLevel(frame:GetFrameLevel() + 10)
     container:Hide()

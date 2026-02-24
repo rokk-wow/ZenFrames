@@ -4,15 +4,15 @@ local addon = SAdCore:GetAddon(addonName)
 local oUF = ns.oUF
 
 function addon:AddRoleIcon(frame, cfg)
-    local size = cfg.size or 12
+    local size = cfg.size
     local container = CreateFrame("Frame", nil, frame)
     container:SetSize(size, size)
     container:SetPoint(
-        cfg.anchor or "LEFT",
+        cfg.anchor,
         cfg.relativeTo and _G[cfg.relativeTo] or frame,
-        cfg.relativePoint or "LEFT",
-        cfg.offsetX or 0,
-        cfg.offsetY or 0
+        cfg.relativePoint,
+        cfg.offsetX,
+        cfg.offsetY
     )
     container:SetFrameLevel(frame:GetFrameLevel() + 10)
 
@@ -41,7 +41,7 @@ function addon:AddRoleIcon(frame, cfg)
         end
         if cfg.defaultIcon then
             icon:SetAtlas(cfg.defaultIcon, false)
-            icon:SetAlpha(cfg.defaultAlpha or 0.5)
+            icon:SetAlpha(cfg.defaultAlpha)
             icon:Show()
         else
             icon:Hide()

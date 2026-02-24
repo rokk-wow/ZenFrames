@@ -5,10 +5,14 @@ local oUF = ns.oUF
 
 function addon:AddPower(frame, cfg)
     local Power = CreateFrame("StatusBar", cfg.frameName, frame)
+    local borderWidth = cfg.borderWidth
+    local requestedWidth = cfg.width or frame:GetWidth()
+    local renderWidth = math.max(1, requestedWidth - (borderWidth * 2))
+
     Power:SetFrameLevel(frame:GetFrameLevel() + 5)
-    Power:SetPoint(cfg.anchor, cfg.relativeTo and _G[cfg.relativeTo] or frame, cfg.relativePoint, cfg.offsetX or 0, cfg.offsetY or 0)
+    Power:SetPoint(cfg.anchor, cfg.relativeTo and _G[cfg.relativeTo] or frame, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
     Power:SetHeight(cfg.height)
-    Power:SetWidth(cfg.width or frame:GetWidth())
+    Power:SetWidth(renderWidth)
 
     if cfg.powerTexture then
         local texturePath = addon:FetchStatusbar(cfg.powerTexture)

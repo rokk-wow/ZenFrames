@@ -21,7 +21,7 @@ function addon:AddAbsorbs(frame, cfg)
     if texturePath then
         damageAbsorb:SetStatusBarTexture(texturePath)
     end
-    damageAbsorb:SetStatusBarColor(1, 1, 1, cfg.opacity or 0.5)
+    damageAbsorb:SetStatusBarColor(1, 1, 1, cfg.opacity)
 
     local overDamageAbsorbIndicator = Health:CreateTexture(nil, "OVERLAY")
     overDamageAbsorbIndicator:SetPoint("TOP")
@@ -32,6 +32,6 @@ function addon:AddAbsorbs(frame, cfg)
     frame.HealthPrediction = {
         damageAbsorb = damageAbsorb,
         overDamageAbsorbIndicator = overDamageAbsorbIndicator,
-        incomingHealOverflow = cfg.maxAbsorbOverflow or 1.0,
+        incomingHealOverflow = cfg.maxAbsorbOverflow,
     }
 end

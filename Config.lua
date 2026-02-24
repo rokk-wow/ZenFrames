@@ -195,13 +195,15 @@ function addon:GetDefaultConfig()
                     offsetY = 10,
                     castbarTexture = "smooth",
                     showSpellName = true,
+                    textSize = 12,
+                    textPadding = 4,
                     textAlignment = "CENTER",
                     showIcon = false,
                     iconPosition = "LEFT",
                     showCastTime = false,
                     backgroundColor = "00000088",
-                    borderWidth = 2,
-                    borderColor = "000000FF",
+                    borderWidth = "_GLOBAL_",
+                    borderColor = "_GLOBAL_",
                 },
                 auraFilters = {
                     {
@@ -330,8 +332,8 @@ function addon:GetDefaultConfig()
             width = 203,
             height = 41,
             backgroundColor = "00000088",
-            borderWidth = 2,
-            borderColor = "000000FF",
+            borderWidth = "_GLOBAL_",
+            borderColor = "_GLOBAL_",
             modules = {
                 health = {
                     enabled = true,
@@ -394,13 +396,15 @@ function addon:GetDefaultConfig()
                     offsetY = 0,
                     castbarTexture = "smooth",
                     showSpellName = true,
+                    textSize = 12,
+                    textPadding = 4,
                     textAlignment = "LEFT",
                     showIcon = false,
                     iconPosition = "RIGHT",
                     showCastTime = false,
                     backgroundColor = "00000088",
-                    borderWidth = 2,
-                    borderColor = "000000FF",
+                    borderWidth = "_GLOBAL_",
+                    borderColor = "_GLOBAL_",
                 },
                 auraFilters = {
                     {
@@ -507,8 +511,8 @@ function addon:GetDefaultConfig()
             width = 93,
             height = 21,
             backgroundColor = "00000088",
-            borderWidth = 2,
-            borderColor = "000000FF",
+            borderWidth = "_GLOBAL_",
+            borderColor = "_GLOBAL_",
             modules = {
                 health = {
                     enabled = true,
@@ -542,8 +546,8 @@ function addon:GetDefaultConfig()
             width = 93,
             height = 21,
             backgroundColor = "00000088",
-            borderWidth = 2,
-            borderColor = "000000FF",
+            borderWidth = "_GLOBAL_",
+            borderColor = "_GLOBAL_",
             modules = {
                 health = {
                     enabled = true,
@@ -577,8 +581,8 @@ function addon:GetDefaultConfig()
             width = 75,
             height = 20,
             backgroundColor = "00000088",
-            borderWidth = 2,
-            borderColor = "000000FF",
+            borderWidth = "_GLOBAL_",
+            borderColor = "_GLOBAL_",
             modules = {
                 health = {
                     enabled = true,
@@ -611,8 +615,8 @@ function addon:GetDefaultConfig()
             offsetY = -15,
             width = 93,
             height = 29,
-            borderWidth = 2,
-            borderColor = "000000FF",
+            borderWidth = "_GLOBAL_",
+            borderColor = "_GLOBAL_",
             modules = {
                 health = {
                     enabled = true,
@@ -658,8 +662,8 @@ function addon:GetDefaultConfig()
             unitWidth = 150,
             unitHeight = 60,
             unitBackgroundColor = "00000088",
-            unitBorderWidth = 2,
-            unitBorderColor = "000000FF",
+            borderWidth = "_GLOBAL_",
+            borderColor = "_GLOBAL_",
             highlightSelected = true,
 
             modules = {
@@ -717,7 +721,6 @@ function addon:GetDefaultConfig()
                 },
                 dispelIcon = {
                     enabled = true,
-                    frameBorderWidth = 0,
                     iconSize = 28,
                     borderWidth = 0,
                     borderColor = "00000000",
@@ -732,7 +735,6 @@ function addon:GetDefaultConfig()
                 },
                 trinket = {
                     enabled = true,
-                    frameBorderWidth = 2,
                     iconSize = 36,
                     borderWidth = 1,
                     borderColor = "000000FF",
@@ -761,8 +763,8 @@ function addon:GetDefaultConfig()
                     showIcon = false,
                     showCastTime = false,
                     backgroundColor = "00000088",
-                    borderWidth = 1,
-                    borderColor = "000000FF",
+                    borderWidth = "_GLOBAL_",
+                    borderColor = "_GLOBAL_",
                 },
                 arenaTargets = {
                     enabled = true,
@@ -774,6 +776,7 @@ function addon:GetDefaultConfig()
                     indicatorWidth = 10,
                     indicatorHeight = 16,
                     spacing = 4,
+                    edgeSpacing = 2,
                     growDirection = "DOWN",
                     maxIndicators = 3,
                     borderWidth = 1,
@@ -954,8 +957,8 @@ function addon:GetDefaultConfig()
             unitWidth = 150,
             unitHeight = 60,
             unitBackgroundColor = "00000088",
-            unitBorderWidth = 2,
-            unitBorderColor = "000000FF",
+            borderWidth = "_GLOBAL_",
+            borderColor = "_GLOBAL_",
             highlightSelected = true,
 
             modules = {
@@ -1013,7 +1016,6 @@ function addon:GetDefaultConfig()
                 },
                 dispelIcon = {
                     enabled = true,
-                    frameBorderWidth = 0,
                     iconSize = 28,
                     borderWidth = 0,
                     borderColor = "00000000",
@@ -1028,7 +1030,6 @@ function addon:GetDefaultConfig()
                 },
                 trinket = {
                     enabled = true,
-                    frameBorderWidth = 2,
                     iconSize = 36,
                     borderWidth = 1,
                     borderColor = "000000FF",
@@ -1057,8 +1058,8 @@ function addon:GetDefaultConfig()
                     showIcon = false,
                     showCastTime = false,
                     backgroundColor = "00000088",
-                    borderWidth = 1,
-                    borderColor = "000000FF",
+                    borderWidth = "_GLOBAL_",
+                    borderColor = "_GLOBAL_",
                 },
                 arenaTargets = {
                     enabled = true,
@@ -1070,6 +1071,7 @@ function addon:GetDefaultConfig()
                     indicatorWidth = 10,
                     indicatorHeight = 16,
                     spacing = 4,
+                    edgeSpacing = 2,
                     growDirection = "DOWN",
                     maxIndicators = 3,
                     borderWidth = 1,

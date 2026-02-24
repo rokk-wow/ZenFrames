@@ -79,16 +79,15 @@ local function ResolveAnchorFrame(frame, relativeToModule)
 end
 
 local function BuildArenaIndicators(frame, cfg, parentContainer)
-    local mode = cfg.mode or "enemy"
-    local indicatorWidth = cfg.indicatorWidth or 10
-    local indicatorHeight = cfg.indicatorHeight or 18
-    local spacing = cfg.spacing or 2
-    local edgeSpacing = cfg.edgeSpacing or 2
-    local growDirection = cfg.growDirection or "DOWN"
-    local borderWidth = cfg.borderWidth or 1
-    local borderColor = cfg.borderColor or "000000FF"
+    local mode = cfg.mode
+    local indicatorWidth = cfg.indicatorWidth
+    local indicatorHeight = cfg.indicatorHeight
+    local spacing = cfg.spacing
+    local edgeSpacing = cfg.edgeSpacing
+    local growDirection = cfg.growDirection
+    local borderWidth = cfg.borderWidth
+    local borderColor = cfg.borderColor
     local maxIndicators = cfg.maxIndicators
-        or (mode == "enemy" and MAX_ARENA_ENEMIES or #FRIENDLY_UNITS)
 
     local container = CreateFrame("Frame", nil, parentContainer)
     container:SetSize(1, 1)
@@ -236,19 +235,16 @@ local function SetupArenaListener()
 end
 
 function addon:AddArenaTargets(frame, cfg, frameBorderWidth)
-    frameBorderWidth = frameBorderWidth or 0
-
     local container = CreateFrame("Frame", nil, frame)
     
-    local mode = cfg.mode or "enemy"
-    local indicatorWidth = cfg.indicatorWidth or 10
-    local indicatorHeight = cfg.indicatorHeight or 18
-    local spacing = cfg.spacing or 2
-    local edgeSpacing = cfg.edgeSpacing or 2
-    local growDirection = cfg.growDirection or "DOWN"
-    local borderWidth = cfg.borderWidth or 1
+    local mode = cfg.mode
+    local indicatorWidth = cfg.indicatorWidth
+    local indicatorHeight = cfg.indicatorHeight
+    local spacing = cfg.spacing
+    local edgeSpacing = cfg.edgeSpacing
+    local growDirection = cfg.growDirection
+    local borderWidth = cfg.borderWidth
     local maxIndicators = cfg.maxIndicators
-        or (mode == "enemy" and MAX_ARENA_ENEMIES or #FRIENDLY_UNITS)
     
     local containerWidth, containerHeight
     if growDirection == "DOWN" or growDirection == "UP" then
@@ -281,11 +277,11 @@ function addon:AddArenaTargets(frame, cfg, frameBorderWidth)
     local anchorFrame = ResolveAnchorFrame(frame, cfg.relativeToModule)
 
     container:SetPoint(
-        cfg.anchor or "TOPLEFT",
+        cfg.anchor,
         anchorFrame,
-        cfg.relativePoint or "TOPRIGHT",
-        cfg.offsetX or 0,
-        (cfg.offsetY or 0) + frameBorderWidth
+        cfg.relativePoint,
+        cfg.offsetX,
+        cfg.offsetY + frameBorderWidth
     )
 
     container.unit = frame.unit

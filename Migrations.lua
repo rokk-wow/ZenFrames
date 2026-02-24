@@ -103,6 +103,10 @@ local ICON_BORDER_RENAMES = {
 }
 
 local ICON_BORDER_MODULES = { "auraFilters", "dispelIcon", "trinket", "drTracker" }
+local GROUP_BORDER_RENAMES = {
+    { old = "unitBorderWidth", new = "borderWidth" },
+    { old = "unitBorderColor", new = "borderColor" },
+}
 
 function addon:MigrateConfigKeyRenames()
     if not self.savedVars or not self.savedVars.data then return end
@@ -145,6 +149,12 @@ function addon:MigrateConfigKeyRenames()
                         end
                     end
                 end
+            end
+        end
+
+        if (unitKey == "party" or unitKey == "arena") and type(unitOvr) == "table" then
+            for _, rename in ipairs(GROUP_BORDER_RENAMES) do
+                self:MigrateRenameKey(unitOvr, rename.old, rename.new)
             end
         end
     end

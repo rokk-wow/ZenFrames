@@ -171,10 +171,10 @@ end
 function addon:ShowEditModeDialog()
     if InCombatLockdown() then return end
 
-    local centerX, centerY = self:GetOpenEditModeDialogCenter(dialog)
-
-    self:HideEditModeSettingsDialog()
     local dlg = BuildDialog()
+    local centerX, centerY = self:GetOpenConfigDialogCenter(dlg)
+
+    self:HideOpenConfigDialogs(dlg)
     ResetVisibilityState()
 
     self:RefreshConfig()

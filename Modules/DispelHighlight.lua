@@ -32,7 +32,7 @@ local function EnsureDispelColorCurve()
 end
 
 function addon:AddDispelHighlight(frame, cfg)
-    local borderWidth = cfg.borderWidth or 2
+    local borderWidth = cfg.borderWidth
 
     local inner = CreateFrame("Frame", nil, frame, "BackdropTemplate")
     inner:SetAllPoints(frame)

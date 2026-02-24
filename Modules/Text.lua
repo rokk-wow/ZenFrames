@@ -37,10 +37,10 @@ function addon:AddText(frame, textConfigs)
 
             local fontPath = self:GetFontPath(cfg.font)
             local fontSize = self:ResolveFontSize(cfg.size)
-            fs:SetFont(fontPath, fontSize, cfg.outline or "OUTLINE")
+            fs:SetFont(fontPath, fontSize, cfg.outline)
 
             local parent = cfg.relativeTo and _G[cfg.relativeTo] or frame
-            fs:SetPoint(cfg.anchor, parent, cfg.relativePoint, cfg.offsetX or 0, cfg.offsetY or 0)
+            fs:SetPoint(cfg.anchor, parent, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
 
             local justify = cfg.justifyH
             if not justify then

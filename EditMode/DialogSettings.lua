@@ -6,7 +6,8 @@ local settingsDialog
 local COLUMN_GAP = 28
 local checkedCount = 0
 local globalSettingsRefreshTimer
-local GLOBAL_SETTINGS_REFRESH_DEBOUNCE_SECONDS = 0.1
+local lastGlobalSettingsRefreshTime = 0
+local GLOBAL_SETTINGS_REFRESH_THROTTLE_SECONDS = 0.03
 
 local function ToPascalCase(value)
     if not value then return "" end
@@ -159,13 +160,16 @@ local function PopulateSettingsContent(dialog)
         }
 
         for _, configKey in ipairs(unitFrameConfigKeys) do
-            addon:RefreshFrame(configKey)
+            addon:RefreshFrame(configKey, addon.editMode)
         end
 
         if addon.groupContainers then
             for configKey, container in pairs(addon.groupContainers) do
                 local cfg = addon.config and addon.config[configKey]
                 if type(cfg) == "table" then
+                    local unitBorderWidth = cfg.borderWidth
+                    local unitBorderColor = cfg.borderColor
+
                     addon:AddBorder(container, {
                         borderWidth = cfg.containerBorderWidth,
                         borderColor = cfg.containerBorderColor,
@@ -174,11 +178,15 @@ local function PopulateSettingsContent(dialog)
                     if container.frames then
                         for _, child in ipairs(container.frames) do
                             addon:AddBorder(child, {
-                                borderWidth = cfg.unitBorderWidth,
-                                borderColor = cfg.unitBorderColor,
+                                borderWidth = unitBorderWidth,
+                                borderColor = unitBorderColor,
                             })
 
-                            if child.UpdateAllElements then
+                            if cfg.modules and cfg.modules.castbar and child.Castbar then
+                                addon:AddBorder(child.Castbar, cfg.modules.castbar)
+                            end
+
+                            if not addon.editMode and child.UpdateAllElements then
                                 child:UpdateAllElements("RefreshConfig")
                             end
                         end
@@ -191,19 +199,38 @@ local function PopulateSettingsContent(dialog)
     local function ApplyGlobalSetting(settingKey, value)
         addon:SetOverride({"global", settingKey}, value)
 
-        if globalSettingsRefreshTimer then
-            globalSettingsRefreshTimer:Cancel()
-            globalSettingsRefreshTimer = nil
+        if not addon.editMode then
+            if globalSettingsRefreshTimer then
+                globalSettingsRefreshTimer:Cancel()
+                globalSettingsRefreshTimer = nil
+            end
+            RefreshVisibleFramesFromConfig()
+            return
         end
 
-        globalSettingsRefreshTimer = C_Timer.NewTimer(GLOBAL_SETTINGS_REFRESH_DEBOUNCE_SECONDS, function()
+        local now = (GetTimePreciseSec and GetTimePreciseSec()) or (GetTime and GetTime()) or 0
+        local elapsed = now - lastGlobalSettingsRefreshTime
+
+        if elapsed >= GLOBAL_SETTINGS_REFRESH_THROTTLE_SECONDS then
+            lastGlobalSettingsRefreshTime = now
+            RefreshVisibleFramesFromConfig()
+            return
+        end
+
+        if globalSettingsRefreshTimer then
+            return
+        end
+
+        local delay = GLOBAL_SETTINGS_REFRESH_THROTTLE_SECONDS - elapsed
+        if delay < 0 then
+            delay = 0
+        end
+
+        globalSettingsRefreshTimer = C_Timer.NewTimer(delay, function()
             globalSettingsRefreshTimer = nil
+            lastGlobalSettingsRefreshTime = (GetTimePreciseSec and GetTimePreciseSec()) or (GetTime and GetTime()) or 0
             RefreshVisibleFramesFromConfig()
         end)
-
-        if not addon.editMode then
-            RefreshVisibleFramesFromConfig()
-        end
     end
 
     local globalHeader, globalDivider
@@ -356,6 +383,11 @@ end
 local function GetDialogCenter(frame)
     if not frame then return nil, nil end
 
+    local centerX, centerY = frame:GetCenter()
+    if centerX and centerY then
+        return centerX, centerY
+    end
+
     local left = frame:GetLeft()
     local bottom = frame:GetBottom()
     local width = frame:GetWidth()
@@ -454,20 +486,17 @@ end
 function addon:ShowEditModeSettingsDialog()
     if InCombatLockdown() then return end
 
-    local centerX, centerY = self:GetOpenEditModeDialogCenter()
-    local mainDialog = addon._editModeDialog
-
-    if mainDialog then
-        mainDialog:Hide()
-    end
-
-    self:HideAllEditModeSubDialogs()
-
     local dlg = BuildSettingsDialog()
+    local centerX, centerY = self:GetOpenConfigDialogCenter(dlg)
+
+    self:HideOpenConfigDialogs(dlg)
 
     if centerX and centerY then
         dlg:ClearAllPoints()
         dlg:SetPoint("CENTER", UIParent, "BOTTOMLEFT", centerX, centerY)
+    else
+        dlg:ClearAllPoints()
+        dlg:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     end
 
     dlg:Show()

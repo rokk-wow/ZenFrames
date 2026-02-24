@@ -4,17 +4,17 @@ local addon = SAdCore:GetAddon(addonName)
 local oUF = ns.oUF
 
 function addon:AddRestingIndicator(frame, cfg)
-    local size = cfg.size or 24
+    local size = cfg.size
 
     local RestingFrame = CreateFrame("Frame", nil, frame)
-    RestingFrame:SetFrameStrata(cfg.strata or "HIGH")
+    RestingFrame:SetFrameStrata(cfg.strata)
     RestingFrame:SetSize(size, size)
     RestingFrame:SetPoint(
-        cfg.anchor or "CENTER",
+        cfg.anchor,
         _G[cfg.relativeTo] or frame,
-        cfg.relativePoint or "CENTER",
-        cfg.offsetX or 0,
-        cfg.offsetY or 0
+        cfg.relativePoint,
+        cfg.offsetX,
+        cfg.offsetY
     )
 
     local texture = RestingFrame:CreateTexture(nil, "OVERLAY")

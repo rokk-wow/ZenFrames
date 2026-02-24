@@ -66,7 +66,7 @@ function addon:SpawnUnitFrame(unit, configKey)
             end
 
             if cfg.modules.arenaTargets and cfg.modules.arenaTargets.enabled then
-                addon:AddArenaTargets(frame, cfg.modules.arenaTargets)
+                addon:AddArenaTargets(frame, cfg.modules.arenaTargets, cfg.borderWidth)
             end
 
             if cfg.modules.auraFilters then
@@ -94,7 +94,7 @@ function addon:SpawnUnitFrame(unit, configKey)
 
         if cfg.highlightSelected then
             local hr, hg, hb = addon:HexToRGB(addon.config.global.highlightColor)
-            local borderW = cfg.borderWidth or 2
+            local borderW = cfg.borderWidth
             local highlightW = borderW + 2
             local highlightOffset = highlightW
 
@@ -138,32 +138,33 @@ end
 
 function addon:SpawnGroupFrames(configKey, units)
     local cfg = self.config[configKey]
+    local unitBorderWidth = cfg.borderWidth
+    local unitBorderColor = cfg.borderColor
 
-    local maxUnits = math.min(cfg.maxUnits or #units, #units)
-    local perRow = cfg.perRow or maxUnits
-    local spacingX = cfg.spacingX or 0
-    local spacingY = cfg.spacingY or 0
-    local growthX = cfg.growthX or "RIGHT"
-    local growthY = cfg.growthY or "DOWN"
+    local maxUnits = math.min(cfg.maxUnits, #units)
+    local perRow = cfg.perRow
+    local spacingX = cfg.spacingX
+    local spacingY = cfg.spacingY
+    local growthX = cfg.growthX
+    local growthY = cfg.growthY
     local unitW = cfg.unitWidth
     local unitH = cfg.unitHeight
-    local unitBorderW = cfg.unitBorderWidth or 0
 
     local cols = math.min(perRow, maxUnits)
     local rows = math.ceil(maxUnits / cols)
-    local cellW = unitW + 2 * unitBorderW
-    local cellH = unitH + 2 * unitBorderW
+    local cellW = unitW
+    local cellH = unitH
     local containerW = cols * cellW + math.max(0, cols - 1) * spacingX + 2 * spacingX
     local containerH = rows * cellH + math.max(0, rows - 1) * spacingY + 2 * spacingY
 
     local container = CreateFrame("Frame", cfg.frameName, UIParent)
     container:SetSize(containerW, containerH)
     container:SetPoint(
-        cfg.anchor or "CENTER",
+        cfg.anchor,
         _G[cfg.relativeTo] or UIParent,
-        cfg.relativePoint or "CENTER",
-        cfg.offsetX or 0,
-        cfg.offsetY or 0)
+        cfg.relativePoint,
+        cfg.offsetX,
+        cfg.offsetY)
 
     if cfg.containerBackgroundColor then
         self:AddBackground(container, { backgroundColor = cfg.containerBackgroundColor })
@@ -230,7 +231,7 @@ function addon:SpawnGroupFrames(configKey, units)
             end
 
             if cfg.modules.arenaTargets and cfg.modules.arenaTargets.enabled then
-                self:AddArenaTargets(frame, cfg.modules.arenaTargets, cfg.unitBorderWidth or 0)
+                self:AddArenaTargets(frame, cfg.modules.arenaTargets, unitBorderWidth)
             end
 
             if cfg.modules.auraFilters then
@@ -247,8 +248,8 @@ function addon:SpawnGroupFrames(configKey, units)
         end
 
         self:AddBorder(frame, {
-            borderWidth = cfg.unitBorderWidth,
-            borderColor = cfg.unitBorderColor,
+            borderWidth = unitBorderWidth,
+            borderColor = unitBorderColor,
         })
 
         if cfg.modules and cfg.modules.dispelHighlight and cfg.modules.dispelHighlight.enabled then
@@ -261,7 +262,7 @@ function addon:SpawnGroupFrames(configKey, units)
 
         if cfg.highlightSelected then
             local hr, hg, hb = self:HexToRGB(self.config.global.highlightColor)
-            local borderW = cfg.unitBorderWidth or 2
+            local borderW = unitBorderWidth
             local highlightW = borderW + 2
             local highlightOffset = highlightW
 
@@ -298,7 +299,7 @@ function addon:SpawnGroupFrames(configKey, units)
         local col = (i - 1) % perRow
         local row = math.floor((i - 1) / perRow)
 
-        local childName = (cfg.frameName or "frmdGroup") .. "_" .. i
+        local childName = cfg.frameName .. "_" .. i
         local child = oUF:Spawn(unit, childName)
 
         child:SetParent(container)
@@ -346,8 +347,8 @@ function addon:SpawnGroupFrames(configKey, units)
         end
 
         child:SetPoint(initialAnchor, container, initialAnchor,
-            (col * (cellW + spacingX) + spacingX + unitBorderW) * xMult,
-            (row * (cellH + spacingY) + spacingY + unitBorderW) * yMult)
+            (col * (cellW + spacingX) + spacingX) * xMult,
+            (row * (cellH + spacingY) + spacingY) * yMult)
 
         container.frames[i] = child
     end

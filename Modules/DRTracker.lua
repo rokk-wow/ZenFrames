@@ -10,19 +10,19 @@ end
 local BLIZZARD_ICON_SIZE = 26
 
 function addon:AddDRTracker(frame, cfg)
-    local iconSize = cfg.iconSize or BLIZZARD_ICON_SIZE
-    local iconBorderWidth = cfg.borderWidth or 1
-    local maxIcons = cfg.maxIcons or 6
-    local perRow = cfg.perRow or maxIcons
-    local growthX = cfg.growthX or "RIGHT"
-    local growthY = cfg.growthY or "DOWN"
-    local spacingX = cfg.spacingX or 2
-    local spacingY = cfg.spacingY or 2
-    local containerBorderWidth = cfg.containerBorderWidth or 0
+    local iconSize = cfg.iconSize
+    local iconBorderWidth = cfg.borderWidth
+    local maxIcons = cfg.maxIcons
+    local perRow = cfg.perRow
+    local growthX = cfg.growthX
+    local growthY = cfg.growthY
+    local spacingX = cfg.spacingX
+    local spacingY = cfg.spacingY
+    local containerBorderWidth = cfg.containerBorderWidth
 
     local trayScale = iconSize / BLIZZARD_ICON_SIZE
     local scaledBorderWidth = iconBorderWidth / trayScale
-    local bR, bG, bB, bA = addon:HexToRGB(cfg.borderColor or "000000FF")
+    local bR, bG, bB, bA = addon:HexToRGB(cfg.borderColor)
     local scaledSpacing = spacingX / trayScale
     local cols = math.min(perRow, maxIcons)
     local rows = math.ceil(maxIcons / cols)
@@ -40,7 +40,7 @@ function addon:AddDRTracker(frame, cfg)
         bg:SetColorTexture(r, g, b, a)
     end
 
-    self:AddTextureBorder(container, containerBorderWidth, cfg.containerBorderColor or "00000000")
+    self:AddTextureBorder(container, containerBorderWidth, cfg.containerBorderColor)
 
     local anchorFrame = frame
     -- DEPRECATED: relativeToModule is deprecated. Use direct frame anchoring with calculated offsets instead.
@@ -59,7 +59,7 @@ function addon:AddDRTracker(frame, cfg)
         end
     end
 
-    local anchor = cfg.anchor or "BOTTOMLEFT"
+    local anchor = cfg.anchor
     local yCompensation = 0
     if anchor:find("TOP") then
         yCompensation = -containerBorderWidth
@@ -70,9 +70,9 @@ function addon:AddDRTracker(frame, cfg)
     container:SetPoint(
         anchor,
         anchorFrame,
-        cfg.relativePoint or "BOTTOMLEFT",
-        cfg.offsetX or 0,
-        (cfg.offsetY or 0) + yCompensation
+        cfg.relativePoint,
+        cfg.offsetX,
+        cfg.offsetY + yCompensation
     )
 
     local unit = nil

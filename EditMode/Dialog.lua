@@ -1009,6 +1009,11 @@ end
 local function GetDialogCenter(frame)
     if not frame then return nil, nil end
 
+    local centerX, centerY = frame:GetCenter()
+    if centerX and centerY then
+        return centerX, centerY
+    end
+
     local left = frame:GetLeft()
     local bottom = frame:GetBottom()
     local width = frame:GetWidth()
@@ -1022,20 +1027,66 @@ local function GetDialogCenter(frame)
 end
 
 function addon:GetOpenEditModeDialogCenter(excludedDialog)
+    return self:GetOpenConfigDialogCenter(excludedDialog)
+end
+
+function addon:GetOpenConfigDialogCenter(excludedDialog)
     local candidates = {
-        self._editModeSettingsDialog,
-        self._editModeSubDialog,
-        self._editModeConfirmDialog,
-        self._editModeDialog,
+        { name = "settings", frame = self._editModeSettingsDialog },
+        { name = "sub", frame = self._editModeSubDialog },
+        { name = "main", frame = self._editModeDialog },
     }
 
-    for _, dialog in ipairs(candidates) do
+    for _, candidate in ipairs(candidates) do
+        local dialog = candidate.frame
+
         if dialog and dialog ~= excludedDialog and dialog:IsShown() then
-            return GetDialogCenter(dialog)
+            local centerX, centerY = GetDialogCenter(dialog)
+            if centerX and centerY then
+                return centerX, centerY
+            end
+        end
+    end
+
+    -- Fallback for transient handoff states where source dialog may already report shown=false
+    -- but still has valid geometry for position continuity.
+    for _, candidate in ipairs(candidates) do
+        local dialog = candidate.frame
+        if dialog and dialog ~= excludedDialog then
+            local centerX, centerY = GetDialogCenter(dialog)
+            if centerX and centerY then
+                return centerX, centerY
+            end
         end
     end
 
     return nil, nil
+end
+
+function addon:HideOpenConfigDialogs(excludedDialog)
+    if InCombatLockdown() then return false end
+
+    local hiddenAny = false
+
+    local settingsDialog = self._editModeSettingsDialog
+    if settingsDialog and settingsDialog ~= excludedDialog and settingsDialog:IsShown() then
+        settingsDialog:Hide()
+        hiddenAny = true
+    end
+
+    if subDialog and subDialog ~= excludedDialog and subDialog:IsShown() then
+        ClearSubDialogControls()
+        subDialog:Hide()
+        hiddenAny = true
+    end
+
+    local mainDialog = self._editModeDialog
+    if mainDialog and mainDialog ~= excludedDialog and mainDialog:IsShown() then
+        mainDialog:Hide()
+        hiddenAny = true
+    end
+
+    return hiddenAny
 end
 
 function addon:ReturnFromEditModeSubDialog()
@@ -1056,16 +1107,13 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     if InCombatLockdown() then return end
     if not configKey then return end
 
-    local centerX, centerY = self:GetOpenEditModeDialogCenter()
-
-    self:HideEditModeSettingsDialog()
-    self:HideAllEditModeSubDialogs()
-
     local sub = BuildSubDialog()
+    local centerX, centerY = self:GetOpenConfigDialogCenter(sub)
+
+    self:HideOpenConfigDialogs(sub)
     local mainDialog = addon._editModeDialog
     if mainDialog then
         sub:SetSize(mainDialog:GetWidth(), mainDialog:GetHeight())
-        mainDialog:Hide()
     end
 
     sub._configKey = configKey

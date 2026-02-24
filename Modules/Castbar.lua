@@ -6,7 +6,7 @@ local oUF = ns.oUF
 function addon:AddCastbar(frame, cfg)
     local Castbar = CreateFrame("StatusBar", cfg.frameName, frame)
     Castbar:SetFrameLevel(frame:GetFrameLevel() + 5)
-    Castbar:SetPoint(cfg.anchor, cfg.relativeTo and _G[cfg.relativeTo] or frame, cfg.relativePoint, cfg.offsetX or 0, cfg.offsetY or 0)
+    Castbar:SetPoint(cfg.anchor, cfg.relativeTo and _G[cfg.relativeTo] or frame, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
     Castbar:SetHeight(cfg.height)
     Castbar:SetWidth(cfg.width or frame:GetWidth())
 
@@ -46,9 +46,9 @@ function addon:AddCastbar(frame, cfg)
     if cfg.showSpellName then
         local fontPath = addon:GetFontPath()
         local Text = Castbar:CreateFontString(nil, "OVERLAY")
-        Text:SetFont(fontPath, cfg.textSize or 12, "OUTLINE")
-        local align = cfg.textAlignment or "LEFT"
-        local padding = cfg.textPadding or 4
+        Text:SetFont(fontPath, cfg.textSize, "OUTLINE")
+        local align = cfg.textAlignment
+        local padding = cfg.textPadding
         if align == "CENTER" then
             Text:SetPoint("CENTER", Castbar, "CENTER", 0, 0)
         elseif align == "RIGHT" then

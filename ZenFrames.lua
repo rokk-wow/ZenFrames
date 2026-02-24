@@ -111,7 +111,7 @@ function addon:ResetAllSettings()
     ReloadUI()
 end
 
-function addon:RefreshFrame(configKey)
+function addon:RefreshFrame(configKey, skipElementUpdate)
     if not configKey then return end
     
     local cfg = self.config[configKey]
@@ -124,11 +124,50 @@ function addon:RefreshFrame(configKey)
     if cfg.width and cfg.height then
         frame:SetSize(cfg.width, cfg.height)
     end
+
+    self:AddBorder(frame, cfg)
+
+    if cfg.modules then
+        for _, moduleCfg in pairs(cfg.modules) do
+            if type(moduleCfg) == "table" then
+                if moduleCfg.frameName then
+                    local moduleFrame = _G[moduleCfg.frameName]
+                    if moduleFrame then
+                        self:AddBorder(moduleFrame, moduleCfg)
+                    end
+                elseif moduleCfg[1] then
+                    for _, filterCfg in ipairs(moduleCfg) do
+                        if type(filterCfg) == "table" and filterCfg.frameName then
+                            local filterFrame = _G[filterCfg.frameName]
+                            if filterFrame then
+                                self:AddBorder(filterFrame, filterCfg)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if frame.HighlightBorder and cfg.highlightSelected and cfg.borderWidth and cfg.borderWidth > 0 then
+        local hr, hg, hb = self:HexToRGB(self.config.global.highlightColor)
+        local highlightW = cfg.borderWidth + 2
+        local highlightOffset = highlightW
+
+        frame.HighlightBorder:ClearAllPoints()
+        frame.HighlightBorder:SetPoint("TOPLEFT", frame, "TOPLEFT", -highlightOffset, highlightOffset)
+        frame.HighlightBorder:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", highlightOffset, -highlightOffset)
+        frame.HighlightBorder:SetBackdrop({
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            edgeSize = highlightW,
+        })
+        frame.HighlightBorder:SetBackdropBorderColor(hr, hg, hb, 1)
+    end
     
     frame:ClearAllPoints()
     frame:SetPoint(cfg.anchor, _G[cfg.relativeTo], cfg.relativePoint, cfg.offsetX, cfg.offsetY)
     
-    if frame.UpdateAllElements then
+    if not skipElementUpdate and frame.UpdateAllElements then
         frame:UpdateAllElements("RefreshConfig")
     end
 end
@@ -149,6 +188,8 @@ function addon:RefreshModule(configKey, moduleKey)
     if moduleCfg.width and moduleCfg.height then
         frame:SetSize(moduleCfg.width, moduleCfg.height)
     end
+
+    self:AddBorder(frame, moduleCfg)
     
     frame:ClearAllPoints()
     frame:SetPoint(moduleCfg.anchor, _G[moduleCfg.relativeTo], moduleCfg.relativePoint, moduleCfg.offsetX, moduleCfg.offsetY)

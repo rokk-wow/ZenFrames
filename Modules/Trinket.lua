@@ -10,8 +10,8 @@ local function IsInArena()
 end
 
 function addon:AddTrinket(frame, cfg)
-    local size = cfg.iconSize or 36
-    local borderWidth = cfg.borderWidth or 1
+    local size = cfg.iconSize
+    local borderWidth = cfg.borderWidth
 
     local trinket = CreateFrame("Frame", nil, frame)
     trinket:SetSize(size, size)
@@ -33,13 +33,12 @@ function addon:AddTrinket(frame, cfg)
         end
     end
 
-    local frameBorderWidth = cfg.frameBorderWidth or 0
     trinket:SetPoint(
-        cfg.anchor or "TOPLEFT",
+        cfg.anchor,
         anchorFrame,
-        cfg.relativePoint or "TOPRIGHT",
-        cfg.offsetX or 0,
-        (cfg.offsetY or 0) + frameBorderWidth - borderWidth
+        cfg.relativePoint,
+        cfg.offsetX,
+        cfg.offsetY + borderWidth
     )
 
     local icon = trinket:CreateTexture(nil, "ARTWORK")
@@ -52,7 +51,7 @@ function addon:AddTrinket(frame, cfg)
         icon:SetTexture(defaultTexture)
     end
 
-    addon:AddTextureBorder(trinket, borderWidth, cfg.borderColor or "000000FF")
+    addon:AddTextureBorder(trinket, borderWidth, cfg.borderColor)
 
     local cooldown = CreateFrame("Cooldown", nil, trinket, "CooldownFrameTemplate")
     cooldown:SetAllPoints(trinket)
@@ -64,8 +63,8 @@ function addon:AddTrinket(frame, cfg)
     trinket.Cooldown = cooldown
 
     local cooldownDesaturate = cfg.cooldownDesaturate ~= false
-    local cooldownAlpha = cfg.cooldownAlpha or 0.5
-    local healerReduction = cfg.healerReduction or 30
+    local cooldownAlpha = cfg.cooldownAlpha
+    local healerReduction = cfg.healerReduction
 
     trinket.spellID = nil
     trinket.unit = nil
