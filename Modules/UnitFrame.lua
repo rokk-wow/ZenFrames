@@ -5,6 +5,81 @@ local oUF = ns.oUF
 
 local highlightUpdaters = {}
 
+local CLICK_ACTION_DEFAULT_LEFT = "select"
+local CLICK_ACTION_DEFAULT_RIGHT = "contextMenu"
+
+local function NormalizeClickAction(action, fallback)
+    if action == "none" or action == "select" or action == "contextMenu" or action == "focus" or action == "inspect" or action == "clearFocus" then
+        return action
+    end
+    return fallback
+end
+
+local function GetActionAttributes(action)
+    if action == "select" then
+        return "target", nil
+    end
+    if action == "contextMenu" then
+        return "togglemenu", nil
+    end
+    if action == "focus" then
+        return "focus", nil
+    end
+    if action == "clearFocus" then
+        return "macro", "/clearfocus"
+    end
+    return nil, nil
+end
+
+function addon:ApplyUnitFrameClickBehavior(frame, cfg)
+    if not frame then return end
+
+    local leftAction = NormalizeClickAction(cfg and cfg.leftClick, CLICK_ACTION_DEFAULT_LEFT)
+    local rightAction = NormalizeClickAction(cfg and cfg.rightClick, CLICK_ACTION_DEFAULT_RIGHT)
+
+    frame:RegisterForClicks("AnyUp")
+
+    local leftType, leftMacro = GetActionAttributes(leftAction)
+    local rightType, rightMacro = GetActionAttributes(rightAction)
+
+    frame:SetAttribute("*type1", leftType)
+    frame:SetAttribute("*type2", rightType)
+    frame:SetAttribute("*macrotext1", leftMacro)
+    frame:SetAttribute("*macrotext2", rightMacro)
+
+    frame._zfLeftClickAction = leftAction
+    frame._zfRightClickAction = rightAction
+
+    if not frame._zfInspectClickHooked then
+        frame:HookScript("OnMouseUp", function(self, button)
+            local action = nil
+            if button == "LeftButton" then
+                action = self._zfLeftClickAction
+            elseif button == "RightButton" then
+                action = self._zfRightClickAction
+            end
+
+            if action ~= "inspect" then
+                return
+            end
+
+            local unit = self.unit or self:GetAttribute("unit")
+            if not unit or not UnitExists(unit) then
+                return
+            end
+
+            if not UnitIsPlayer(unit) then
+                return
+            end
+
+            if CanInspect and CanInspect(unit) then
+                InspectUnit(unit)
+            end
+        end)
+        frame._zfInspectClickHooked = true
+    end
+end
+
 function addon:SpawnUnitFrame(unit, configKey)
     local styleName = "ZenFrames" .. configKey
 
@@ -12,7 +87,7 @@ function addon:SpawnUnitFrame(unit, configKey)
         local cfg = addon.config[configKey]
 
         frame:SetSize(cfg.width, cfg.height)
-        frame:RegisterForClicks("AnyUp")
+        addon:ApplyUnitFrameClickBehavior(frame, cfg)
         frame:SetPoint(cfg.anchor, _G[cfg.relativeTo], cfg.relativePoint, cfg.offsetX, cfg.offsetY)
 
         addon:AddBackground(frame, cfg)
@@ -188,7 +263,7 @@ function addon:SpawnGroupFrames(configKey, units)
 
     oUF:RegisterStyle(styleName, function(frame)
         frame:SetSize(unitW, unitH)
-        frame:RegisterForClicks("AnyUp")
+        self:ApplyUnitFrameClickBehavior(frame, cfg)
         frame.isChild = true
 
         self:AddBackground(frame, { backgroundColor = cfg.unitBackgroundColor })

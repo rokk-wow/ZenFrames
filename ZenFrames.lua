@@ -120,6 +120,16 @@ function addon:RefreshFrame(configKey, skipElementUpdate)
     local frame = _G[cfg.frameName]
     if not frame then return end
     if InCombatLockdown() then return end
+
+    if self.ApplyUnitFrameClickBehavior then
+        if frame.frames then
+            for _, child in ipairs(frame.frames) do
+                self:ApplyUnitFrameClickBehavior(child, cfg)
+            end
+        else
+            self:ApplyUnitFrameClickBehavior(frame, cfg)
+        end
+    end
     
     if cfg.width and cfg.height then
         frame:SetSize(cfg.width, cfg.height)

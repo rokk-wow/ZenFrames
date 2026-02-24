@@ -131,6 +131,8 @@ function addon:GetDefaultConfig()
             backgroundColor = "00000088",
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
+            leftClick = "select",
+            rightClick = "contextMenu",
 
             modules = {
                 health = {
@@ -334,6 +336,9 @@ function addon:GetDefaultConfig()
             backgroundColor = "00000088",
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
+            leftClick = "inspect",
+            rightClick = "contextMenu",
+
             modules = {
                 health = {
                     enabled = true,
@@ -513,6 +518,8 @@ function addon:GetDefaultConfig()
             backgroundColor = "00000088",
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
+            leftClick = "select",
+            rightClick = "contextMenu",
             modules = {
                 health = {
                     enabled = true,
@@ -548,6 +555,8 @@ function addon:GetDefaultConfig()
             backgroundColor = "00000088",
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
+            leftClick = "select",
+            rightClick = "contextMenu",
             modules = {
                 health = {
                     enabled = true,
@@ -583,6 +592,8 @@ function addon:GetDefaultConfig()
             backgroundColor = "00000088",
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
+            leftClick = "select",
+            rightClick = "contextMenu",
             modules = {
                 health = {
                     enabled = true,
@@ -617,6 +628,8 @@ function addon:GetDefaultConfig()
             height = 29,
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
+            leftClick = "select",
+            rightClick = "contextMenu",
             modules = {
                 health = {
                     enabled = true,
@@ -665,6 +678,8 @@ function addon:GetDefaultConfig()
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
             highlightSelected = true,
+            leftClick = "select",
+            rightClick = "contextMenu",
 
             modules = {
                 health = {
@@ -960,6 +975,9 @@ function addon:GetDefaultConfig()
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
             highlightSelected = true,
+
+            leftClick = "select",
+            rightClick = "contextMenu",
 
             modules = {
                 health = {
