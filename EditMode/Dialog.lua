@@ -862,9 +862,35 @@ local function BuildSubDialog()
     local width = mainDialog and mainDialog:GetWidth() or 320
 
     subDialog = addon:CreateDialog("ZenFramesEditModeSubDialog", "", width)
+    addon._editModeSubDialog = subDialog
     subDialog:SetFrameStrata("TOOLTIP")
     subDialog:SetFrameLevel(300)
     subDialog.title:SetFont(subDialog._fontPath, SUB_DIALOG_TITLE_FONT_SIZE, "OUTLINE")
+
+    local titleIcon = subDialog:CreateTexture(nil, "OVERLAY")
+    titleIcon:SetSize(20, 20)
+    titleIcon:SetAtlas("CreditsScreen-Assets-Buttons-Play")
+    titleIcon:SetRotation(math.pi)
+    titleIcon:SetPoint("CENTER", subDialog, "TOPLEFT", subDialog._borderWidth + subDialog._padding + 14, -(subDialog._borderWidth + subDialog._padding + 11))
+    titleIcon:SetDesaturated(true)
+    subDialog._titleIcon = titleIcon
+
+    local titleHover = CreateFrame("Frame", nil, subDialog)
+    titleHover:SetPoint("TOPLEFT", titleIcon, "TOPLEFT", 0, 0)
+    titleHover:SetPoint("BOTTOMRIGHT", titleIcon, "BOTTOMRIGHT", 0, 0)
+    titleHover:EnableMouse(true)
+    titleHover:SetScript("OnEnter", function()
+        titleIcon:SetDesaturated(false)
+    end)
+    titleHover:SetScript("OnLeave", function()
+        titleIcon:SetDesaturated(true)
+    end)
+    titleHover:SetScript("OnMouseDown", function(_, button)
+        if button ~= "LeftButton" then return end
+        if InCombatLockdown() then return end
+        addon:ReturnFromEditModeSubDialog()
+    end)
+    subDialog._titleHover = titleHover
 
     local dividerY = -(subDialog._borderWidth + subDialog._padding + SUB_DIALOG_TITLE_FONT_SIZE + 20)
     addon:DialogAddDivider(subDialog, dividerY)
@@ -889,8 +915,9 @@ local function BuildConfirmDialog()
 
     local width = 350
     confirmDialog = addon:CreateDialog("ZenFramesResetConfirmDialog", "", width)
-    confirmDialog:SetFrameStrata("FULLSCREEN")
-    confirmDialog:SetFrameLevel(500)
+    addon._editModeConfirmDialog = confirmDialog
+    confirmDialog:SetFrameStrata("TOOLTIP")
+    confirmDialog:SetFrameLevel(1000)
     confirmDialog.title:SetFont(confirmDialog._fontPath, CONFIRM_DIALOG_TITLE_FONT_SIZE, "OUTLINE")
     confirmDialog.title:SetText(addon:L("resetButton"))
 
@@ -976,29 +1003,66 @@ function addon:HideAllEditModeSubDialogs()
     return false
 end
 
+local function GetDialogCenter(frame)
+    if not frame then return nil, nil end
+
+    local left = frame:GetLeft()
+    local bottom = frame:GetBottom()
+    local width = frame:GetWidth()
+    local height = frame:GetHeight()
+
+    if not left or not bottom or not width or not height then
+        return nil, nil
+    end
+
+    return left + (width / 2), bottom + (height / 2)
+end
+
+function addon:GetOpenEditModeDialogCenter(excludedDialog)
+    local candidates = {
+        self._editModeSettingsDialog,
+        self._editModeSubDialog,
+        self._editModeConfirmDialog,
+        self._editModeDialog,
+    }
+
+    for _, dialog in ipairs(candidates) do
+        if dialog and dialog ~= excludedDialog and dialog:IsShown() then
+            return GetDialogCenter(dialog)
+        end
+    end
+
+    return nil, nil
+end
+
+function addon:ReturnFromEditModeSubDialog()
+    if InCombatLockdown() then return end
+
+    local centerX, centerY = GetDialogCenter(subDialog)
+    self:HideAllEditModeSubDialogs()
+    self:ShowEditModeDialog()
+
+    local mainDialog = self._editModeDialog
+    if mainDialog and centerX and centerY then
+        mainDialog:ClearAllPoints()
+        mainDialog:SetPoint("CENTER", UIParent, "BOTTOMLEFT", centerX, centerY)
+    end
+end
+
 function addon:ShowEditModeSubDialog(configKey, moduleKey)
     if InCombatLockdown() then return end
     if not configKey then return end
 
-    local existingX, existingY
-    if subDialog and subDialog:IsShown() then
-        local left = subDialog:GetLeft()
-        local bottom = subDialog:GetBottom()
-        local width = subDialog:GetWidth()
-        local height = subDialog:GetHeight()
+    local centerX, centerY = self:GetOpenEditModeDialogCenter()
 
-        if left and bottom and width and height then
-            existingX = left + (width / 2)
-            existingY = bottom + (height / 2)
-        end
-    end
-
+    self:HideEditModeSettingsDialog()
     self:HideAllEditModeSubDialogs()
 
     local sub = BuildSubDialog()
     local mainDialog = addon._editModeDialog
     if mainDialog then
         sub:SetSize(mainDialog:GetWidth(), mainDialog:GetHeight())
+        mainDialog:Hide()
     end
 
     sub._configKey = configKey
@@ -1010,18 +1074,12 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     end
     sub.title:SetText(title)
 
-    local dialogX, dialogY
-    if existingX and existingY then
-        dialogX = existingX
-        dialogY = existingY
-    else
-        local screenWidth = UIParent:GetWidth()
-        dialogX = screenWidth * 0.75  -- Always open on right side of screen
-        dialogY = UIParent:GetHeight() * 0.5
-    end
-
     sub:ClearAllPoints()
-    sub:SetPoint("CENTER", UIParent, "BOTTOMLEFT", dialogX, dialogY)
+    if centerX and centerY then
+        sub:SetPoint("CENTER", UIParent, "BOTTOMLEFT", centerX, centerY)
+    else
+        sub:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    end
 
     ClearSubDialogControls()
     if not moduleKey then

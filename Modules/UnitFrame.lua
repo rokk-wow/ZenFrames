@@ -536,17 +536,33 @@ function addon:AddBackground(frame, cfg)
 end
 
 function addon:AddBorder(frame, cfg)
-    if not cfg.borderColor or not cfg.borderWidth then return end
-    local r, g, b, a = self:HexToRGB(cfg.borderColor)
-    local offset = cfg.borderWidth
-    frame.Border = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+    if not frame then return end
+
+    local borderWidth = cfg and cfg.borderWidth
+    local borderColor = cfg and cfg.borderColor
+    if not borderColor or not borderWidth or borderWidth <= 0 then
+        if frame.Border then
+            frame.Border:Hide()
+        end
+        return
+    end
+
+    local r, g, b, a = self:HexToRGB(borderColor)
+    local offset = borderWidth
+
+    if not frame.Border then
+        frame.Border = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+    end
+
+    frame.Border:ClearAllPoints()
     frame.Border:SetPoint("TOPLEFT", frame, "TOPLEFT", -offset, offset)
     frame.Border:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", offset, -offset)
     frame.Border:SetBackdrop({
         edgeFile = "Interface\\Buttons\\WHITE8X8",
-        edgeSize = cfg.borderWidth,
+        edgeSize = borderWidth,
     })
     frame.Border:SetBackdropBorderColor(r, g, b, a)
+    frame.Border:Show()
 end
 
 function addon:RegisterHighlightEvent()

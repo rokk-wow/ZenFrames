@@ -5,6 +5,8 @@ local addon = SAdCore:GetAddon(addonName)
 local settingsDialog
 local COLUMN_GAP = 28
 local checkedCount = 0
+local globalSettingsRefreshTimer
+local GLOBAL_SETTINGS_REFRESH_DEBOUNCE_SECONDS = 0.1
 
 local function ToPascalCase(value)
     if not value then return "" end
@@ -144,17 +146,96 @@ local function PopulateSettingsContent(dialog)
     local leftY = -4
     local rightY = -4
 
+    local function RefreshVisibleFramesFromConfig()
+        addon:RefreshConfig()
+
+        local unitFrameConfigKeys = {
+            "player",
+            "target",
+            "targetTarget",
+            "focus",
+            "focusTarget",
+            "pet",
+        }
+
+        for _, configKey in ipairs(unitFrameConfigKeys) do
+            addon:RefreshFrame(configKey)
+        end
+
+        if addon.groupContainers then
+            for configKey, container in pairs(addon.groupContainers) do
+                local cfg = addon.config and addon.config[configKey]
+                if type(cfg) == "table" then
+                    addon:AddBorder(container, {
+                        borderWidth = cfg.containerBorderWidth,
+                        borderColor = cfg.containerBorderColor,
+                    })
+
+                    if container.frames then
+                        for _, child in ipairs(container.frames) do
+                            addon:AddBorder(child, {
+                                borderWidth = cfg.unitBorderWidth,
+                                borderColor = cfg.unitBorderColor,
+                            })
+
+                            if child.UpdateAllElements then
+                                child:UpdateAllElements("RefreshConfig")
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local function ApplyGlobalSetting(settingKey, value)
+        addon:SetOverride({"global", settingKey}, value)
+
+        if globalSettingsRefreshTimer then
+            globalSettingsRefreshTimer:Cancel()
+            globalSettingsRefreshTimer = nil
+        end
+
+        globalSettingsRefreshTimer = C_Timer.NewTimer(GLOBAL_SETTINGS_REFRESH_DEBOUNCE_SECONDS, function()
+            globalSettingsRefreshTimer = nil
+            RefreshVisibleFramesFromConfig()
+        end)
+
+        if not addon.editMode then
+            RefreshVisibleFramesFromConfig()
+        end
+    end
+
     local globalHeader, globalDivider
     globalHeader, globalDivider, leftY = addon:DialogAddHeader(leftColumn, leftY, "Global Options")
     table.insert(dialog._controls, globalHeader)
     table.insert(dialog._controls, globalDivider)
 
     local borderColorRow
-    borderColorRow, leftY = addon:DialogAddColorPicker(leftColumn, leftY, "Border Color", "000000FF", function() end)
+    borderColorRow, leftY = addon:DialogAddColorPicker(
+        leftColumn,
+        leftY,
+        "Border Color",
+        addon.config.global and addon.config.global.borderColor or "000000FF",
+        function(value)
+            ApplyGlobalSetting("borderColor", value)
+        end
+    )
     table.insert(dialog._controls, borderColorRow)
 
     local borderSizeRow
-    borderSizeRow, leftY = addon:DialogAddSlider(leftColumn, leftY, "Border Size", 1, 10, 2, 1, function() end)
+    borderSizeRow, leftY = addon:DialogAddSlider(
+        leftColumn,
+        leftY,
+        "Border Size",
+        1,
+        10,
+        addon.config.global and addon.config.global.borderWidth or 2,
+        1,
+        function(value)
+            ApplyGlobalSetting("borderWidth", value)
+        end
+    )
     table.insert(dialog._controls, borderSizeRow)
 
     local fontRow
@@ -296,6 +377,7 @@ local function BuildSettingsDialog()
     local width = (baseWidth * 2) + 40 + 76
 
     settingsDialog = addon:CreateDialog("ZenFramesEditModeSettingsDialog", addon:L("settingsTitle"), width)
+    addon._editModeSettingsDialog = settingsDialog
 
     local titleIcon = settingsDialog:CreateTexture(nil, "OVERLAY")
     titleIcon:SetSize(20, 20)
@@ -372,8 +454,8 @@ end
 function addon:ShowEditModeSettingsDialog()
     if InCombatLockdown() then return end
 
+    local centerX, centerY = self:GetOpenEditModeDialogCenter()
     local mainDialog = addon._editModeDialog
-    local centerX, centerY = GetDialogCenter(mainDialog)
 
     if mainDialog then
         mainDialog:Hide()

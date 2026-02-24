@@ -2,6 +2,7 @@ local addonName, ns = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 local oUF = ns.oUF
+local CONFIG_REQUEST_DEBOUNCE_SECONDS = 0.1
 
 addon.sadCore.savedVarsGlobalName = "ZenFramesSettings_Global"
 addon.sadCore.savedVarsPerCharName = "ZenFramesSettings_Char"
@@ -83,6 +84,7 @@ function addon:SetOverride(pathSegments, value)
     self.savedVars.data = self.savedVars.data or {}
     self.savedVars.data.overrides = self.savedVars.data.overrides or {}
     setNested(self.savedVars.data.overrides, pathSegments, value)
+    self._configDirty = true
 end
 
 function addon:ClearOverrides(pathSegments)
@@ -98,12 +100,14 @@ function addon:ClearOverrides(pathSegments)
     end
     
     current[pathSegments[#pathSegments]] = nil
+    self._configDirty = true
 end
 
 function addon:ResetAllSettings()
     if not self.savedVars then return end
     self.savedVars.data = self.savedVars.data or {}
     self.savedVars.data.overrides = {}
+    self._configDirty = true
     ReloadUI()
 end
 
@@ -155,8 +159,20 @@ function addon:RefreshModule(configKey, moduleKey)
 end
 
 function addon:GetConfig()
-    local mergedConfig = deepMerge(self:GetDefaultConfig(), self:GetOverrides())
-    return replaceGlobalTokens(mergedConfig)
+    local now = GetTime and GetTime() or 0
+    if not self._cachedConfig or self._configDirty then
+        local mergedConfig = deepMerge(self:GetDefaultConfig(), self:GetOverrides())
+        self._cachedConfig = replaceGlobalTokens(mergedConfig)
+        self._configDirty = false
+        self._lastConfigBuildTime = now
+        return self._cachedConfig
+    end
+
+    if self._lastConfigBuildTime and (now - self._lastConfigBuildTime) < CONFIG_REQUEST_DEBOUNCE_SECONDS then
+        return self._cachedConfig
+    end
+
+    return self._cachedConfig
 end
 
 function addon:RefreshConfig()

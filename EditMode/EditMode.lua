@@ -79,6 +79,10 @@ escapeFrame:SetScript("OnKeyDown", function(self, key)
             return
         end
         local closedSubDialog = addon:HideAllEditModeSubDialogs()
+        if closedSubDialog then
+            addon:ShowEditModeDialog()
+            return
+        end
         if not closedSubDialog then
             addon:DisableEditMode()
         end

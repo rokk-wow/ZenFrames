@@ -171,6 +171,8 @@ end
 function addon:ShowEditModeDialog()
     if InCombatLockdown() then return end
 
+    local centerX, centerY = self:GetOpenEditModeDialogCenter(dialog)
+
     self:HideEditModeSettingsDialog()
     local dlg = BuildDialog()
     ResetVisibilityState()
@@ -186,6 +188,15 @@ function addon:ShowEditModeDialog()
     end
 
     dlg._reloadButton:Disable()
+
+    if centerX and centerY then
+        dlg:ClearAllPoints()
+        dlg:SetPoint("CENTER", UIParent, "BOTTOMLEFT", centerX, centerY)
+    else
+        dlg:ClearAllPoints()
+        dlg:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    end
+
     dlg:Show()
 end
 

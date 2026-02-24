@@ -119,7 +119,7 @@ local function ProcessInspectQueue()
         if UnitExists(unit) and UnitIsConnected(unit)
            and not UnitIsUnit(unit, 'player')
            and not InCombatLockdown() then
-            local guid = UnitGUID(unit)
+            local guid = addon:SecureCall(UnitGUID, unit)
             if guid and specCache[guid] then
             else
                 inspectPending = true
@@ -135,7 +135,7 @@ local function PruneCache()
     for i = 1, 4 do
         local unit = "party" .. i
         if UnitExists(unit) then
-            local guid = UnitGUID(unit)
+            local guid = addon:SecureCall(UnitGUID, unit)
             if guid then activeGUIDs[guid] = true end
         end
     end
@@ -154,7 +154,7 @@ inspectFrame:SetScript("OnEvent", function(self, event, ...)
         local guid = ...
         for i = 1, 4 do
             local unit = "party" .. i
-            if UnitExists(unit) and UnitGUID(unit) == guid then
+            if UnitExists(unit) and addon:SecureCall(UnitGUID, unit) == guid then
                 local specId = GetInspectSpecialization(unit)
                 if specId and specId > 0 then
                     specCache[guid] = specId
@@ -171,7 +171,7 @@ inspectFrame:SetScript("OnEvent", function(self, event, ...)
         for i = 1, 4 do
             local unit = "party" .. i
             if UnitExists(unit) and not UnitIsUnit(unit, "player") then
-                local guid = UnitGUID(unit)
+                local guid = addon:SecureCall(UnitGUID, unit)
                 if not guid or not specCache[guid] then
                     table.insert(inspectQueue, unit)
                 end
@@ -196,11 +196,16 @@ oUF.Tags.Methods['spec'] = function(unit)
         if arenaIndex then
             specId = GetArenaOpponentSpec(tonumber(arenaIndex))
         else
-            local guid = UnitGUID(unit)
-            if guid and specCache[guid] then
-                specId = specCache[guid]
-            elseif GetInspectSpecialization then
-                specId = GetInspectSpecialization(unit)
+            -- UnitGUID can return secret values in arena/pvp, use SecureCall
+            local guid = addon:SecureCall(UnitGUID, unit)
+            if guid and type(guid) == "string" and guid ~= "" then
+                -- Access specCache safely, SecureCall replaces secret values with nil
+                local cached = addon:SecureCall(function() return specCache[guid] end)
+                if cached then
+                    specId = cached
+                elseif GetInspectSpecialization then
+                    specId = GetInspectSpecialization(unit)
+                end
             end
         end
     end
