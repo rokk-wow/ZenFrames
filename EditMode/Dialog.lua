@@ -1663,6 +1663,10 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
             if moduleKey == "dispelIcon" and self.RefreshDispelIconEditModeVisuals then
                 self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
             end
+
+            if moduleKey == "arenaTargets" and self.RefreshArenaTargetsEditModeVisuals then
+                self:RefreshArenaTargetsEditModeVisuals(configKey, moduleKey)
+            end
         else
             self:RefreshFrame(configKey)
         end

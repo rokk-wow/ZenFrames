@@ -76,7 +76,7 @@ function addon:PopulateDispelIconSubDialog(subDialog, configKey, moduleKey, yOff
     table.insert(subDialog._controls, enabledRow)
 
     local sizeRow
-    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Size", 10, 250, moduleCfg.iconSize, 1, function(value)
+    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Size", 10, 100, moduleCfg.iconSize, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
         self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
     end)

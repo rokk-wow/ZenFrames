@@ -225,6 +225,18 @@ local function UpdateArenaTargetsPreview(overlay)
     end
 end
 
+function addon:RefreshArenaTargetsPlaceholderPreviews(configKey, moduleKey)
+    if moduleKey and moduleKey ~= "arenaTargets" then return end
+
+    ForEachPlaceholder(function(overlay)
+        if overlay and overlay._moduleKey == "arenaTargets" then
+            if not configKey or overlay._configKey == configKey then
+                UpdateArenaTargetsPreview(overlay)
+            end
+        end
+    end)
+end
+
 -- Helper function to update position after drag or nudge
 local function UpdatePlaceholderPosition(overlay)
     if not overlay._configKey then return end

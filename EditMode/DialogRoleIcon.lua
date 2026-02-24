@@ -83,7 +83,7 @@ function addon:PopulateRoleIconSubDialog(subDialog, configKey, moduleKey, yOffse
 
     local sizeValue = moduleCfg.iconSize or moduleCfg.size
     local sizeRow
-    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Size", 10, 250, sizeValue, 1, function(value)
+    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Size", 10, 100, sizeValue, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
         self:RefreshRoleIconEditModeVisuals(configKey, moduleKey)
     end)
