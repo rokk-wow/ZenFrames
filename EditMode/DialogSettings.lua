@@ -311,11 +311,6 @@ local function PopulateSettingsContent(dialog)
             addon:AddTextureBorder(frame.Trinket, trinketCfg.borderWidth, trinketCfg.borderColor)
         end
 
-        local dispelCfg = cfg.modules.dispelIcon
-        if dispelCfg and frame.DispelIcon then
-            addon:AddTextureBorder(frame.DispelIcon, dispelCfg.borderWidth, dispelCfg.borderColor)
-        end
-
         local arenaTargetsCfg = cfg.modules.arenaTargets
         if arenaTargetsCfg and frame.ArenaTargets and frame.ArenaTargets.widget and frame.ArenaTargets.widget.indicators then
             local borderWidth = arenaTargetsCfg.borderWidth

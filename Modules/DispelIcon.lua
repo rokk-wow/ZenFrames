@@ -42,7 +42,6 @@ end
 
 function addon:AddDispelIcon(frame, cfg)
     local size = cfg.iconSize
-    local borderWidth = cfg.borderWidth
 
     local container = CreateFrame("Frame", nil, frame)
     container:SetSize(size, size)
@@ -69,14 +68,12 @@ function addon:AddDispelIcon(frame, cfg)
         anchorFrame,
         cfg.relativePoint,
         cfg.offsetX,
-        cfg.offsetY + borderWidth
+        cfg.offsetY
     )
 
     local icon = container:CreateTexture(nil, "ARTWORK")
     icon:SetAllPoints(container)
     container.Icon = icon
-
-    addon:AddTextureBorder(container, borderWidth, cfg.borderColor)
 
     container:SetFrameLevel(frame:GetFrameLevel() + 10)
     container:Hide()

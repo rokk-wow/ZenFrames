@@ -83,7 +83,6 @@ local function BuildArenaIndicators(frame, cfg, parentContainer)
     local indicatorWidth = cfg.indicatorWidth
     local indicatorHeight = cfg.indicatorHeight
     local spacing = cfg.spacing
-    local edgeSpacing = cfg.edgeSpacing
     local growDirection = cfg.growDirection
     local borderWidth = cfg.borderWidth
     local borderColor = cfg.borderColor
@@ -99,8 +98,8 @@ local function BuildArenaIndicators(frame, cfg, parentContainer)
         indicator:ClearAllPoints()
 
         if i == 1 then
-            local xInset = edgeSpacing + borderWidth
-            local yInset = edgeSpacing + borderWidth
+            local xInset = borderWidth
+            local yInset = borderWidth
 
             if growDirection == "UP" then
                 indicator:SetPoint("BOTTOMLEFT", parentContainer, "BOTTOMLEFT", xInset, yInset)
@@ -241,24 +240,21 @@ function addon:AddArenaTargets(frame, cfg, frameBorderWidth)
     local indicatorWidth = cfg.indicatorWidth
     local indicatorHeight = cfg.indicatorHeight
     local spacing = cfg.spacing
-    local edgeSpacing = cfg.edgeSpacing
     local growDirection = cfg.growDirection
     local borderWidth = cfg.borderWidth
     local maxIndicators = cfg.maxIndicators
     
     local containerWidth, containerHeight
     if growDirection == "DOWN" or growDirection == "UP" then
-        containerWidth = indicatorWidth + (2 * borderWidth) + (2 * edgeSpacing)
+        containerWidth = indicatorWidth + (2 * borderWidth)
         containerHeight = (indicatorHeight * maxIndicators)
             + (spacing * (maxIndicators - 1))
             + (2 * borderWidth)
-            + (2 * edgeSpacing)
     else
         containerWidth = (indicatorWidth * maxIndicators)
             + (spacing * (maxIndicators - 1))
             + (2 * borderWidth)
-            + (2 * edgeSpacing)
-        containerHeight = indicatorHeight + (2 * borderWidth) + (2 * edgeSpacing)
+        containerHeight = indicatorHeight + (2 * borderWidth)
     end
     
     container:SetSize(containerWidth, containerHeight)

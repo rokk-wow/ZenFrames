@@ -4,7 +4,7 @@ local addon = SAdCore:GetAddon(addonName)
 local oUF = ns.oUF
 
 function addon:AddRoleIcon(frame, cfg)
-    local size = cfg.size
+    local size = cfg.iconSize or cfg.size
     local container = CreateFrame("Frame", nil, frame)
     container:SetSize(size, size)
     container:SetPoint(
@@ -24,8 +24,8 @@ function addon:AddRoleIcon(frame, cfg)
     end
 
     if cfg.color then
-        local r, g, b = addon:HexToRGB(cfg.color)
-        icon:SetVertexColor(r, g, b)
+        local r, g, b, a = addon:HexToRGB(cfg.color)
+        icon:SetVertexColor(r, g, b, a)
     end
 
     icon.Override = function(self)
