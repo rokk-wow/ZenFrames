@@ -31,6 +31,9 @@ local CONTROL_LABEL_FONT_SIZE = 14     -- Font size for control labels (checkbox
 local CONTROL_SMALL_LABEL_FONT_SIZE = 12  -- Smaller font for dropdown/slider labels
 local BUTTON_FONT_SIZE = 13            -- Font size for buttons
 
+local GLOBAL_LOCK_ICON_SIZE = 20
+local GLOBAL_LOCKED_ALPHA = 0.4
+
 -- Header styling
 local HEADER_FONT_SIZE = 16            -- Main section headers
 local HEADER_COLOR = { 0, 1, 0.596 }   -- Green header color
@@ -454,7 +457,41 @@ end
 
 local SLIDER_HEIGHT = 16
 
-function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentValue, step, onChange)
+local function CreateGlobalLockButton(row, isLocked, onToggle)
+    local lockButton = CreateFrame("Button", nil, row)
+    lockButton:SetSize(GLOBAL_LOCK_ICON_SIZE, GLOBAL_LOCK_ICON_SIZE)
+    lockButton:SetPoint("RIGHT", row, "RIGHT", 0, 0)
+
+    local icon = lockButton:CreateTexture(nil, "ARTWORK")
+    icon:SetAllPoints()
+    icon:SetAtlas("Garr_LockedBuilding", true)
+    lockButton.icon = icon
+
+    function lockButton:SetLocked(locked)
+        if locked then
+            self.icon:SetDesaturated(true)
+            self.icon:SetAlpha(GLOBAL_LOCKED_ALPHA)
+        else
+            self.icon:SetDesaturated(false)
+            self.icon:SetAlpha(1)
+        end
+    end
+
+    lockButton:SetLocked(isLocked)
+    lockButton:SetScript("OnClick", function(self)
+        local newLocked = not self._locked
+        self._locked = newLocked
+        self:SetLocked(newLocked)
+        if onToggle then
+            onToggle(newLocked)
+        end
+    end)
+    lockButton._locked = isLocked
+
+    return lockButton
+end
+
+function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentValue, step, onChange, globalOption)
     yOffset = yOffset - (CONTROL_TALL_SPACING_AFTER / 2)  -- Apply half spacing before control
     
     local row = CreateFrame("Frame", nil, dialog)
@@ -468,15 +505,45 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
     labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
     labelText:SetTextColor(1, 1, 1)
     labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
-    labelText:SetText(label .. ": " .. currentValue)
     row.label = labelText
+
+    local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
+    local isLocked = hasGlobalOption and currentValue == "_GLOBAL_"
+
+    local numericValue = currentValue
+    if type(numericValue) ~= "number" then
+        numericValue = tonumber(numericValue)
+    end
+    if type(numericValue) ~= "number" then
+        numericValue = minVal
+    end
+
+    if isLocked then
+        local globalValue = globalOption and globalOption.globalValue
+        if type(globalValue) ~= "number" then
+            globalValue = tonumber(globalValue)
+        end
+        if type(globalValue) == "number" then
+            numericValue = globalValue
+        end
+    end
+
+    if numericValue < minVal then
+        numericValue = minVal
+    elseif numericValue > maxVal then
+        numericValue = maxVal
+    end
 
     -- Slider
     local slider = CreateFrame("Slider", nil, row, "OptionsSliderTemplate")
     slider:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 3, -8)
-    slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -3, -20)
+    local sliderRightInset = 3
+    if hasGlobalOption then
+        sliderRightInset = GLOBAL_LOCK_ICON_SIZE + 8
+    end
+    slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -sliderRightInset, -20)
     slider:SetMinMaxValues(minVal, maxVal)
-    slider:SetValue(currentValue)
+    slider:SetValue(numericValue)
     slider:SetValueStep(step or 1)
     slider:SetObeyStepOnDrag(true)
     
@@ -484,14 +551,56 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
     slider.Low:SetText("")
     slider.High:SetText("")
     slider.Text:SetText("")
+
+    local unlockedValue = numericValue
+    local suppressSliderCallback = false
+
+    local function UpdateSliderState()
+        if isLocked then
+            labelText:SetText(label .. ": Global")
+            slider:Hide()
+        else
+            local displayValue = math.floor(unlockedValue + 0.5)
+            labelText:SetText(label .. ": " .. displayValue)
+            suppressSliderCallback = true
+            slider:SetValue(unlockedValue)
+            suppressSliderCallback = false
+            slider:Show()
+        end
+    end
     
     slider:SetScript("OnValueChanged", function(self, value)
+        if suppressSliderCallback or isLocked then
+            return
+        end
         value = math.floor(value + 0.5)
+        unlockedValue = value
         labelText:SetText(label .. ": " .. value)
         if onChange then
             onChange(value)
         end
     end)
+
+    if hasGlobalOption then
+        local lockButton = CreateGlobalLockButton(row, isLocked, function(newLocked)
+            isLocked = newLocked
+            if isLocked then
+                local currentSliderValue = slider:GetValue()
+                unlockedValue = math.floor(currentSliderValue + 0.5)
+                if onChange then
+                    onChange("_GLOBAL_")
+                end
+            else
+                if onChange then
+                    onChange(unlockedValue)
+                end
+            end
+            UpdateSliderState()
+        end)
+        row.lockButton = lockButton
+    end
+
+    UpdateSliderState()
     
     row.slider = slider
     return row, yOffset - CONTROL_TALL_HEIGHT - (CONTROL_TALL_SPACING_AFTER / 2)  -- Apply remaining half spacing after
@@ -613,9 +722,20 @@ end
 
 local COLOR_SWATCH_SIZE = 20  -- Smaller than checkbox/control size
 
-function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChange)
+function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChange, globalOption)
     yOffset = yOffset - 5
     local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Match visibility control spacing
+
+    local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
+    local isLocked = hasGlobalOption and currentColor == "_GLOBAL_"
+
+    local unlockedColor = currentColor
+    if isLocked then
+        unlockedColor = globalOption and globalOption.globalValue
+    end
+    if type(unlockedColor) ~= "string" or unlockedColor == "" or unlockedColor == "_GLOBAL_" then
+        unlockedColor = "FFFFFFFF"
+    end
     
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(rowHeight)
@@ -646,7 +766,7 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
         return r/255, g/255, b/255, a/255
     end
     
-    local r, g, b, a = ParseHexColor(currentColor)
+    local r, g, b, a = ParseHexColor(unlockedColor)
     swatchColor:SetColorTexture(r, g, b, a)
 
     -- Label (to the right of swatch, like checkbox layout)
@@ -654,16 +774,32 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
     labelText:SetFont(dialog._fontPath, CONTROL_LABEL_FONT_SIZE, "OUTLINE")
     labelText:SetTextColor(1, 1, 1)
     labelText:SetPoint("LEFT", swatch, "RIGHT", CONTROL_PADDING + 3, 0)
-    labelText:SetText(label)
     row.label = labelText
 
+    local function UpdateColorState()
+        if isLocked then
+            swatch:Hide()
+            labelText:ClearAllPoints()
+            labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
+            labelText:SetText(label .. ": Global")
+        else
+            local cr, cg, cb, ca = ParseHexColor(unlockedColor)
+            swatchColor:SetColorTexture(cr, cg, cb, ca)
+            swatch:Show()
+            labelText:ClearAllPoints()
+            labelText:SetPoint("LEFT", swatch, "RIGHT", CONTROL_PADDING + 3, 0)
+            labelText:SetText(label)
+        end
+    end
+
     swatch:SetScript("OnClick", function()
-        local r, g, b, a = ParseHexColor(currentColor)
+        local preOpenColor = unlockedColor
+        local openR, openG, openB, openA = ParseHexColor(unlockedColor)
         ColorPickerFrame:SetupColorPickerAndShow({
-            r = r,
-            g = g,
-            b = b,
-            opacity = a,
+            r = openR,
+            g = openG,
+            b = openB,
+            opacity = openA,
             hasOpacity = true,
             swatchFunc = function()
                 local nr, ng, nb = ColorPickerFrame:GetColorRGB()
@@ -677,7 +813,7 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
                     math.floor(nb * 255 + 0.5),
                     math.floor(na * 255 + 0.5))
                 
-                currentColor = hex
+                unlockedColor = hex
                 if onChange then
                     onChange(hex)
                 end
@@ -694,17 +830,37 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
                     math.floor(nb * 255 + 0.5),
                     math.floor(na * 255 + 0.5))
                 
-                currentColor = hex
+                unlockedColor = hex
                 if onChange then
                     onChange(hex)
                 end
             end,
             cancelFunc = function()
-                local r, g, b, a = ParseHexColor(currentColor)
-                swatchColor:SetColorTexture(r, g, b, a)
+                local cr, cg, cb, ca = ParseHexColor(preOpenColor)
+                unlockedColor = preOpenColor
+                swatchColor:SetColorTexture(cr, cg, cb, ca)
             end,
         })
     end)
+
+    if hasGlobalOption then
+        local lockButton = CreateGlobalLockButton(row, isLocked, function(newLocked)
+            isLocked = newLocked
+            if isLocked then
+                if onChange then
+                    onChange("_GLOBAL_")
+                end
+            else
+                if onChange then
+                    onChange(unlockedColor)
+                end
+            end
+            UpdateColorState()
+        end)
+        row.lockButton = lockButton
+    end
+
+    UpdateColorState()
     
     row.swatch = swatch
     return row, yOffset - rowHeight - 10  -- Extra 5px spacing below color picker
