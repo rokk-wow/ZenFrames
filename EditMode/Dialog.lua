@@ -1097,7 +1097,7 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
             end
         end
 
-        self.config = self:GetConfig()
+        self:RefreshConfig()
 
         if moduleKey then
             self:RefreshModule(configKey, moduleKey)

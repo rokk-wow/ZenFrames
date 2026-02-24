@@ -58,7 +58,7 @@ end
 local function BuildDialog()
     if dialog then return dialog end
 
-    local config = addon:GetConfig()
+    addon:RefreshConfig()
     dialog = addon:CreateDialog("ZenFramesEditModeDialog", addon:L("editModeDialogTitle"), 320)
     addon._editModeDialog = dialog
 
@@ -90,7 +90,7 @@ local function BuildDialog()
     local rows = {}
 
     local function AddRow(def)
-        local isEnabled = config[def.configKey] and config[def.configKey].enabled
+        local isEnabled = addon.config[def.configKey] and addon.config[def.configKey].enabled
         local isVisible = true
         visibilityState[def.configKey] = isVisible
 
@@ -175,9 +175,9 @@ function addon:ShowEditModeDialog()
     local dlg = BuildDialog()
     ResetVisibilityState()
 
-    local config = self:GetConfig()
+    self:RefreshConfig()
     for configKey, row in pairs(dlg._rows) do
-        local isEnabled = config[configKey] and config[configKey].enabled
+        local isEnabled = self.config[configKey] and self.config[configKey].enabled
         row.checkbox:SetChecked(isEnabled)
         row.eye._visible = true
         row.eye.icon:SetAtlas("GM-icon-visible")

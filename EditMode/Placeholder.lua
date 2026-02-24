@@ -159,7 +159,7 @@ local function UpdatePlaceholderPosition(overlay)
             addon:SetOverride({overlay._configKey, "offsetY"}, newOffsetY)
         end
 
-        addon.config = addon:GetConfig()
+        addon:RefreshConfig()
 
         parent:ClearAllPoints()
         parent:SetPoint(anchorPoint, relativeFrame, relativePoint, newOffsetX, newOffsetY)

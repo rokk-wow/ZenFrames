@@ -133,6 +133,10 @@ function addon:GetConfig()
     return deepMerge(self:GetDefaultConfig(), self:GetOverrides())
 end
 
+function addon:RefreshConfig()
+    self.config = self:GetConfig()
+end
+
 local unitConfigMap = {
     player = "player",
     target = "target",
@@ -197,7 +201,7 @@ function addon:Initialize()
 
     self:RunMigrations()
 
-    self.config = self:GetConfig()
+    self:RefreshConfig()
     self.unitFrames = {}
 
     self:OverridePowerColors()

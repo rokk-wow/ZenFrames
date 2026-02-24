@@ -50,8 +50,8 @@ local function SetModuleEnabled(moduleLabel, enabled)
     end
     
     -- Check if it's an aura filter by looking up the actual config
-    local config = addon:GetConfig()
-    local frameCfg = config[configKey]
+    addon:RefreshConfig()
+    local frameCfg = addon.config[configKey]
     if not frameCfg or not frameCfg.modules then
         return
     end
@@ -84,10 +84,10 @@ local function SetModuleEnabled(moduleLabel, enabled)
     end
 end
 
-local function GetDisabledModuleDisplayNames(config)
+local function GetDisabledModuleDisplayNames()
     local disabled = {}
 
-    for configKey, frameCfg in pairs(config or {}) do
+    for configKey, frameCfg in pairs(addon.config or {}) do
         -- Skip if this is the global config or if the frame itself is disabled
         if configKey ~= "global" and type(frameCfg) == "table" and frameCfg.enabled ~= false and type(frameCfg.modules) == "table" then
             for moduleKey, moduleCfg in pairs(frameCfg.modules) do
@@ -123,7 +123,7 @@ local function PopulateSettingsContent(dialog)
     -- Reset checked count when dialog opens
     checkedCount = 0
     
-    local config = addon:GetConfig()
+    addon:RefreshConfig()
     local fonts = addon:ListMedia("font")
     local textures = addon:ListMedia("statusbar")
 
@@ -158,7 +158,7 @@ local function PopulateSettingsContent(dialog)
     table.insert(dialog._controls, borderSizeRow)
 
     local fontRow
-    fontRow, leftY = addon:DialogAddDropdown(leftColumn, leftY, "Font", fonts, config.global and config.global.font or fonts[1], function() end)
+    fontRow, leftY = addon:DialogAddDropdown(leftColumn, leftY, "Font", fonts, addon.config.global and addon.config.global.font or fonts[1], function() end)
     table.insert(dialog._controls, fontRow)
     
     local healthTextureRow
@@ -182,7 +182,7 @@ local function PopulateSettingsContent(dialog)
     table.insert(dialog._controls, disabledHeader)
     table.insert(dialog._controls, disabledDivider)
 
-    local disabledModules = GetDisabledModuleDisplayNames(config)
+    local disabledModules = GetDisabledModuleDisplayNames()
     if #disabledModules == 0 then
         local emptyText = rightColumn:CreateFontString(nil, "OVERLAY")
         emptyText:SetFont(rightColumn._fontPath, 14, "OUTLINE")
