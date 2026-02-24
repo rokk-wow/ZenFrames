@@ -395,28 +395,40 @@ function addon:AddTextureBorder(frame, borderWidth, hexColor)
     borderWidth = borderWidth or 1
     local r, g, b, a = self:HexToRGB(hexColor or "000000FF")
 
-    frame.borderTop = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+    if not frame.borderTop then
+        frame.borderTop = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+    end
     frame.borderTop:SetColorTexture(r, g, b, a)
+    frame.borderTop:ClearAllPoints()
     frame.borderTop:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, 0)
     frame.borderTop:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, 0)
     frame.borderTop:SetHeight(borderWidth)
 
-    frame.borderBottom = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+    if not frame.borderBottom then
+        frame.borderBottom = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+    end
     frame.borderBottom:SetColorTexture(r, g, b, a)
+    frame.borderBottom:ClearAllPoints()
     frame.borderBottom:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, 0)
     frame.borderBottom:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 0, 0)
     frame.borderBottom:SetHeight(borderWidth)
 
-    frame.borderLeft = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+    if not frame.borderLeft then
+        frame.borderLeft = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+    end
     frame.borderLeft:SetColorTexture(r, g, b, a)
-    frame.borderLeft:SetPoint("TOPRIGHT", frame, "TOPLEFT", 0, 0)
-    frame.borderLeft:SetPoint("BOTTOMRIGHT", frame, "BOTTOMLEFT", 0, 0)
+    frame.borderLeft:ClearAllPoints()
+    frame.borderLeft:SetPoint("TOPRIGHT", frame, "TOPLEFT", 0, borderWidth)
+    frame.borderLeft:SetPoint("BOTTOMRIGHT", frame, "BOTTOMLEFT", 0, -borderWidth)
     frame.borderLeft:SetWidth(borderWidth)
 
-    frame.borderRight = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+    if not frame.borderRight then
+        frame.borderRight = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+    end
     frame.borderRight:SetColorTexture(r, g, b, a)
-    frame.borderRight:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, 0)
-    frame.borderRight:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 0, 0)
+    frame.borderRight:ClearAllPoints()
+    frame.borderRight:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, borderWidth)
+    frame.borderRight:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 0, -borderWidth)
     frame.borderRight:SetWidth(borderWidth)
 end
 

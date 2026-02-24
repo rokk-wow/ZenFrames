@@ -31,7 +31,7 @@ local CONTROL_LABEL_FONT_SIZE = 14     -- Font size for control labels (checkbox
 local CONTROL_SMALL_LABEL_FONT_SIZE = 12  -- Smaller font for dropdown/slider labels
 local BUTTON_FONT_SIZE = 13            -- Font size for buttons
 
-local GLOBAL_LOCK_ICON_SIZE = 20
+local GLOBAL_LOCK_ICON_SIZE = 28
 local GLOBAL_LOCKED_ALPHA = 0.4
 
 -- Header styling
@@ -460,11 +460,11 @@ local SLIDER_HEIGHT = 16
 local function CreateGlobalLockButton(row, isLocked, onToggle)
     local lockButton = CreateFrame("Button", nil, row)
     lockButton:SetSize(GLOBAL_LOCK_ICON_SIZE, GLOBAL_LOCK_ICON_SIZE)
-    lockButton:SetPoint("RIGHT", row, "RIGHT", 0, 0)
+    lockButton:SetPoint("LEFT", row, "LEFT", 0, 0)
 
     local icon = lockButton:CreateTexture(nil, "ARTWORK")
     icon:SetAllPoints()
-    icon:SetAtlas("Garr_LockedBuilding", true)
+    icon:SetAtlas("GreatVault-32x32", true)
     lockButton.icon = icon
 
     function lockButton:SetLocked(locked)
@@ -509,6 +509,14 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
 
     local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
     local isLocked = hasGlobalOption and currentValue == "_GLOBAL_"
+    if hasGlobalOption and not isLocked then
+        local globalValue = globalOption and globalOption.globalValue
+        local numericGlobal = type(globalValue) == "number" and globalValue or tonumber(globalValue)
+        local numericCurrent = type(currentValue) == "number" and currentValue or tonumber(currentValue)
+        if type(numericGlobal) == "number" and type(numericCurrent) == "number" and numericGlobal == numericCurrent then
+            isLocked = true
+        end
+    end
 
     local numericValue = currentValue
     if type(numericValue) ~= "number" then
@@ -537,11 +545,7 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
     -- Slider
     local slider = CreateFrame("Slider", nil, row, "OptionsSliderTemplate")
     slider:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 3, -8)
-    local sliderRightInset = 3
-    if hasGlobalOption then
-        sliderRightInset = GLOBAL_LOCK_ICON_SIZE + 8
-    end
-    slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -sliderRightInset, -20)
+    slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -3, -20)
     slider:SetMinMaxValues(minVal, maxVal)
     slider:SetValue(numericValue)
     slider:SetValueStep(step or 1)
@@ -557,9 +561,24 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
 
     local function UpdateSliderState()
         if isLocked then
+            labelText:SetFont(dialog._fontPath, CONTROL_LABEL_FONT_SIZE, "OUTLINE")
+            if row.lockButton then
+                labelText:ClearAllPoints()
+                labelText:SetPoint("LEFT", row.lockButton, "RIGHT", CONTROL_PADDING + 1, 0)
+            else
+                labelText:ClearAllPoints()
+                labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
+            end
             labelText:SetText(label .. ": Global")
             slider:Hide()
         else
+            labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
+            labelText:ClearAllPoints()
+            if row.lockButton then
+                labelText:SetPoint("TOPLEFT", row.lockButton, "TOPRIGHT", CONTROL_PADDING, 0)
+            else
+                labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+            end
             local displayValue = math.floor(unlockedValue + 0.5)
             labelText:SetText(label .. ": " .. displayValue)
             suppressSliderCallback = true
@@ -597,6 +616,13 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
             end
             UpdateSliderState()
         end)
+        lockButton:ClearAllPoints()
+        lockButton:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -2)
+        labelText:ClearAllPoints()
+        labelText:SetPoint("TOPLEFT", lockButton, "TOPRIGHT", CONTROL_PADDING, 0)
+        slider:ClearAllPoints()
+        slider:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 3, -8)
+        slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -3, -20)
         row.lockButton = lockButton
     end
 
@@ -648,6 +674,7 @@ function addon:DialogAddEnableControl(dialog, yOffset, label, checked, configKey
     local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Match visibility control spacing
     local buttonWidth = 80
     local buttonHeight = 24
+    local spacingAfter = CONTROL_TALL_SPACING_AFTER / 2
     
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(rowHeight)
@@ -713,7 +740,7 @@ function addon:DialogAddEnableControl(dialog, yOffset, label, checked, configKey
         ReloadUI()
     end)
 
-    return row, yOffset - rowHeight
+    return row, yOffset - rowHeight - spacingAfter
 end
 
 -- ---------------------------------------------------------------------------
@@ -728,6 +755,14 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
 
     local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
     local isLocked = hasGlobalOption and currentColor == "_GLOBAL_"
+    if hasGlobalOption and not isLocked then
+        local globalValue = globalOption and globalOption.globalValue
+        if type(globalValue) == "string" and type(currentColor) == "string" then
+            if globalValue:upper() == currentColor:upper() then
+                isLocked = true
+            end
+        end
+    end
 
     local unlockedColor = currentColor
     if isLocked then
@@ -742,6 +777,8 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
     row:SetPoint("LEFT", dialog, "LEFT", BORDER_WIDTH + PADDING, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -(BORDER_WIDTH + PADDING), 0)
     row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+
+    local lockButton
 
     -- Color swatch button (on left, like checkbox)
     local swatch = CreateFrame("Button", nil, row)
@@ -777,15 +814,30 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
     row.label = labelText
 
     local function UpdateColorState()
+        if lockButton then
+            lockButton:ClearAllPoints()
+            lockButton:SetPoint("LEFT", row, "LEFT", 0, 0)
+        end
+
         if isLocked then
             swatch:Hide()
             labelText:ClearAllPoints()
-            labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
+            if lockButton then
+                labelText:SetPoint("LEFT", lockButton, "RIGHT", CONTROL_PADDING + 1, 0)
+            else
+                labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
+            end
             labelText:SetText(label .. ": Global")
         else
             local cr, cg, cb, ca = ParseHexColor(unlockedColor)
             swatchColor:SetColorTexture(cr, cg, cb, ca)
             swatch:Show()
+            swatch:ClearAllPoints()
+            if lockButton then
+                swatch:SetPoint("LEFT", lockButton, "RIGHT", CONTROL_PADDING, 0)
+            else
+                swatch:SetPoint("LEFT", row, "LEFT", 0, 0)
+            end
             labelText:ClearAllPoints()
             labelText:SetPoint("LEFT", swatch, "RIGHT", CONTROL_PADDING + 3, 0)
             labelText:SetText(label)
@@ -795,6 +847,13 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
     swatch:SetScript("OnClick", function()
         local preOpenColor = unlockedColor
         local openR, openG, openB, openA = ParseHexColor(unlockedColor)
+
+        local pickerLevel = (dialog and dialog:GetFrameLevel() or 300) + 100
+        if ColorPickerFrame then
+            ColorPickerFrame:SetFrameStrata("TOOLTIP")
+            ColorPickerFrame:SetFrameLevel(pickerLevel)
+        end
+
         ColorPickerFrame:SetupColorPickerAndShow({
             r = openR,
             g = openG,
@@ -844,7 +903,7 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
     end)
 
     if hasGlobalOption then
-        local lockButton = CreateGlobalLockButton(row, isLocked, function(newLocked)
+        lockButton = CreateGlobalLockButton(row, isLocked, function(newLocked)
             isLocked = newLocked
             if isLocked then
                 if onChange then
@@ -1032,6 +1091,52 @@ local function IsAuraFilterModule(configKey, moduleKey)
     end
 
     return false
+end
+
+local function RefreshTextureBorders(frame, cfg)
+    if not frame or not cfg or not cfg.modules then return end
+
+    local trinketCfg = cfg.modules.trinket
+    if trinketCfg and frame.Trinket then
+        addon:AddTextureBorder(frame.Trinket, trinketCfg.borderWidth, trinketCfg.borderColor)
+    end
+
+    local dispelCfg = cfg.modules.dispelIcon
+    if dispelCfg and frame.DispelIcon then
+        addon:AddTextureBorder(frame.DispelIcon, dispelCfg.borderWidth, dispelCfg.borderColor)
+    end
+
+    local arenaTargetsCfg = cfg.modules.arenaTargets
+    if arenaTargetsCfg and frame.ArenaTargets and frame.ArenaTargets.widget and frame.ArenaTargets.widget.indicators then
+        local borderWidth = arenaTargetsCfg.borderWidth
+        local borderColor = arenaTargetsCfg.borderColor
+        for _, indicator in ipairs(frame.ArenaTargets.widget.indicators) do
+            if indicator.Inner then
+                indicator.Inner:ClearAllPoints()
+                indicator.Inner:SetPoint("TOPLEFT", borderWidth, -borderWidth)
+                indicator.Inner:SetPoint("BOTTOMRIGHT", -borderWidth, borderWidth)
+            end
+            addon:AddTextureBorder(indicator, borderWidth, borderColor)
+        end
+    end
+
+    local drCfg = cfg.modules.drTracker
+    if drCfg and frame.DRTracker then
+        addon:AddTextureBorder(frame.DRTracker, drCfg.containerBorderWidth, drCfg.containerBorderColor)
+    end
+
+    if cfg.modules.auraFilters then
+        for _, filterCfg in ipairs(cfg.modules.auraFilters) do
+            if filterCfg.enabled and filterCfg.name then
+                local filter = frame[filterCfg.name]
+                if filter and filter.icons then
+                    for _, icon in pairs(filter.icons) do
+                        addon:AddTextureBorder(icon, filterCfg.borderWidth, filterCfg.borderColor)
+                    end
+                end
+            end
+        end
+    end
 end
 
 local function ClearSubDialogControls()
@@ -1473,6 +1578,29 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
             end
         else
             self:RefreshFrame(configKey)
+        end
+
+        if self.editMode then
+            local frameCfg = self.config and self.config[configKey]
+            if frameCfg then
+                if configKey == "party" or configKey == "arena" then
+                    local container = self.groupContainers and self.groupContainers[configKey]
+                    if container and container.frames then
+                        for _, unitFrame in ipairs(container.frames) do
+                            RefreshTextureBorders(unitFrame, frameCfg)
+                        end
+                    end
+                else
+                    local frame = frameCfg.frameName and _G[frameCfg.frameName]
+                    if frame then
+                        RefreshTextureBorders(frame, frameCfg)
+                    end
+                end
+            end
+        end
+
+        if subDialog and subDialog:IsShown() then
+            self:ShowEditModeSubDialog(configKey, moduleKey)
         end
     end
 

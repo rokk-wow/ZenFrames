@@ -303,6 +303,52 @@ local function PopulateSettingsContent(dialog)
         end
     end
 
+    local function RefreshTextureBorders(frame, cfg)
+        if not frame or not cfg or not cfg.modules then return end
+
+        local trinketCfg = cfg.modules.trinket
+        if trinketCfg and frame.Trinket then
+            addon:AddTextureBorder(frame.Trinket, trinketCfg.borderWidth, trinketCfg.borderColor)
+        end
+
+        local dispelCfg = cfg.modules.dispelIcon
+        if dispelCfg and frame.DispelIcon then
+            addon:AddTextureBorder(frame.DispelIcon, dispelCfg.borderWidth, dispelCfg.borderColor)
+        end
+
+        local arenaTargetsCfg = cfg.modules.arenaTargets
+        if arenaTargetsCfg and frame.ArenaTargets and frame.ArenaTargets.widget and frame.ArenaTargets.widget.indicators then
+            local borderWidth = arenaTargetsCfg.borderWidth
+            local borderColor = arenaTargetsCfg.borderColor
+            for _, indicator in ipairs(frame.ArenaTargets.widget.indicators) do
+                if indicator.Inner then
+                    indicator.Inner:ClearAllPoints()
+                    indicator.Inner:SetPoint("TOPLEFT", borderWidth, -borderWidth)
+                    indicator.Inner:SetPoint("BOTTOMRIGHT", -borderWidth, borderWidth)
+                end
+                addon:AddTextureBorder(indicator, borderWidth, borderColor)
+            end
+        end
+
+        local drCfg = cfg.modules.drTracker
+        if drCfg and frame.DRTracker then
+            addon:AddTextureBorder(frame.DRTracker, drCfg.containerBorderWidth, drCfg.containerBorderColor)
+        end
+
+        if cfg.modules.auraFilters then
+            for _, filterCfg in ipairs(cfg.modules.auraFilters) do
+                if filterCfg.enabled and filterCfg.name then
+                    local filter = frame[filterCfg.name]
+                    if filter and filter.icons then
+                        for _, icon in pairs(filter.icons) do
+                            addon:AddTextureBorder(icon, filterCfg.borderWidth, filterCfg.borderColor)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     local function RefreshVisibleFramesFromConfig()
         addon._cachedConfig = nil
         addon:RefreshConfig()
@@ -336,6 +382,7 @@ local function PopulateSettingsContent(dialog)
                 if frame and cfg then
                     RefreshTextFonts(frame, cfg)
                     RefreshTextures(frame, cfg)
+                    RefreshTextureBorders(frame, cfg)
                 end
             end
         end
@@ -364,7 +411,10 @@ local function PopulateSettingsContent(dialog)
                             end
 
                             if addon.editMode then
-                                RefreshTextFonts(child, cfg)                                RefreshTextures(child, cfg)                            elseif child.UpdateAllElements then
+                                RefreshTextFonts(child, cfg)
+                                RefreshTextures(child, cfg)
+                                RefreshTextureBorders(child, cfg)
+                            elseif child.UpdateAllElements then
                                 child:UpdateAllElements("RefreshConfig")
                             end
                         end
