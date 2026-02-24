@@ -17,7 +17,7 @@ function addon:AddHealth(frame, cfg)
     Health:SetWidth(cfg.width or frame:GetWidth())
 
     if cfg.healthTexture then
-        local texturePath = addon:FetchStatusbar(cfg.healthTexture)
+        local texturePath = addon:FetchStatusbar(cfg.healthTexture, "health")
         if texturePath then
             Health:SetStatusBarTexture(texturePath)
         end

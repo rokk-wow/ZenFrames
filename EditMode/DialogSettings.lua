@@ -147,7 +147,164 @@ local function PopulateSettingsContent(dialog)
     local leftY = -4
     local rightY = -4
 
+    local function RefreshTextFonts(frame, cfg)
+        -- Get global font from already-refreshed config
+        if not addon.config or not addon.config.global or not addon.config.global.font then return end
+        
+        local globalFont = addon.config.global.font
+        
+        -- Refresh frame.Texts (created by AddText)
+        if frame.Texts then
+            local textConfigs = cfg.modules and cfg.modules.text
+            if textConfigs then
+                for i, fs in pairs(frame.Texts) do
+                    local textCfg = textConfigs[i]
+                    if fs and textCfg then
+                        local fontName = textCfg.font or globalFont
+                        local fontPath = addon:FetchFont(fontName)
+                        local fontSize = addon:ResolveFontSize(textCfg.size)
+                        if fontPath and fontSize and fontSize > 0 then
+                            fs:SetFont(fontPath, fontSize, textCfg.outline)
+                        end
+                    end
+                end
+            end
+        end
+
+        -- Refresh Castbar.Text and Castbar.Time
+        if frame.Castbar then
+            local castbarCfg = cfg.modules and cfg.modules.castbar
+            if castbarCfg then
+                local fontPath = addon:FetchFont(globalFont)
+                if fontPath then
+                    if frame.Castbar.Text and castbarCfg.textSize then
+                        frame.Castbar.Text:SetFont(fontPath, castbarCfg.textSize, "OUTLINE")
+                    end
+                    if frame.Castbar.Time then
+                        frame.Castbar.Time:SetFont(fontPath, 10, "OUTLINE")
+                    end
+                end
+            end
+        end
+
+        -- Refresh aura filter button fonts
+        if cfg.modules and cfg.modules.auraFilters then
+            for _, filterCfg in ipairs(cfg.modules.auraFilters) do
+                if filterCfg.enabled and filterCfg.name then
+                    local filter = frame[filterCfg.name]
+                    if filter and filter.icons then
+                        local fontPath = addon:FetchFont(globalFont)
+                        if fontPath then
+                            for _, icon in pairs(filter.icons) do
+                                if icon.Count then
+                                    icon.Count:SetFont(fontPath, 10, "OUTLINE")
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local function RefreshTextures(frame, cfg)
+        -- Get global textures from already-refreshed config
+        if not addon.config or not addon.config.global then return end
+        
+        local globalConfig = addon.config.global
+        
+        -- Refresh Health texture
+        if frame.Health then
+            local healthCfg = cfg.modules and cfg.modules.health
+            if healthCfg and healthCfg.healthTexture then
+                local texturePath = addon:FetchStatusbar(healthCfg.healthTexture, "health")
+                if texturePath then
+                    -- Preserve current color
+                    local tex = frame.Health:GetStatusBarTexture()
+                    local r, g, b, a
+                    if tex then
+                        r, g, b, a = tex:GetVertexColor()
+                    end
+                    
+                    frame.Health:SetStatusBarTexture(texturePath)
+                    
+                    -- Restore color
+                    if r and g and b then
+                        local newTex = frame.Health:GetStatusBarTexture()
+                        if newTex then
+                            newTex:SetVertexColor(r, g, b, a or 1)
+                        end
+                    end
+                end
+            end
+        end
+        
+        -- Refresh Power texture
+        if frame.Power then
+            local powerCfg = cfg.modules and cfg.modules.power
+            if powerCfg and powerCfg.powerTexture then
+                local texturePath = addon:FetchStatusbar(powerCfg.powerTexture, "power")
+                if texturePath then
+                    -- Preserve current color
+                    local tex = frame.Power:GetStatusBarTexture()
+                    local r, g, b, a
+                    if tex then
+                        r, g, b, a = tex:GetVertexColor()
+                    end
+                    
+                    frame.Power:SetStatusBarTexture(texturePath)
+                    
+                    -- Restore color
+                    if r and g and b then
+                        local newTex = frame.Power:GetStatusBarTexture()
+                        if newTex then
+                            newTex:SetVertexColor(r, g, b, a or 1)
+                        end
+                    end
+                end
+            end
+        end
+        
+        -- Refresh Castbar texture
+        if frame.Castbar then
+            local castbarCfg = cfg.modules and cfg.modules.castbar
+            if castbarCfg and castbarCfg.castbarTexture then
+                local texturePath = addon:FetchStatusbar(castbarCfg.castbarTexture, "castbar")
+                if texturePath then
+                    -- Preserve current color
+                    local tex = frame.Castbar:GetStatusBarTexture()
+                    local r, g, b, a
+                    if tex then
+                        r, g, b, a = tex:GetVertexColor()
+                    end
+                    
+                    frame.Castbar:SetStatusBarTexture(texturePath)
+                    
+                    -- Restore color
+                    if r and g and b then
+                        local newTex = frame.Castbar:GetStatusBarTexture()
+                        if newTex then
+                            newTex:SetVertexColor(r, g, b, a or 1)
+                        end
+                    end
+                end
+            end
+        end
+        
+        -- Refresh Absorbs texture (HealthPrediction)
+        if frame.HealthPrediction and frame.HealthPrediction.damageAbsorb then
+            local absorbsCfg = cfg.modules and cfg.modules.absorbs
+            if absorbsCfg and absorbsCfg.absorbTexture then
+                local texturePath = addon:FetchStatusbar(absorbsCfg.absorbTexture, "absorb")
+                if texturePath then
+                    frame.HealthPrediction.damageAbsorb:SetStatusBarTexture(texturePath)
+                end
+            end
+        end
+    end
+
     local function RefreshVisibleFramesFromConfig()
+        addon._cachedConfig = nil
         addon:RefreshConfig()
 
         local unitFrameConfigKeys = {
@@ -159,8 +316,28 @@ local function PopulateSettingsContent(dialog)
             "pet",
         }
 
+        -- Map config keys to unit IDs (unitFrames is keyed by unit ID)
+        local configKeyToUnit = {
+            player = "player",
+            target = "target",
+            targetTarget = "targettarget",
+            focus = "focus",
+            focusTarget = "focustarget",
+            pet = "pet",
+        }
+
         for _, configKey in ipairs(unitFrameConfigKeys) do
             addon:RefreshFrame(configKey, addon.editMode)
+            
+            if addon.editMode then
+                local unitId = configKeyToUnit[configKey]
+                local frame = addon.unitFrames[unitId]
+                local cfg = addon.config and addon.config[configKey]
+                if frame and cfg then
+                    RefreshTextFonts(frame, cfg)
+                    RefreshTextures(frame, cfg)
+                end
+            end
         end
 
         if addon.groupContainers then
@@ -186,7 +363,8 @@ local function PopulateSettingsContent(dialog)
                                 addon:AddBorder(child.Castbar, cfg.modules.castbar)
                             end
 
-                            if not addon.editMode and child.UpdateAllElements then
+                            if addon.editMode then
+                                RefreshTextFonts(child, cfg)                                RefreshTextures(child, cfg)                            elseif child.UpdateAllElements then
                                 child:UpdateAllElements("RefreshConfig")
                             end
                         end
@@ -198,6 +376,8 @@ local function PopulateSettingsContent(dialog)
 
     local function ApplyGlobalSetting(settingKey, value)
         addon:SetOverride({"global", settingKey}, value)
+        addon._configDirty = true
+        addon._cachedConfig = nil
 
         if not addon.editMode then
             if globalSettingsRefreshTimer then
@@ -218,7 +398,7 @@ local function PopulateSettingsContent(dialog)
         end
 
         if globalSettingsRefreshTimer then
-            return
+            globalSettingsRefreshTimer:Cancel()
         end
 
         local delay = GLOBAL_SETTINGS_REFRESH_THROTTLE_SECONDS - elapsed
@@ -266,23 +446,68 @@ local function PopulateSettingsContent(dialog)
     table.insert(dialog._controls, borderSizeRow)
 
     local fontRow
-    fontRow, leftY = addon:DialogAddDropdown(leftColumn, leftY, "Font", fonts, addon.config.global and addon.config.global.font or fonts[1], function() end)
+    fontRow, leftY = addon:DialogAddDropdown(
+        leftColumn,
+        leftY,
+        "Font",
+        fonts,
+        addon.config.global and addon.config.global.font or fonts[1],
+        function(value)
+            ApplyGlobalSetting("font", value)
+        end
+    )
     table.insert(dialog._controls, fontRow)
     
     local healthTextureRow
-    healthTextureRow, leftY = addon:DialogAddDropdown(leftColumn, leftY, "Health Texture", textures, textures[1], function() end)
+    healthTextureRow, leftY = addon:DialogAddDropdown(
+        leftColumn,
+        leftY,
+        "Health Texture",
+        textures,
+        addon.config.global and addon.config.global.healthTexture or textures[1],
+        function(value)
+            ApplyGlobalSetting("healthTexture", value)
+        end
+    )
     table.insert(dialog._controls, healthTextureRow)
 
     local powerTextureRow
-    powerTextureRow, leftY = addon:DialogAddDropdown(leftColumn, leftY, "Power Texture", textures, textures[1], function() end)
+    powerTextureRow, leftY = addon:DialogAddDropdown(
+        leftColumn,
+        leftY,
+        "Power Texture",
+        textures,
+        addon.config.global and addon.config.global.powerTexture or textures[1],
+        function(value)
+            ApplyGlobalSetting("powerTexture", value)
+        end
+    )
     table.insert(dialog._controls, powerTextureRow)
 
     local absorbTextureRow
-    absorbTextureRow, leftY = addon:DialogAddDropdown(leftColumn, leftY, "Absorb Texture", textures, textures[1], function() end)
+    absorbTextureRow, leftY = addon:DialogAddDropdown(
+        leftColumn,
+        leftY,
+        "Absorb Texture",
+        textures,
+        addon.config.global and addon.config.global.absorbTexture or textures[1],
+        function(value)
+            ApplyGlobalSetting("absorbTexture", value)
+        end
+    )
     table.insert(dialog._controls, absorbTextureRow)
 
     local castbarTextureRow
-    castbarTextureRow, leftY = addon:DialogAddDropdown(leftColumn, leftY, "Castbar Texture", textures, textures[1], function() end)
+    castbarTextureRow, leftY = addon:DialogAddDropdown(
+        leftColumn,
+        leftY,
+        "Castbar Texture",
+        textures,
+        addon.config.global and addon.config.global.castbarTexture or textures[1],
+        function(value)
+            ApplyGlobalSetting("castbarTexture", value)
+        end
+    )
     table.insert(dialog._controls, castbarTextureRow)
 
     local disabledHeader, disabledDivider
@@ -486,9 +711,11 @@ end
 function addon:ShowEditModeSettingsDialog()
     if InCombatLockdown() then return end
 
-    local dlg = BuildSettingsDialog()
-    local centerX, centerY = self:GetOpenConfigDialogCenter(dlg)
+    -- Get position of any currently open dialog BEFORE building settings dialog
+    -- (BuildSettingsDialog returns singleton, so we need position before we get the frame)
+    local centerX, centerY = self:GetOpenConfigDialogCenter(nil)
 
+    local dlg = BuildSettingsDialog()
     self:HideOpenConfigDialogs(dlg)
 
     if centerX and centerY then

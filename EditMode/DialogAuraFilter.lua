@@ -2,7 +2,7 @@ local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
-function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, titleFontSize)
+function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, yOffset)
     if not subDialog then return end
 
     local cfg = self.config[configKey]
@@ -21,8 +21,6 @@ function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, titl
     if not filterIndex or not filterCfg then return end
 
     subDialog._controls = subDialog._controls or {}
-
-    local yOffset = -(subDialog._borderWidth + subDialog._padding + titleFontSize + 40)
 
     local enabledRow = self:DialogAddEnableControl(subDialog, yOffset, "Enabled", filterCfg.enabled, configKey, moduleKey, function(value)
         self:SetOverride({configKey, "modules", "auraFilters", filterIndex, "enabled"}, value)

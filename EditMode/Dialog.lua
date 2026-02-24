@@ -747,6 +747,39 @@ function addon:DialogAddSubHeader(dialog, yOffset, text)
 end
 
 -- ---------------------------------------------------------------------------
+-- AddSectionTitle - centered module/section title (Section Title Control)
+-- ---------------------------------------------------------------------------
+
+local SECTION_TITLE_FONT_SIZE = 16
+local SECTION_TITLE_TOP_PADDING = 12
+local SECTION_TITLE_BOTTOM_PADDING = 12
+
+function addon:DialogAddSectionTitle(dialog, yOffset, text)
+    yOffset = yOffset - SECTION_TITLE_TOP_PADDING
+    
+    local title = dialog:CreateFontString(nil, "OVERLAY")
+    title:SetFont(dialog._fontPath, SECTION_TITLE_FONT_SIZE, "OUTLINE")
+    title:SetTextColor(1, 1, 1)
+    title:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+    title:SetText(text)
+    
+    return title, yOffset - SECTION_TITLE_FONT_SIZE - SECTION_TITLE_BOTTOM_PADDING
+end
+
+-- ---------------------------------------------------------------------------
+-- AddSpacer - invisible spacing (matches section title height)
+-- ---------------------------------------------------------------------------
+
+function addon:DialogAddSpacer(dialog, yOffset)
+    -- Create invisible frame with same height as section title for consistent spacing
+    local spacer = CreateFrame("Frame", nil, dialog)
+    spacer:SetHeight(SECTION_TITLE_TOP_PADDING + SECTION_TITLE_FONT_SIZE + SECTION_TITLE_BOTTOM_PADDING)
+    spacer:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+    
+    return spacer, yOffset - (SECTION_TITLE_TOP_PADDING + SECTION_TITLE_FONT_SIZE + SECTION_TITLE_BOTTOM_PADDING)
+end
+
+-- ---------------------------------------------------------------------------
 -- FinalizeDialog - resize height to fit content
 -- ---------------------------------------------------------------------------
 
@@ -846,12 +879,15 @@ local function IsAuraFilterModule(configKey, moduleKey)
 end
 
 local function ClearSubDialogControls()
-    if not subDialog or not subDialog._controls then return end
+    if not subDialog then return end
 
-    for _, control in ipairs(subDialog._controls) do
-        control:Hide()
-        control:SetParent(nil)
+    if subDialog._controls then
+        for _, control in ipairs(subDialog._controls) do
+            control:Hide()
+            control:SetParent(nil)
+        end
     end
+    
     subDialog._controls = {}
 end
 
@@ -1107,9 +1143,11 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     if InCombatLockdown() then return end
     if not configKey then return end
 
-    local sub = BuildSubDialog()
-    local centerX, centerY = self:GetOpenConfigDialogCenter(sub)
+    -- Get position of any currently open dialog BEFORE building sub-dialog
+    -- (BuildSubDialog returns singleton, so we need position before we get the frame)
+    local centerX, centerY = self:GetOpenConfigDialogCenter(nil)
 
+    local sub = BuildSubDialog()
     self:HideOpenConfigDialogs(sub)
     local mainDialog = addon._editModeDialog
     if mainDialog then
@@ -1119,10 +1157,8 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     sub._configKey = configKey
     sub._moduleKey = moduleKey
 
+    -- Title is just the frame name
     local title = GetConfigDisplayName(configKey)
-    if moduleKey then
-        title = title .. "." .. GetModuleDisplayName(moduleKey)
-    end
     sub.title:SetText(title)
 
     sub:ClearAllPoints()
@@ -1133,18 +1169,33 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     end
 
     ClearSubDialogControls()
+    
+    -- Start content below the divider (divider is at -(borderWidth + padding + titleSize + 20), 2px tall)
+    local contentY = -(sub._borderWidth + sub._padding + TITLE_FONT_SIZE + 20 + DIVIDER_HEIGHT)
+    
+    -- Add section title (module name) if present, otherwise add spacer for consistent positioning
+    if moduleKey then
+        local sectionTitle
+        sectionTitle, contentY = self:DialogAddSectionTitle(sub, contentY, GetModuleDisplayName(moduleKey))
+        table.insert(sub._controls, sectionTitle)
+    else
+        local spacer
+        spacer, contentY = self:DialogAddSpacer(sub, contentY)
+        table.insert(sub._controls, spacer)
+    end
+    
     if not moduleKey then
         if self.PopulateUnitFrameSubDialog then
-            self:PopulateUnitFrameSubDialog(subDialog, configKey, moduleKey, TITLE_FONT_SIZE, GetModuleFrameName)
+            self:PopulateUnitFrameSubDialog(subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
         end
     elseif IsAuraFilterModule(configKey, moduleKey) then
         if self.PopulateAuraFilterSubDialog then
-            self:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, TITLE_FONT_SIZE, GetModuleFrameName)
+            self:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
         end
     else
         local methodName = MODULE_SUB_DIALOG_METHODS[moduleKey]
         if methodName and self[methodName] then
-            self[methodName](self, subDialog, configKey, moduleKey, TITLE_FONT_SIZE, GetModuleFrameName)
+            self[methodName](self, subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
         end
     end
 
@@ -1217,6 +1268,7 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
 
                 if container and container.frames then
                     local frameCfg = self.config[configKey]
+                    local defaultFrameCfg = self:GetDefaultConfig()[configKey]
 
                     local moduleCfg = frameCfg.modules[moduleKey]
                     if not moduleCfg then

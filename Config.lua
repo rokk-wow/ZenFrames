@@ -30,10 +30,10 @@ function addon:GetDefaultConfig()
             borderWidth = 2,
             borderColor = "000000FF",
             font = "DorisPP",
-            healthTexture = "",
-            powerTexture = "",
-            absorbTexture = "",
-            castbarTexture = "",
+            healthTexture = "smooth",
+            powerTexture = "minimalist",
+            absorbTexture = "Diagonal",
+            castbarTexture = "smooth",
 
             dispelColors = {
                 Magic   = "ff00ffFF",
@@ -139,7 +139,7 @@ function addon:GetDefaultConfig()
                     anchor = "TOP",
                     relativeTo = "zfPlayerFrame",
                     relativePoint = "TOP",
-                    healthTexture = "smooth",
+                    healthTexture = "_GLOBAL_",
                     height = 41,
                     offsetX = 0,
                     offsetY = 0,
@@ -175,7 +175,7 @@ function addon:GetDefaultConfig()
                     anchor = "BOTTOM",
                     relativeTo = "zfPlayerFrame",
                     relativePoint = "BOTTOM",
-                    powerTexture = "minimalist",
+                    powerTexture = "_GLOBAL_",
                     height = 12,
                     adjustHealthbarHeight = true,
                     offsetX = 0,
@@ -193,7 +193,7 @@ function addon:GetDefaultConfig()
                     height = 30,
                     offsetX = 0,
                     offsetY = 10,
-                    castbarTexture = "smooth",
+                    castbarTexture = "_GLOBAL_",
                     showSpellName = true,
                     textSize = 12,
                     textPadding = 4,
@@ -294,7 +294,7 @@ function addon:GetDefaultConfig()
                     enabled = true,
                     opacity = .5,
                     maxAbsorbOverflow = 1.0,
-                    absorbTexture = "Diagonal",
+                    absorbTexture = "_GLOBAL_",
                 },
                 combatIndicator = {
                     enabled = true,
@@ -341,7 +341,7 @@ function addon:GetDefaultConfig()
                     anchor = "TOP",
                     relativeTo = "zfTargetFrame",
                     relativePoint = "TOP",
-                    healthTexture = "smooth",
+                    healthTexture = "_GLOBAL_",
                     height = 41,
                     offsetX = 0,
                     offsetY = 0,
@@ -377,7 +377,7 @@ function addon:GetDefaultConfig()
                     anchor = "BOTTOM",
                     relativeTo = "zfTargetFrame",
                     relativePoint = "BOTTOM",
-                    powerTexture = "minimalist",
+                    powerTexture = "_GLOBAL_",
                     height = 12,
                     adjustHealthbarHeight = true,
                     offsetX = 0,
@@ -394,7 +394,7 @@ function addon:GetDefaultConfig()
                     height = 20,
                     offsetX = 0,
                     offsetY = 0,
-                    castbarTexture = "smooth",
+                    castbarTexture = "_GLOBAL_",
                     showSpellName = true,
                     textSize = 12,
                     textPadding = 4,
@@ -495,7 +495,7 @@ function addon:GetDefaultConfig()
                     enabled = true,
                     opacity = .5,
                     maxAbsorbOverflow = 1.0,
-                    absorbTexture = "Diagonal",
+                    absorbTexture = "_GLOBAL_",
                 },
             },
         },
@@ -517,7 +517,7 @@ function addon:GetDefaultConfig()
                 health = {
                     enabled = true,
                     color = "class",
-                    healthTexture = "smooth",
+                    healthTexture = "_GLOBAL_",
                 },
                 text = {
                     {
@@ -552,7 +552,7 @@ function addon:GetDefaultConfig()
                 health = {
                     enabled = true,
                     color = "class",
-                    healthTexture = "smooth",
+                    healthTexture = "_GLOBAL_",
                 },
                 text = {
                     {
@@ -587,7 +587,7 @@ function addon:GetDefaultConfig()
                 health = {
                     enabled = true,
                     color = "class",
-                    healthTexture = "smooth",
+                    healthTexture = "_GLOBAL_",
                 },
                 text = {
                     {
@@ -621,7 +621,7 @@ function addon:GetDefaultConfig()
                 health = {
                     enabled = true,
                     color = "class",
-                    healthTexture = "smooth",
+                    healthTexture = "_GLOBAL_",
                 },
                 text = {
                     {
@@ -670,7 +670,7 @@ function addon:GetDefaultConfig()
                 health = {
                     enabled = true,
                     color = "class",
-                    healthTexture = "smooth",
+                    healthTexture = "_GLOBAL_",
                 },
                 text = {
                     {
@@ -698,7 +698,7 @@ function addon:GetDefaultConfig()
                     enabled = true,
                     anchor = "BOTTOM",
                     relativePoint = "BOTTOM",
-                    powerTexture = "minimalist",
+                    powerTexture = "_GLOBAL_",
                     height = 12,
                     adjustHealthbarHeight = true,
                     onlyHealer = true,
@@ -755,7 +755,7 @@ function addon:GetDefaultConfig()
                     height = 18,
                     offsetX = 23,
                     offsetY = 2,
-                    castbarTexture = "smooth",
+                    castbarTexture = "_GLOBAL_",
                     showSpellName = true,
                     textSize = 9,
                     textPadding = 2,
@@ -965,7 +965,7 @@ function addon:GetDefaultConfig()
                 health = {
                     enabled = true,
                     color = "class",
-                    healthTexture = "smooth",
+                    healthTexture = "_GLOBAL_",
                 },
                 text = {
                     {
@@ -993,7 +993,7 @@ function addon:GetDefaultConfig()
                     enabled = true,
                     anchor = "BOTTOM",
                     relativePoint = "BOTTOM",
-                    powerTexture = "minimalist",
+                    powerTexture = "_GLOBAL_",
                     height = 12,
                     adjustHealthbarHeight = true,
                     onlyHealer = true,
@@ -1050,7 +1050,7 @@ function addon:GetDefaultConfig()
                     height = 18,
                     offsetX = -23,
                     offsetY = 2,
-                    castbarTexture = "smooth",
+                    castbarTexture = "_GLOBAL_",
                     showSpellName = true,
                     textSize = 9,
                     textPadding = 2,

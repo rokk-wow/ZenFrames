@@ -15,7 +15,7 @@ function addon:AddPower(frame, cfg)
     Power:SetWidth(renderWidth)
 
     if cfg.powerTexture then
-        local texturePath = addon:FetchStatusbar(cfg.powerTexture)
+        local texturePath = addon:FetchStatusbar(cfg.powerTexture, "power")
         if texturePath then
             Power:SetStatusBarTexture(texturePath)
         end

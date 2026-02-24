@@ -4,6 +4,13 @@ local addon = SAdCore:GetAddon(addonName)
 local oUF = ns.oUF
 
 function addon:GetFontPath(fontName)
+    if fontName == "_GLOBAL_" then
+        local globalFont = self.config.global and self.config.global.font
+        if globalFont and globalFont ~= "_GLOBAL_" then
+            return self:FetchFont(globalFont)
+        end
+        return self:FetchFont()
+    end
     return self:FetchFont(fontName)
 end
 

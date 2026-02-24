@@ -171,9 +171,11 @@ end
 function addon:ShowEditModeDialog()
     if InCombatLockdown() then return end
 
-    local dlg = BuildDialog()
-    local centerX, centerY = self:GetOpenConfigDialogCenter(dlg)
+    -- Get position of any currently open dialog BEFORE building main dialog
+    -- (BuildDialog returns singleton, so we need position before we get the frame)
+    local centerX, centerY = self:GetOpenConfigDialogCenter(nil)
 
+    local dlg = BuildDialog()
     self:HideOpenConfigDialogs(dlg)
     ResetVisibilityState()
 

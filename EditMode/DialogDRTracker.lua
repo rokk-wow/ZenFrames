@@ -2,7 +2,7 @@ local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
-function addon:PopulateDRTrackerSubDialog(subDialog, configKey, moduleKey, titleFontSize)
+function addon:PopulateDRTrackerSubDialog(subDialog, configKey, moduleKey, yOffset)
     if not subDialog then return end
 
     local cfg = self.config[configKey]
@@ -10,8 +10,6 @@ function addon:PopulateDRTrackerSubDialog(subDialog, configKey, moduleKey, title
 
     local moduleCfg = cfg.modules[moduleKey]
     subDialog._controls = subDialog._controls or {}
-
-    local yOffset = -(subDialog._borderWidth + subDialog._padding + titleFontSize + 40)
 
     local enabledRow = self:DialogAddEnableControl(subDialog, yOffset, "Enabled", moduleCfg.enabled, configKey, moduleKey, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)

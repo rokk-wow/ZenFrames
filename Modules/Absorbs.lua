@@ -10,7 +10,7 @@ function addon:AddAbsorbs(frame, cfg)
 
     local texturePath
     if cfg.absorbTexture then
-        texturePath = addon:FetchStatusbar(cfg.absorbTexture)
+        texturePath = addon:FetchStatusbar(cfg.absorbTexture, "absorb")
     end
 
     local damageAbsorb = CreateFrame("StatusBar", nil, Health)

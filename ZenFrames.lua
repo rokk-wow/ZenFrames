@@ -140,7 +140,10 @@ function addon:RefreshFrame(configKey, skipElementUpdate)
                         if type(filterCfg) == "table" and filterCfg.frameName then
                             local filterFrame = _G[filterCfg.frameName]
                             if filterFrame then
-                                self:AddBorder(filterFrame, filterCfg)
+                                self:AddBorder(filterFrame, {
+                                    borderWidth = filterCfg.containerBorderWidth,
+                                    borderColor = filterCfg.containerBorderColor,
+                                })
                             end
                         end
                     end
@@ -179,9 +182,21 @@ function addon:RefreshModule(configKey, moduleKey)
     if not cfg or not cfg.modules or not cfg.modules[moduleKey] then return end
     
     local moduleCfg = cfg.modules[moduleKey]
-    if not moduleCfg.frameName then return end
+    local frame
     
-    local frame = _G[moduleCfg.frameName]
+    -- Some modules don't have frameName (they're child elements of the unit frame)
+    if moduleCfg.frameName then
+        frame = _G[moduleCfg.frameName]
+    else
+        -- For modules without frameName, access them through the parent unit frame
+        local parentFrame = self.unitFrames[configKey] or _G[cfg.frameName]
+        if parentFrame then
+            -- Convert moduleKey to frame property name (e.g., "combatIndicator" -> "CombatIndicator")
+            local framePropertyName = moduleKey:sub(1, 1):upper() .. moduleKey:sub(2)
+            frame = parentFrame[framePropertyName]
+        end
+    end
+    
     if not frame then return end
     if InCombatLockdown() then return end
     
@@ -189,7 +204,9 @@ function addon:RefreshModule(configKey, moduleKey)
         frame:SetSize(moduleCfg.width, moduleCfg.height)
     end
 
-    self:AddBorder(frame, moduleCfg)
+    if moduleCfg.frameName then
+        self:AddBorder(frame, moduleCfg)
+    end
     
     frame:ClearAllPoints()
     frame:SetPoint(moduleCfg.anchor, _G[moduleCfg.relativeTo], moduleCfg.relativePoint, moduleCfg.offsetX, moduleCfg.offsetY)

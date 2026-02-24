@@ -69,7 +69,13 @@ function addon:FetchFont(fontName)
     return self:FetchMedia("font", name)
 end
 
-function addon:FetchStatusbar(key)
+function addon:FetchStatusbar(key, textureType)
+    -- Resolve _GLOBAL_ token to the appropriate global texture
+    if key == "_GLOBAL_" and textureType and self.config and self.config.global then
+        local globalKey = textureType .. "Texture"
+        key = self.config.global[globalKey]
+    end
+    
     return self:FetchMedia("statusbar", key)
 end
 
