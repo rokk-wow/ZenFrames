@@ -865,7 +865,10 @@ local function BuildSubDialog()
     addon._editModeSubDialog = subDialog
     subDialog:SetFrameStrata("TOOLTIP")
     subDialog:SetFrameLevel(300)
-    subDialog.title:SetFont(subDialog._fontPath, SUB_DIALOG_TITLE_FONT_SIZE, "OUTLINE")
+    subDialog.title:SetFont(subDialog._fontPath, TITLE_FONT_SIZE, "OUTLINE")
+    subDialog.title:SetWidth(width - 2 * (BORDER_WIDTH + PADDING) - 60)
+    subDialog.title:SetWordWrap(false)
+    subDialog.title:SetMaxLines(1)
 
     local titleIcon = subDialog:CreateTexture(nil, "OVERLAY")
     titleIcon:SetSize(20, 20)
@@ -892,7 +895,7 @@ local function BuildSubDialog()
     end)
     subDialog._titleHover = titleHover
 
-    local dividerY = -(subDialog._borderWidth + subDialog._padding + SUB_DIALOG_TITLE_FONT_SIZE + 20)
+    local dividerY = -(subDialog._borderWidth + subDialog._padding + TITLE_FONT_SIZE + 20)
     addon:DialogAddDivider(subDialog, dividerY)
 
     if mainDialog then
@@ -1084,16 +1087,16 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     ClearSubDialogControls()
     if not moduleKey then
         if self.PopulateUnitFrameSubDialog then
-            self:PopulateUnitFrameSubDialog(subDialog, configKey, moduleKey, SUB_DIALOG_TITLE_FONT_SIZE, GetModuleFrameName)
+            self:PopulateUnitFrameSubDialog(subDialog, configKey, moduleKey, TITLE_FONT_SIZE, GetModuleFrameName)
         end
     elseif IsAuraFilterModule(configKey, moduleKey) then
         if self.PopulateAuraFilterSubDialog then
-            self:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, SUB_DIALOG_TITLE_FONT_SIZE, GetModuleFrameName)
+            self:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, TITLE_FONT_SIZE, GetModuleFrameName)
         end
     else
         local methodName = MODULE_SUB_DIALOG_METHODS[moduleKey]
         if methodName and self[methodName] then
-            self[methodName](self, subDialog, configKey, moduleKey, SUB_DIALOG_TITLE_FONT_SIZE, GetModuleFrameName)
+            self[methodName](self, subDialog, configKey, moduleKey, TITLE_FONT_SIZE, GetModuleFrameName)
         end
     end
 

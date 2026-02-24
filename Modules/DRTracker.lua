@@ -164,10 +164,8 @@ function addon:AddDRTracker(frame, cfg)
         tray:SetParent(container)
         tray:ClearAllPoints()
 
-        local unitToken = "arena" .. arenaIndex
-        if tray.SetUnit then
-            tray:SetUnit(unitToken)
-        end
+        -- Note: tray already has the correct unit from CompactArenaFrameMember
+        -- Calling SetUnit can trigger Blizzard errors with secret spell categories
 
         tray:SetScale(trayScale)
 
@@ -178,7 +176,6 @@ function addon:AddDRTracker(frame, cfg)
 
         container:SetFrameLevel(frame:GetFrameLevel() + 20)
         tray:SetFrameLevel(container:GetFrameLevel() + 1)
-        tray:Show()
 
         ApplyIconBorders(tray)
 
