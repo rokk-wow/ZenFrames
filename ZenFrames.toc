@@ -43,6 +43,7 @@ EditMode\DialogCastbar.lua
 EditMode\DialogCombatIndicator.lua
 EditMode\DialogDispelIcon.lua
 EditMode\DialogDRTracker.lua
+EditMode\DialogParty.lua
 EditMode\DialogRestingIndicator.lua
 EditMode\DialogRoleIcon.lua
 EditMode\DialogTrinket.lua

@@ -608,10 +608,24 @@ CreateGlobalLockButton = function(row, isLocked, onToggle)
 end
 
 function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentValue, step, onChange, globalOption)
-    yOffset = yOffset - (CONTROL_TALL_SPACING_AFTER / 2)  -- Apply half spacing before control
+    local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
+    local isInitiallyLocked = hasGlobalOption and currentValue == "_GLOBAL_"
+    if hasGlobalOption and not isInitiallyLocked then
+        local globalValue = globalOption and globalOption.globalValue
+        local numericGlobal = type(globalValue) == "number" and globalValue or tonumber(globalValue)
+        local numericCurrent = type(currentValue) == "number" and currentValue or tonumber(currentValue)
+        if type(numericGlobal) == "number" and type(numericCurrent) == "number" and numericGlobal == numericCurrent then
+            isInitiallyLocked = true
+        end
+    end
+
+    if not isInitiallyLocked then
+        yOffset = yOffset - (CONTROL_TALL_SPACING_AFTER / 2)
+    end
     
+    local rowHeight = isInitiallyLocked and (CONTROL_BASE_HEIGHT + 4) or CONTROL_TALL_HEIGHT
     local row = CreateFrame("Frame", nil, dialog)
-    row:SetHeight(CONTROL_TALL_HEIGHT)
+    row:SetHeight(rowHeight)
     local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
@@ -624,16 +638,7 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
     labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
     row.label = labelText
 
-    local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
-    local isLocked = hasGlobalOption and currentValue == "_GLOBAL_"
-    if hasGlobalOption and not isLocked then
-        local globalValue = globalOption and globalOption.globalValue
-        local numericGlobal = type(globalValue) == "number" and globalValue or tonumber(globalValue)
-        local numericCurrent = type(currentValue) == "number" and currentValue or tonumber(currentValue)
-        if type(numericGlobal) == "number" and type(numericCurrent) == "number" and numericGlobal == numericCurrent then
-            isLocked = true
-        end
-    end
+    local isLocked = isInitiallyLocked
 
     local numericValue = currentValue
     if type(numericValue) ~= "number" then
@@ -746,6 +751,9 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
     UpdateSliderState()
     
     row.slider = slider
+    if isInitiallyLocked then
+        return row, yOffset - (CONTROL_BASE_HEIGHT + 4) - (CONTROL_TALL_SPACING_AFTER / 2)
+    end
     return row, yOffset - CONTROL_TALL_HEIGHT - (CONTROL_TALL_SPACING_AFTER / 2) + SLIDER_BOTTOM_PADDING_REDUCTION
 end
 
@@ -895,9 +903,6 @@ end
 local COLOR_SWATCH_SIZE = 20  -- Smaller than checkbox/control size
 
 function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChange, globalOption)
-    yOffset = yOffset - 5
-    local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Match visibility control spacing
-
     local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
     local isLocked = hasGlobalOption and currentColor == "_GLOBAL_"
     if hasGlobalOption and not isLocked then
@@ -908,6 +913,11 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
             end
         end
     end
+
+    if not isLocked then
+        yOffset = yOffset - 5
+    end
+    local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Match visibility control spacing
 
     local unlockedColor = currentColor
     if isLocked then
@@ -1068,6 +1078,9 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
     UpdateColorState()
     
     row.swatch = swatch
+    if isLocked then
+        return row, yOffset - rowHeight - (CONTROL_TALL_SPACING_AFTER / 2)
+    end
     return row, yOffset - rowHeight - 10  -- Extra 5px spacing below color picker
 end
 
@@ -1251,6 +1264,10 @@ local MODULE_SUB_DIALOG_METHODS = {
     trinket = "PopulateTrinketSubDialog",
 }
 
+local UNIT_FRAME_SUB_DIALOG_METHODS = {
+    party = "PopulatePartySubDialog",
+}
+
 local function IsAuraFilterModule(configKey, moduleKey)
     if not configKey or not moduleKey then
         return false
@@ -1274,9 +1291,13 @@ local LARGE_SUB_DIALOG_MODULES = {
     castbar = true,
 }
 
+local LARGE_SUB_DIALOG_CONFIGS = {
+    party = true,
+}
+
 local function ShouldUseLargeSubDialog(configKey, moduleKey)
     if not moduleKey then
-        return false
+        return LARGE_SUB_DIALOG_CONFIGS[configKey] == true
     end
 
     if LARGE_SUB_DIALOG_MODULES[moduleKey] == true then
@@ -1753,7 +1774,10 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     end
     
     if not moduleKey then
-        if self.PopulateUnitFrameSubDialog then
+        local unitFrameMethod = UNIT_FRAME_SUB_DIALOG_METHODS[configKey]
+        if unitFrameMethod and self[unitFrameMethod] then
+            self[unitFrameMethod](self, subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
+        elseif self.PopulateUnitFrameSubDialog then
             self:PopulateUnitFrameSubDialog(subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
         end
     elseif IsAuraFilterModule(configKey, moduleKey) then
