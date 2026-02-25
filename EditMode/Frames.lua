@@ -148,6 +148,7 @@ local TEXT_PIN_BORDER_WIDTH = 1
 local activeTextPinFrames = {}
 local hideTextPins = false
 local textPinModifierFrame
+local selectedTextPin = nil
 
 local function EnsureTextPinModifierListener()
     if textPinModifierFrame then return end
@@ -170,6 +171,54 @@ local function EnsureTextPinModifierListener()
             end
         end
     end)
+end
+
+local function ApplyTextPinOffset(pin, deltaX, deltaY)
+    local configKey = pin._configKey
+    local textIndex = pin._textIndex
+    local fs = pin._fontString
+    if not configKey or not textIndex or not fs then return end
+
+    local cfg = addon.config[configKey]
+    if not cfg or not cfg.modules or not cfg.modules.text then return end
+    local textCfg = cfg.modules.text[textIndex]
+    if not textCfg then return end
+
+    local newOffsetX = math.floor((textCfg.offsetX or 0) + deltaX + 0.5)
+    local newOffsetY = math.floor((textCfg.offsetY or 0) + deltaY + 0.5)
+
+    addon:SetOverride({configKey, "modules", "text", textIndex, "offsetX"}, newOffsetX)
+    addon:SetOverride({configKey, "modules", "text", textIndex, "offsetY"}, newOffsetY)
+
+    local unitFrame = (fs:GetParent() and fs:GetParent():GetParent()) or fs:GetParent()
+    local anchorParent = textCfg.relativeTo and _G[textCfg.relativeTo] or unitFrame
+
+    fs:ClearAllPoints()
+    fs:SetPoint(textCfg.anchor, anchorParent, textCfg.relativePoint, newOffsetX, newOffsetY)
+
+    pin:ClearAllPoints()
+    pin:SetPoint("CENTER", fs, "CENTER", 0, 0)
+
+    if configKey == "party" or configKey == "arena" then
+        if addon.groupContainers and addon.groupContainers[configKey] then
+            local container = addon.groupContainers[configKey]
+            if container.frames then
+                for _, frame in ipairs(container.frames) do
+                    if frame.Texts and frame.Texts[textIndex] and frame.Texts[textIndex] ~= fs then
+                        local otherFs = frame.Texts[textIndex]
+                        local otherParent = textCfg.relativeTo and _G[textCfg.relativeTo] or frame
+                        otherFs:ClearAllPoints()
+                        otherFs:SetPoint(textCfg.anchor, otherParent, textCfg.relativePoint, newOffsetX, newOffsetY)
+
+                        if frame._textPins and frame._textPins[textIndex] then
+                            frame._textPins[textIndex]:ClearAllPoints()
+                            frame._textPins[textIndex]:SetPoint("CENTER", otherFs, "CENTER", 0, 0)
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 local function GetOrCreateTextPin(frame, index)
@@ -213,6 +262,10 @@ local function GetOrCreateTextPin(frame, index)
 
     pin._borders = { borderTop, borderBottom, borderLeft, borderRight }
 
+    pin:SetMovable(true)
+    pin:SetClampedToScreen(true)
+    pin:RegisterForDrag("LeftButton")
+
     pin:SetScript("OnEnter", function(self)
         self._bg:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_HOVER_BG_A)
         for _, b in ipairs(self._borders) do
@@ -225,6 +278,86 @@ local function GetOrCreateTextPin(frame, index)
         for _, b in ipairs(self._borders) do
             b:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_BORDER_A)
         end
+    end)
+
+    pin:SetScript("OnClick", function(self)
+        if InCombatLockdown() then return end
+        if self._isDragging then return end
+
+        addon:ShowEditModeSubDialog(self._configKey, self._textName)
+
+        if selectedTextPin and selectedTextPin ~= self then
+            selectedTextPin:EnableKeyboard(false)
+            selectedTextPin:SetPropagateKeyboardInput(true)
+        end
+        selectedTextPin = self
+        self:EnableKeyboard(true)
+        self:SetPropagateKeyboardInput(false)
+    end)
+
+    pin:SetScript("OnDragStart", function(self)
+        if InCombatLockdown() then return end
+        local cx, cy = self:GetCenter()
+        self._dragStartX = cx
+        self._dragStartY = cy
+        self._isDragging = true
+        self:StartMoving()
+
+        local fs = self._fontString
+        if fs then
+            fs:ClearAllPoints()
+            fs:SetPoint("CENTER", self, "CENTER", 0, 0)
+        end
+    end)
+
+    pin:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        self._isDragging = false
+
+        if not self._dragStartX or not self._dragStartY then return end
+
+        local cx, cy = self:GetCenter()
+        local deltaX = cx - self._dragStartX
+        local deltaY = cy - self._dragStartY
+        self._dragStartX = nil
+        self._dragStartY = nil
+
+        ApplyTextPinOffset(self, deltaX, deltaY)
+    end)
+
+    pin:SetScript("OnKeyDown", function(self, key)
+        if InCombatLockdown() then
+            self:SetPropagateKeyboardInput(true)
+            return
+        end
+
+        if key == "ESCAPE" then
+            self:EnableKeyboard(false)
+            self:SetPropagateKeyboardInput(true)
+            if selectedTextPin == self then
+                selectedTextPin = nil
+            end
+            return
+        end
+
+        local dx, dy = 0, 0
+        local distance = IsShiftKeyDown() and 10 or 1
+
+        if key == "UP" then
+            dy = distance
+        elseif key == "DOWN" then
+            dy = -distance
+        elseif key == "LEFT" then
+            dx = -distance
+        elseif key == "RIGHT" then
+            dx = distance
+        else
+            self:SetPropagateKeyboardInput(true)
+            return
+        end
+
+        self:SetPropagateKeyboardInput(false)
+        ApplyTextPinOffset(self, dx, dy)
     end)
 
     frame._textPins[index] = pin
@@ -249,11 +382,9 @@ local function ShowTextPins(frame, configKey)
             pin:SetPoint("CENTER", fs, "CENTER", 0, 0)
             pin._configKey = configKey
             pin._textName = textCfg.name
+            pin._textIndex = i
+            pin._fontString = fs
             pin._active = true
-            pin:SetScript("OnClick", function(self)
-                if InCombatLockdown() then return end
-                addon:ShowEditModeSubDialog(self._configKey, self._textName)
-            end)
             if not hideTextPins then
                 pin:Show()
             end
@@ -265,8 +396,87 @@ local function HideTextPins(frame)
     activeTextPinFrames[frame] = nil
     if not frame._textPins then return end
     for _, pin in pairs(frame._textPins) do
+        if selectedTextPin == pin then
+            pin:EnableKeyboard(false)
+            pin:SetPropagateKeyboardInput(true)
+            selectedTextPin = nil
+        end
         pin._active = false
         pin:Hide()
+    end
+end
+
+local function ShowDRTrackerPlaceholderIcons(frame, configKey)
+    local drTracker = frame.DRTracker
+    if not drTracker then return end
+
+    local cfg = addon.config[configKey]
+    if not cfg or not cfg.modules or not cfg.modules.drTracker then return end
+    local drCfg = cfg.modules.drTracker
+
+    local iconSize = drCfg.iconSize or 36
+    local borderWidth = drCfg.borderWidth or 1
+    local borderColor = drCfg.borderColor or "000000FF"
+    local maxIcons = drCfg.maxIcons or 4
+    local perRow = drCfg.perRow or 4
+    local spacingX = drCfg.spacingX or 2
+    local spacingY = drCfg.spacingY or 2
+    local growthX = drCfg.growthX or "LEFT"
+    local growthY = drCfg.growthY or "DOWN"
+    local cols = math.min(perRow, maxIcons)
+
+    drTracker._drPlaceholderIcons = drTracker._drPlaceholderIcons or {}
+
+    for i = 1, maxIcons do
+        local icon = drTracker._drPlaceholderIcons[i]
+        if not icon then
+            icon = CreateFrame("Frame", nil, drTracker)
+            local bg = icon:CreateTexture(nil, "BACKGROUND")
+            bg:SetAllPoints()
+            bg:SetColorTexture(0, 0, 0, 0.7)
+            icon._bg = bg
+            drTracker._drPlaceholderIcons[i] = icon
+        end
+
+        icon:SetSize(iconSize, iconSize)
+        icon:ClearAllPoints()
+
+        local col = (i - 1) % cols
+        local row = math.floor((i - 1) / cols)
+        local cellW = iconSize + 2 * borderWidth
+        local cellH = iconSize + 2 * borderWidth
+
+        local xOff = col * (cellW + spacingX) + borderWidth
+        local yOff = row * (cellH + spacingY) + borderWidth
+
+        if growthX == "LEFT" then
+            xOff = -xOff
+        end
+        if growthY ~= "UP" then
+            yOff = -yOff
+        end
+
+        local hAnchor = (growthX == "LEFT") and "TOPRIGHT" or "TOPLEFT"
+        if growthY == "UP" then
+            hAnchor = (growthX == "LEFT") and "BOTTOMRIGHT" or "BOTTOMLEFT"
+        end
+
+        icon:SetPoint(hAnchor, drTracker, hAnchor, xOff, yOff)
+        icon:SetFrameLevel(drTracker:GetFrameLevel() + 1)
+        addon:AddTextureBorder(icon, borderWidth, borderColor)
+        icon:Show()
+    end
+
+    for i = maxIcons + 1, #drTracker._drPlaceholderIcons do
+        drTracker._drPlaceholderIcons[i]:Hide()
+    end
+end
+
+local function HideDRTrackerPlaceholderIcons(frame)
+    local drTracker = frame.DRTracker
+    if not drTracker or not drTracker._drPlaceholderIcons then return end
+    for _, icon in ipairs(drTracker._drPlaceholderIcons) do
+        icon:Hide()
     end
 end
 
@@ -299,6 +509,7 @@ local function ShowPlaceholders(frame, configKey)
         end
     end
 
+    ShowDRTrackerPlaceholderIcons(frame, configKey)
     ShowTextPins(frame, configKey)
 end
 
@@ -327,6 +538,7 @@ local function HidePlaceholders(frame, configKey)
         end
     end
 
+    HideDRTrackerPlaceholderIcons(frame)
     HideTextPins(frame)
 end
 

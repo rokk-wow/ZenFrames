@@ -38,7 +38,73 @@ end
 
 local function RefreshCastbarVisuals(self, configKey, moduleKey)
     self:RefreshConfig()
-    self:RefreshModule(configKey, moduleKey)
+
+    local cfg, moduleCfg = GetCastbarConfig(self, configKey, moduleKey)
+    if not cfg or not moduleCfg then return end
+
+    if moduleCfg.frameName then
+        self:RefreshModule(configKey, moduleKey)
+        return
+    end
+
+    local container = self.groupContainers and self.groupContainers[configKey]
+    if not container or not container.frames then return end
+
+    local moduleName = moduleKey:sub(1, 1):upper() .. moduleKey:sub(2)
+    local fontPath = self:GetFontPath()
+
+    for _, unitFrame in ipairs(container.frames) do
+        local castbar = unitFrame[moduleName]
+        if castbar then
+            if moduleCfg.width and moduleCfg.height then
+                castbar:SetSize(moduleCfg.width, moduleCfg.height)
+            end
+
+            self:AddBorder(castbar, moduleCfg)
+
+            if castbar.Text then
+                castbar.Text:SetShown(moduleCfg.showSpellName == true)
+                if fontPath and moduleCfg.textSize then
+                    castbar.Text:SetFont(fontPath, moduleCfg.textSize, "OUTLINE")
+                end
+                local align = moduleCfg.textAlignment or "LEFT"
+                local padding = moduleCfg.textPadding or 4
+                castbar.Text:ClearAllPoints()
+                if align == "CENTER" then
+                    castbar.Text:SetPoint("CENTER", castbar, "CENTER", 0, 0)
+                elseif align == "RIGHT" then
+                    castbar.Text:SetPoint("RIGHT", castbar, "RIGHT", -padding, 0)
+                else
+                    castbar.Text:SetPoint("LEFT", castbar, "LEFT", padding, 0)
+                end
+                castbar.Text:SetJustifyH(align)
+            end
+
+            if castbar.Time then
+                castbar.Time:SetShown(moduleCfg.showCastTime == true)
+                if fontPath and moduleCfg.textSize then
+                    castbar.Time:SetFont(fontPath, moduleCfg.textSize, "OUTLINE")
+                end
+            end
+
+            if castbar.IconFrame then
+                castbar.IconFrame:SetShown(moduleCfg.showIcon == true)
+                castbar.IconFrame:ClearAllPoints()
+                local bw = moduleCfg.borderWidth or 1
+                if moduleCfg.iconPosition == "RIGHT" then
+                    castbar.IconFrame:SetPoint("LEFT", castbar, "RIGHT", 2 + bw, 0)
+                else
+                    castbar.IconFrame:SetPoint("RIGHT", castbar, "LEFT", -(2 + bw), 0)
+                end
+                self:AddBorder(castbar.IconFrame, moduleCfg)
+            end
+        end
+    end
+end
+
+function addon:RefreshCastbarEditModeVisuals(configKey, moduleKey)
+    moduleKey = moduleKey or "castbar"
+    RefreshCastbarVisuals(self, configKey, moduleKey)
 end
 
 function addon:PopulateCastbarSubDialog(subDialog, configKey, moduleKey, yOffset)

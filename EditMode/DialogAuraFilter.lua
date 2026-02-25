@@ -132,6 +132,10 @@ local function RefreshAuraFilterVisuals(self, configKey, moduleKey)
     end)
 end
 
+function addon:RefreshAuraFilterEditModeVisuals(configKey, moduleKey)
+    RefreshAuraFilterVisuals(self, configKey, moduleKey)
+end
+
 function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, yOffset)
     if not subDialog then return end
 

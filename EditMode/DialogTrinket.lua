@@ -90,6 +90,11 @@ local function RefreshTrinketVisuals(self, configKey, moduleKey)
     end
 end
 
+function addon:RefreshTrinketEditModeVisuals(configKey, moduleKey)
+    moduleKey = moduleKey or "trinket"
+    RefreshTrinketVisuals(self, configKey, moduleKey)
+end
+
 function addon:PopulateTrinketSubDialog(subDialog, configKey, moduleKey, yOffset)
     if not subDialog then return end
 

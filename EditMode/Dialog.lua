@@ -1327,6 +1327,15 @@ local MODULE_SUB_DIALOG_METHODS = {
     trinket = "PopulateTrinketSubDialog",
 }
 
+local MODULE_RESET_REFRESH_METHODS = {
+    arenaTargets = "RefreshArenaTargetsEditModeVisuals",
+    castbar = "RefreshCastbarEditModeVisuals",
+    dispelIcon = "RefreshDispelIconEditModeVisuals",
+    drTracker = "RefreshDRTrackerEditModeVisuals",
+    roleIcon = "RefreshRoleIconEditModeVisuals",
+    trinket = "RefreshTrinketEditModeVisuals",
+}
+
 local UNIT_FRAME_SUB_DIALOG_METHODS = {
     party = "PopulatePartySubDialog",
 }
@@ -2018,16 +2027,19 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
                 end
             end
 
-            if moduleKey == "roleIcon" and self.RefreshRoleIconEditModeVisuals then
-                self:RefreshRoleIconEditModeVisuals(configKey, moduleKey)
-            end
-
-            if moduleKey == "dispelIcon" and self.RefreshDispelIconEditModeVisuals then
-                self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
-            end
-
-            if moduleKey == "arenaTargets" and self.RefreshArenaTargetsEditModeVisuals then
-                self:RefreshArenaTargetsEditModeVisuals(configKey, moduleKey)
+            if isAuraFilter then
+                if self.RefreshAuraFilterEditModeVisuals then
+                    self:RefreshAuraFilterEditModeVisuals(configKey, moduleKey)
+                end
+            elseif isTextModule then
+                if self.RefreshTextEditModeVisuals then
+                    self:RefreshTextEditModeVisuals(configKey, moduleKey)
+                end
+            else
+                local refreshMethod = MODULE_RESET_REFRESH_METHODS[moduleKey]
+                if refreshMethod and self[refreshMethod] then
+                    self[refreshMethod](self, configKey, moduleKey)
+                end
             end
         else
             self:RefreshFrame(configKey)

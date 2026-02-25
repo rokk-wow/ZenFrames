@@ -320,6 +320,56 @@ local function GetTextConfig(self, configKey, moduleKey)
     return nil, nil, nil
 end
 
+function addon:RefreshTextEditModeVisuals(configKey, moduleKey)
+    self:RefreshConfig()
+
+    local _, textCfg, textIndex = GetTextConfig(self, configKey, moduleKey)
+    if not textCfg or not textIndex then return end
+
+    ForEachFrameByConfig(configKey, function(frame)
+        if not frame.Texts or not frame.Texts[textIndex] then return end
+        local fs = frame.Texts[textIndex]
+
+        local parent = textCfg.relativeTo and _G[textCfg.relativeTo] or frame
+        fs:ClearAllPoints()
+        fs:SetPoint(textCfg.anchor, parent, textCfg.relativePoint, textCfg.offsetX or 0, textCfg.offsetY or 0)
+
+        local fontPath = addon:GetFontPath(textCfg.font)
+        local fontSize = addon:ResolveFontSize(textCfg.size)
+        fs:SetFont(fontPath, fontSize, textCfg.outline)
+
+        if textCfg.color then
+            local r, g, b, a = addon:HexToRGB(textCfg.color)
+            fs:SetTextColor(r, g, b, a or 1)
+        end
+
+        if textCfg.shadow then
+            fs:SetShadowOffset(1, -1)
+            fs:SetShadowColor(0, 0, 0, 1)
+        else
+            fs:SetShadowOffset(0, 0)
+            fs:SetShadowColor(0, 0, 0, 0)
+        end
+
+        if fs._savedUpdateTag then
+            fs.UpdateTag = fs._savedUpdateTag
+            fs._savedUpdateTag = nil
+        end
+        if textCfg.format then
+            frame:Tag(fs, textCfg.format)
+            if fs.UpdateTag then
+                fs:UpdateTag()
+            end
+        end
+
+        if frame._textPins and frame._textPins[textIndex] then
+            local pin = frame._textPins[textIndex]
+            local pinSize = (textCfg.size or 14) + 6
+            pin:SetSize(pinSize * 3, pinSize)
+        end
+    end)
+end
+
 function addon:PopulateTextSubDialog(subDialog, configKey, moduleKey, yOffset)
     if not subDialog then return end
 
