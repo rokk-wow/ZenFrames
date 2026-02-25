@@ -84,7 +84,24 @@ function addon:SetOverride(pathSegments, value)
     self.savedVars.data = self.savedVars.data or {}
     self.savedVars.data.overrides = self.savedVars.data.overrides or {}
     setNested(self.savedVars.data.overrides, pathSegments, value)
-    self._configDirty = true
+
+    if pathSegments[1] == "global" then
+        self._configDirty = true
+        return
+    end
+
+    if self._cachedConfig then
+        local resolvedValue = value
+        if value == "_GLOBAL_" then
+            local key = pathSegments[#pathSegments]
+            if self._cachedConfig.global and self._cachedConfig.global[key] ~= nil then
+                resolvedValue = deepCopy(self._cachedConfig.global[key])
+            end
+        end
+        setNested(self._cachedConfig, pathSegments, resolvedValue)
+    else
+        self._configDirty = true
+    end
 end
 
 function addon:ClearOverrides(pathSegments)

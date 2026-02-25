@@ -239,6 +239,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                     {
                         name = "ActivePlayerBuffs",
@@ -268,6 +272,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                     {
                         name = "ActivePlayerDebuffs",
@@ -295,6 +303,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                 },
                 absorbs = {
@@ -449,6 +461,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                     {
                         name = "ActiveTargetBuffs",
@@ -477,6 +493,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                     {
                         name = "ActiveTargetDebuffs",
@@ -504,6 +524,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                 },
                 absorbs = {
@@ -853,6 +877,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                     {
                         name = "PartyDebuffs",
@@ -878,6 +906,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                     {
                         name = "PartyCrowdControl",
@@ -908,7 +940,8 @@ function addon:GetDefaultConfig()
                         glowColor = "FF0000",
                         placeholderIcon = "spell_shaman_hex",
                         placeholderDesaturate = true,
-                        placeholderColor = "FFFFFF88"
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = true,
                     },
                     {
                         name = "PartyDefensives",
@@ -939,7 +972,8 @@ function addon:GetDefaultConfig()
                         glowColor = "00ff98",
                         placeholderIcon = "inv_shield_04",
                         placeholderDesaturate = true,
-                        placeholderColor = "FFFFFF88"
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = true,
                     },
                     {
                         name = "PartyImportantBuffs",
@@ -970,7 +1004,8 @@ function addon:GetDefaultConfig()
                         glowColor = "11aaee",
                         placeholderIcon = "spell_holy_avenginewrath",
                         placeholderDesaturate = true,
-                        placeholderColor = "FFFFFF88"
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = true,
                     },
                 },
 
@@ -1153,6 +1188,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                     {
                         name = "ArenaDebuffs",
@@ -1178,6 +1217,10 @@ function addon:GetDefaultConfig()
                         containerBorderColor = "00000000",
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
+                        placeholderIcon = "ui_abundance_aura02",
+                        placeholderDesaturate = true,
+                        placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = false,
                     },
                     {
                         name = "ArenaCrowdControl",
@@ -1207,6 +1250,7 @@ function addon:GetDefaultConfig()
                         placeholderIcon = "spell_shaman_hex",
                         placeholderDesaturate = true,
                         placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = true,
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
                     },
@@ -1238,6 +1282,7 @@ function addon:GetDefaultConfig()
                         placeholderIcon = "inv_shield_04",
                         placeholderDesaturate = true,
                         placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = true,
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
                     },
@@ -1269,6 +1314,7 @@ function addon:GetDefaultConfig()
                         placeholderIcon = "spell_holy_avenginewrath",
                         placeholderDesaturate = true,
                         placeholderColor = "FFFFFF88",
+                        showPlaceholderIcon = true,
                         borderWidth = "_GLOBAL_",
                         borderColor = "_GLOBAL_",
                     },

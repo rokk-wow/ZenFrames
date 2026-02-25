@@ -1251,16 +1251,39 @@ local MODULE_SUB_DIALOG_METHODS = {
     trinket = "PopulateTrinketSubDialog",
 }
 
+local function IsAuraFilterModule(configKey, moduleKey)
+    if not configKey or not moduleKey then
+        return false
+    end
+
+    local cfg = addon.config[configKey]
+    if not cfg or not cfg.modules or not cfg.modules.auraFilters then
+        return false
+    end
+
+    for _, filterCfg in ipairs(cfg.modules.auraFilters) do
+        if filterCfg.name == moduleKey then
+            return true
+        end
+    end
+
+    return false
+end
+
 local LARGE_SUB_DIALOG_MODULES = {
     castbar = true,
 }
 
-local function ShouldUseLargeSubDialog(moduleKey)
+local function ShouldUseLargeSubDialog(configKey, moduleKey)
     if not moduleKey then
         return false
     end
 
-    return LARGE_SUB_DIALOG_MODULES[moduleKey] == true
+    if LARGE_SUB_DIALOG_MODULES[moduleKey] == true then
+        return true
+    end
+
+    return IsAuraFilterModule(configKey, moduleKey)
 end
 
 local function ToPascalCase(value)
@@ -1296,25 +1319,6 @@ local function GetModuleFrameName(moduleKey)
     end
 
     return moduleKey:sub(1, 1):upper() .. moduleKey:sub(2)
-end
-
-local function IsAuraFilterModule(configKey, moduleKey)
-    if not configKey or not moduleKey then
-        return false
-    end
-
-    local cfg = addon.config[configKey]
-    if not cfg or not cfg.modules or not cfg.modules.auraFilters then
-        return false
-    end
-
-    for _, filterCfg in ipairs(cfg.modules.auraFilters) do
-        if filterCfg.name == moduleKey then
-            return true
-        end
-    end
-
-    return false
 end
 
 local function RefreshTextureBorders(frame, cfg)
@@ -1657,7 +1661,7 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     self:HideOpenConfigDialogs(sub)
     local mainDialog = addon._editModeDialog
     local height = (mainDialog and mainDialog:GetHeight()) or sub:GetHeight()
-    local sizeMode = ShouldUseLargeSubDialog(moduleKey) and "large" or "normal"
+    local sizeMode = ShouldUseLargeSubDialog(configKey, moduleKey) and "large" or "normal"
     local width = ResolveEditModeSubDialogWidth(sizeMode)
     sub:SetSize(width, height)
 

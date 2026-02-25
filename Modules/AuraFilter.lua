@@ -134,6 +134,7 @@ function AuraFilterMixin:Init(cfg)
     self.growthX = cfg.growthX or "RIGHT"
     self.growthY = cfg.growthY or "DOWN"
 
+    self.showPlaceholderIcon = cfg.showPlaceholderIcon or false
     local ph = cfg.placeholderIcon
     if ph and ph ~= "" then
         if tonumber(ph) then
@@ -238,7 +239,7 @@ function AuraFilterMixin:CreateIcons(cfg)
         icon.Icon = icon:CreateTexture(nil, "ARTWORK")
         icon.Icon:SetAllPoints()
 
-        if self.placeholderIcon then
+        if self.showPlaceholderIcon and self.placeholderIcon then
             icon.Placeholder = icon:CreateTexture(nil, "BACKGROUND")
             icon.Placeholder:SetAllPoints()
             icon.Placeholder:SetTexture(self.placeholderIcon)
@@ -458,10 +459,18 @@ function AuraFilterMixin:Refresh()
                 icon.ProcGlow.ProcLoop:Stop()
                 icon.ProcGlow:Hide()
             end
-            if icon.Placeholder then
+            if self.showPlaceholderIcon and icon.Placeholder then
                 icon.Placeholder:Show()
                 icon:Show()
+            elseif icon.EditBackground and icon.EditBackground:IsShown() then
+                if icon.Placeholder then
+                    icon.Placeholder:Hide()
+                end
+                icon:Show()
             else
+                if icon.Placeholder then
+                    icon.Placeholder:Hide()
+                end
                 icon:Hide()
             end
         end

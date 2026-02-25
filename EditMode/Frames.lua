@@ -152,6 +152,17 @@ local function ShowPlaceholders(frame, configKey)
             local filter = frame[name]
             if filter and filter.ShowPlaceholder then
                 filter:ShowPlaceholder(configKey, name)
+                if not filter.showPlaceholderIcon and filter.icons then
+                    for _, icon in ipairs(filter.icons) do
+                        if not icon.EditBackground then
+                            icon.EditBackground = icon:CreateTexture(nil, "BACKGROUND")
+                            icon.EditBackground:SetAllPoints()
+                            icon.EditBackground:SetColorTexture(0, 0, 0, 0.7)
+                        end
+                        icon.EditBackground:Show()
+                        icon:Show()
+                    end
+                end
             end
         end
     end
@@ -171,6 +182,13 @@ local function HidePlaceholders(frame, configKey)
             local filter = frame[name]
             if filter and filter.HidePlaceholder then
                 filter:HidePlaceholder()
+                if filter.icons then
+                    for _, icon in ipairs(filter.icons) do
+                        if icon.EditBackground then
+                            icon.EditBackground:Hide()
+                        end
+                    end
+                end
             end
         end
     end
