@@ -42,6 +42,18 @@ local function RefreshPartyVisuals(self, configKey)
                 unitFrame.Health:SetHeight(healthHeight)
             end
 
+            if unitFrame.Power then
+                if powerCfg and powerCfg.enabled then
+                    local renderWidth = math.max(1, unitW)
+                    unitFrame.Power:SetWidth(renderWidth)
+                    if unitFrame.Power._topBorder then
+                        unitFrame.Power._topBorder:SetHeight(math.max(1, borderWidth or 1))
+                        local pr, pg, pb, pa = self:HexToRGB(borderColor or "000000FF")
+                        unitFrame.Power._topBorder:SetColorTexture(pr, pg, pb, pa)
+                    end
+                end
+            end
+
             if unitFrame.Background then
                 local r, g, b, a = self:HexToRGB(cfg.unitBackgroundColor or "00000088")
                 unitFrame.Background:SetColorTexture(r, g, b, a)

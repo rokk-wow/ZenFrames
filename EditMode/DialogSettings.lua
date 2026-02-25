@@ -428,6 +428,12 @@ local function PopulateSettingsContent(dialog)
                                 borderColor = unitBorderColor,
                             })
 
+                            if child.Power and child.Power._topBorder then
+                                child.Power._topBorder:SetHeight(math.max(1, unitBorderWidth or 1))
+                                local pr, pg, pb, pa = addon:HexToRGB(unitBorderColor or "000000FF")
+                                child.Power._topBorder:SetColorTexture(pr, pg, pb, pa)
+                            end
+
                             if cfg.modules and cfg.modules.castbar and child.Castbar then
                                 addon:AddBorder(child.Castbar, cfg.modules.castbar)
                             end

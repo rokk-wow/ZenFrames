@@ -133,7 +133,7 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "select",
             rightClick = "contextMenu",
-            hideInArena = true,
+            hideInArena = false,
 
             modules = {
                 health = {
@@ -189,8 +189,6 @@ function addon:GetDefaultConfig()
                     adjustHealthbarHeight = true,
                     offsetX = 0,
                     offsetY = 0,
-                    borderWidth = 1,
-                    borderColor = "000000FF",
                 },
                 castbar = {
                     enabled = true,
@@ -357,7 +355,7 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "inspect",
             rightClick = "contextMenu",
-            hideInArena = true,
+            hideInArena = false,
 
             modules = {
                 health = {
@@ -413,8 +411,6 @@ function addon:GetDefaultConfig()
                     adjustHealthbarHeight = true,
                     offsetX = 0,
                     offsetY = 0,
-                    borderWidth = 1,
-                    borderColor = "000000FF",
                 },
                 castbar = {
                     enabled = true,
@@ -558,7 +554,7 @@ function addon:GetDefaultConfig()
             borderColor = "_GLOBAL_",
             leftClick = "select",
             rightClick = "contextMenu",
-            hideInArena = true,
+            hideInArena = false,
 
             modules = {
                 health = {
@@ -679,6 +675,7 @@ function addon:GetDefaultConfig()
             offsetY = -15,
             width = 93,
             height = 29,
+            backgroundColor = "00000088",
             borderWidth = "_GLOBAL_",
             borderColor = "_GLOBAL_",
             leftClick = "select",
@@ -784,8 +781,6 @@ function addon:GetDefaultConfig()
                     onlyHealer = true,
                     offsetX = 0,
                     offsetY = 0,
-                    borderWidth = 1,
-                    borderColor = "000000FF",
                 },
                 roleIcon = {
                     enabled = true,
@@ -839,6 +834,7 @@ function addon:GetDefaultConfig()
                     textPadding = 8,
                     textAlignment = "LEFT",
                     showIcon = false,
+                    iconPosition = "LEFT",
                     showCastTime = false,
                     backgroundColor = "00000088",
                     borderWidth = "_GLOBAL_",
@@ -1097,8 +1093,6 @@ function addon:GetDefaultConfig()
                     onlyHealer = true,
                     offsetX = 0,
                     offsetY = 0,
-                    borderWidth = 1,
-                    borderColor = "000000FF",
                 },
                 roleIcon = {
                     enabled = true,
@@ -1152,6 +1146,7 @@ function addon:GetDefaultConfig()
                     textPadding = 8,
                     textAlignment = "LEFT",
                     showIcon = false,
+                    iconPosition = "RIGHT",
                     showCastTime = false,
                     backgroundColor = "00000088",
                     borderWidth = "_GLOBAL_",
@@ -1257,14 +1252,14 @@ function addon:GetDefaultConfig()
                         containerBackgroundColor = "00000000",
                         containerBorderWidth = 0,
                         containerBorderColor = "00000000",
+                        borderWidth = "_GLOBAL_",
+                        borderColor = "_GLOBAL_",
                         showGlow = true,
                         glowColor = "FF0000",
                         placeholderIcon = "spell_shaman_hex",
                         placeholderDesaturate = true,
                         placeholderColor = "FFFFFF88",
                         showPlaceholderIcon = true,
-                        borderWidth = "_GLOBAL_",
-                        borderColor = "_GLOBAL_",
                     },
                     {
                         name = "ArenaDefensives",
@@ -1289,14 +1284,14 @@ function addon:GetDefaultConfig()
                         containerBackgroundColor = "00000000",
                         containerBorderWidth = 0,
                         containerBorderColor = "00000000",
+                        borderWidth = "_GLOBAL_",
+                        borderColor = "_GLOBAL_",
                         showGlow = true,
                         glowColor = "00ff98",
                         placeholderIcon = "inv_shield_04",
                         placeholderDesaturate = true,
                         placeholderColor = "FFFFFF88",
                         showPlaceholderIcon = true,
-                        borderWidth = "_GLOBAL_",
-                        borderColor = "_GLOBAL_",
                     },
                     {
                         name = "ArenaImportantBuffs",
@@ -1321,14 +1316,14 @@ function addon:GetDefaultConfig()
                         containerBackgroundColor = "00000000",
                         containerBorderWidth = 0,
                         containerBorderColor = "00000000",
+                        borderWidth = "_GLOBAL_",
+                        borderColor = "_GLOBAL_",
                         showGlow = true,
                         glowColor = "11aaee",
                         placeholderIcon = "spell_holy_avenginewrath",
                         placeholderDesaturate = true,
                         placeholderColor = "FFFFFF88",
                         showPlaceholderIcon = true,
-                        borderWidth = "_GLOBAL_",
-                        borderColor = "_GLOBAL_",
                     },
                 },
                 drTracker = {

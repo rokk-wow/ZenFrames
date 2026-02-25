@@ -1384,6 +1384,12 @@ local LARGE_SUB_DIALOG_MODULES = {
 
 local LARGE_SUB_DIALOG_CONFIGS = {
     party = true,
+    player = true,
+    target = true,
+    targetTarget = true,
+    focus = true,
+    focusTarget = true,
+    pet = true,
 }
 
 local function ShouldUseLargeSubDialog(configKey, moduleKey)

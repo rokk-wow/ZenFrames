@@ -150,6 +150,33 @@ function addon:RefreshFrame(configKey, skipElementUpdate)
     
     if cfg.width and cfg.height then
         frame:SetSize(cfg.width, cfg.height)
+
+        if frame.Health then
+            local powerCfg = cfg.modules and cfg.modules.power
+            local powerHeight = powerCfg and powerCfg.enabled and powerCfg.height or 0
+            local adjustHealth = powerCfg and powerCfg.adjustHealthbarHeight
+
+            local healthHeight = cfg.height
+            if adjustHealth and frame.Power and frame.Power:IsShown() then
+                healthHeight = cfg.height - powerHeight
+                frame.Power._healthOriginalHeight = cfg.height
+            end
+            frame.Health:SetWidth(cfg.width)
+            frame.Health:SetHeight(healthHeight)
+        end
+
+        if frame.Power then
+            local powerCfg = cfg.modules and cfg.modules.power
+            if powerCfg and powerCfg.enabled then
+                local renderWidth = math.max(1, cfg.width)
+                frame.Power:SetWidth(renderWidth)
+                if frame.Power._topBorder then
+                    frame.Power._topBorder:SetHeight(math.max(1, borderWidth))
+                    local r, g, b, a = self:HexToRGB(cfg.borderColor or "000000FF")
+                    frame.Power._topBorder:SetColorTexture(r, g, b, a)
+                end
+            end
+        end
     end
 
     self:AddBorder(frame, cfg)

@@ -128,7 +128,7 @@ function addon:SpawnUnitFrame(unit, configKey)
             end
 
             if cfg.modules.power and cfg.modules.power.enabled then
-                addon:AddPower(frame, cfg.modules.power)
+                addon:AddPower(frame, cfg.modules.power, cfg)
             end
 
             if cfg.modules.text then
@@ -169,6 +169,20 @@ function addon:SpawnUnitFrame(unit, configKey)
 
             if cfg.modules.drTracker and cfg.modules.drTracker.enabled then
                 addon:AddDRTracker(frame, cfg.modules.drTracker)
+            end
+
+            if frame.Health then
+                local powerCfg = cfg.modules.power
+                local powerHeight = powerCfg and powerCfg.enabled and powerCfg.height or 0
+                local adjustHealth = powerCfg and powerCfg.adjustHealthbarHeight
+
+                local healthHeight = cfg.height
+                if adjustHealth and frame.Power then
+                    healthHeight = cfg.height - powerHeight
+                    frame.Power._healthOriginalHeight = cfg.height
+                end
+                frame.Health:SetWidth(cfg.width)
+                frame.Health:SetHeight(healthHeight)
             end
         end
 
@@ -356,7 +370,7 @@ function addon:SpawnGroupFrames(configKey, units)
             end
 
             if cfg.modules.power and cfg.modules.power.enabled then
-                self:AddPower(frame, cfg.modules.power)
+                self:AddPower(frame, cfg.modules.power, cfg)
             end
 
             if cfg.modules.text then

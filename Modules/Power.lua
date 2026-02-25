@@ -3,11 +3,12 @@ local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 local oUF = ns.oUF
 
-function addon:AddPower(frame, cfg)
+function addon:AddPower(frame, cfg, parentBorderCfg)
     local Power = CreateFrame("StatusBar", cfg.frameName, frame)
-    local borderWidth = cfg.borderWidth
+    local borderWidth = parentBorderCfg and parentBorderCfg.borderWidth or cfg.borderWidth
+    local borderColor = parentBorderCfg and parentBorderCfg.borderColor or cfg.borderColor
     local requestedWidth = cfg.width or frame:GetWidth()
-    local renderWidth = math.max(1, requestedWidth - (borderWidth * 2))
+    local renderWidth = math.max(1, requestedWidth)
 
     Power:SetFrameLevel(frame:GetFrameLevel() + 5)
     Power:SetPoint(cfg.anchor, cfg.relativeTo and _G[cfg.relativeTo] or frame, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
@@ -25,9 +26,12 @@ function addon:AddPower(frame, cfg)
     Power.frequentUpdates = true
 
     local adjustHealth = cfg.adjustHealthbarHeight and frame.Health
-    local healthOriginalHeight = adjustHealth and frame.Health:GetHeight()
     local powerHeight = cfg.height
     local onlyHealer = cfg.onlyHealer
+
+    if adjustHealth then
+        Power._healthOriginalHeight = frame.Health:GetHeight()
+    end
 
     Power.PostUpdate = function(self, unit, cur, min, max)
         local safeMax = addon:SecureCall(tostring, max)
@@ -42,13 +46,13 @@ function addon:AddPower(frame, cfg)
 
         if hasPower then
             self:Show()
-            if adjustHealth then
-                frame.Health:SetHeight(healthOriginalHeight - powerHeight)
+            if adjustHealth and self._healthOriginalHeight then
+                frame.Health:SetHeight(self._healthOriginalHeight - powerHeight)
             end
         else
             self:Hide()
-            if adjustHealth then
-                frame.Health:SetHeight(healthOriginalHeight)
+            if adjustHealth and self._healthOriginalHeight then
+                frame.Health:SetHeight(self._healthOriginalHeight)
             end
         end
     end
@@ -63,5 +67,12 @@ function addon:AddPower(frame, cfg)
 
     frame.Power = Power
     addon:AddBackground(Power, cfg)
-    addon:AddBorder(Power, cfg)
+
+    local topBorder = Power:CreateTexture(nil, "OVERLAY", nil, 7)
+    local bR, bG, bB, bA = addon:HexToRGB(borderColor or "000000FF")
+    topBorder:SetColorTexture(bR, bG, bB, bA)
+    topBorder:SetPoint("BOTTOMLEFT", Power, "TOPLEFT", 0, 0)
+    topBorder:SetPoint("BOTTOMRIGHT", Power, "TOPRIGHT", 0, 0)
+    topBorder:SetHeight(borderWidth or 1)
+    Power._topBorder = topBorder
 end
