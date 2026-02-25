@@ -46,6 +46,7 @@ EditMode\DialogDRTracker.lua
 EditMode\DialogParty.lua
 EditMode\DialogRestingIndicator.lua
 EditMode\DialogRoleIcon.lua
+EditMode\DialogText.lua
 EditMode\DialogTrinket.lua
 EditMode\DialogSettings.lua
 EditMode\DialogEditMode.lua

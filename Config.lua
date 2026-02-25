@@ -150,6 +150,7 @@ function addon:GetDefaultConfig()
                 },
                 text = {
                     {
+                        name = "PlayerLeftText",
                         enabled = true,
                         anchor = "BOTTOMLEFT",
                         relativeTo = "zfPlayerFrame",
@@ -163,6 +164,7 @@ function addon:GetDefaultConfig()
                         shadow = true,
                     },
                     {
+                        name = "PlayerRightText",
                         enabled = true,
                         anchor = "BOTTOMRIGHT",
                         relativeTo = "zfPlayerFrame",
@@ -372,6 +374,7 @@ function addon:GetDefaultConfig()
                 },
                 text = {
                     {
+                        name = "TargetLeftText",
                         enabled = true,
                         anchor = "BOTTOMLEFT",
                         relativeTo = "zfTargetFrame",
@@ -385,6 +388,7 @@ function addon:GetDefaultConfig()
                         shadow = true,
                     },
                     {
+                        name = "TargetRightText",
                         enabled = true,
                         anchor = "BOTTOMRIGHT",
                         relativeTo = "zfTargetFrame",
@@ -564,6 +568,7 @@ function addon:GetDefaultConfig()
                 },
                 text = {
                     {
+                        name = "TargetTargetText",
                         enabled = true,
                         anchor = "LEFT",
                         relativeTo = "zfTargetTargetFrame",
@@ -605,6 +610,7 @@ function addon:GetDefaultConfig()
                 },
                 text = {
                     {
+                        name = "FocusText",
                         enabled = true,
                         anchor = "LEFT",
                         relativeTo = "zfFocusFrame",
@@ -646,6 +652,7 @@ function addon:GetDefaultConfig()
                 },
                 text = {
                     {
+                        name = "FocusTargetText",
                         enabled = true,
                         anchor = "LEFT",
                         relativeTo = "zfFocusTargetFrame",
@@ -686,6 +693,7 @@ function addon:GetDefaultConfig()
                 },
                 text = {
                     {
+                        name = "PetText",
                         enabled = true,
                         anchor = "CENTER",
                         relativeTo = "zfPetFrame",
@@ -740,6 +748,7 @@ function addon:GetDefaultConfig()
                 },
                 text = {
                     {
+                        name = "PartyLeftText",
                         enabled = true,
                         anchor = "TOPLEFT",
                         relativePoint = "TOPLEFT",
@@ -752,6 +761,7 @@ function addon:GetDefaultConfig()
                         shadow = true,
                     },
                     {
+                        name = "PartyRightText",
                         enabled = true,
                         anchor = "TOPRIGHT",
                         relativePoint = "TOPRIGHT",
@@ -1051,6 +1061,7 @@ function addon:GetDefaultConfig()
                 },
                 text = {
                     {
+                        name = "ArenaLeftText",
                         enabled = true,
                         anchor = "TOPLEFT",
                         relativePoint = "TOPLEFT",
@@ -1063,6 +1074,7 @@ function addon:GetDefaultConfig()
                         shadow = true,
                     },
                     {
+                        name = "ArenaRightText",
                         enabled = true,
                         anchor = "TOPRIGHT",
                         relativePoint = "TOPRIGHT",

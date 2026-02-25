@@ -138,6 +138,138 @@ local function GetAuraFilterNames(configKey)
     return names
 end
 
+local TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B = 0, 1, 0.596
+local TEXT_PIN_BORDER_A = 0.6
+local TEXT_PIN_BG_A = 0.1
+local TEXT_PIN_HOVER_BORDER_A = 1.0
+local TEXT_PIN_HOVER_BG_A = 0.6
+local TEXT_PIN_BORDER_WIDTH = 1
+
+local activeTextPinFrames = {}
+local hideTextPins = false
+local textPinModifierFrame
+
+local function EnsureTextPinModifierListener()
+    if textPinModifierFrame then return end
+
+    textPinModifierFrame = CreateFrame("Frame")
+    textPinModifierFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
+    textPinModifierFrame:SetScript("OnEvent", function(_, _, key, state)
+        if key ~= "LALT" and key ~= "RALT" then return end
+
+        hideTextPins = state == 1 or IsAltKeyDown()
+        for frame in pairs(activeTextPinFrames) do
+            if frame._textPins then
+                for _, pin in pairs(frame._textPins) do
+                    if hideTextPins then
+                        pin:Hide()
+                    elseif pin._active then
+                        pin:Show()
+                    end
+                end
+            end
+        end
+    end)
+end
+
+local function GetOrCreateTextPin(frame, index)
+    frame._textPins = frame._textPins or {}
+    if frame._textPins[index] then
+        return frame._textPins[index]
+    end
+
+    local pin = CreateFrame("Button", nil, frame.TextOverlay or frame)
+    pin:SetFrameStrata("TOOLTIP")
+    pin:SetFrameLevel((frame.TextOverlay or frame):GetFrameLevel() + 60)
+
+    local bg = pin:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    bg:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_BG_A)
+    pin._bg = bg
+
+    local borderTop = pin:CreateTexture(nil, "BORDER")
+    borderTop:SetPoint("TOPLEFT")
+    borderTop:SetPoint("TOPRIGHT")
+    borderTop:SetHeight(TEXT_PIN_BORDER_WIDTH)
+    borderTop:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_BORDER_A)
+
+    local borderBottom = pin:CreateTexture(nil, "BORDER")
+    borderBottom:SetPoint("BOTTOMLEFT")
+    borderBottom:SetPoint("BOTTOMRIGHT")
+    borderBottom:SetHeight(TEXT_PIN_BORDER_WIDTH)
+    borderBottom:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_BORDER_A)
+
+    local borderLeft = pin:CreateTexture(nil, "BORDER")
+    borderLeft:SetPoint("TOPLEFT")
+    borderLeft:SetPoint("BOTTOMLEFT")
+    borderLeft:SetWidth(TEXT_PIN_BORDER_WIDTH)
+    borderLeft:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_BORDER_A)
+
+    local borderRight = pin:CreateTexture(nil, "BORDER")
+    borderRight:SetPoint("TOPRIGHT")
+    borderRight:SetPoint("BOTTOMRIGHT")
+    borderRight:SetWidth(TEXT_PIN_BORDER_WIDTH)
+    borderRight:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_BORDER_A)
+
+    pin._borders = { borderTop, borderBottom, borderLeft, borderRight }
+
+    pin:SetScript("OnEnter", function(self)
+        self._bg:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_HOVER_BG_A)
+        for _, b in ipairs(self._borders) do
+            b:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_HOVER_BORDER_A)
+        end
+    end)
+
+    pin:SetScript("OnLeave", function(self)
+        self._bg:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_BG_A)
+        for _, b in ipairs(self._borders) do
+            b:SetColorTexture(TEXT_PIN_R, TEXT_PIN_G, TEXT_PIN_B, TEXT_PIN_BORDER_A)
+        end
+    end)
+
+    frame._textPins[index] = pin
+    return pin
+end
+
+local function ShowTextPins(frame, configKey)
+    local cfg = addon.config[configKey]
+    if not cfg or not cfg.modules or not cfg.modules.text then return end
+    if not frame.Texts then return end
+
+    EnsureTextPinModifierListener()
+    activeTextPinFrames[frame] = true
+
+    for i, textCfg in ipairs(cfg.modules.text) do
+        local fs = frame.Texts[i]
+        if fs and textCfg.name then
+            local pinSize = (textCfg.size or 11) + 6
+            local pin = GetOrCreateTextPin(frame, i)
+            pin:SetSize(pinSize * 3, pinSize)
+            pin:ClearAllPoints()
+            pin:SetPoint("CENTER", fs, "CENTER", 0, 0)
+            pin._configKey = configKey
+            pin._textName = textCfg.name
+            pin._active = true
+            pin:SetScript("OnClick", function(self)
+                if InCombatLockdown() then return end
+                addon:ShowEditModeSubDialog(self._configKey, self._textName)
+            end)
+            if not hideTextPins then
+                pin:Show()
+            end
+        end
+    end
+end
+
+local function HideTextPins(frame)
+    activeTextPinFrames[frame] = nil
+    if not frame._textPins then return end
+    for _, pin in pairs(frame._textPins) do
+        pin._active = false
+        pin:Hide()
+    end
+end
+
 local function ShowPlaceholders(frame, configKey)
     for _, key in ipairs(PLACEHOLDER_ELEMENTS) do
         local element = frame[key]
@@ -166,6 +298,8 @@ local function ShowPlaceholders(frame, configKey)
             end
         end
     end
+
+    ShowTextPins(frame, configKey)
 end
 
 local function HidePlaceholders(frame, configKey)
@@ -192,6 +326,8 @@ local function HidePlaceholders(frame, configKey)
             end
         end
     end
+
+    HideTextPins(frame)
 end
 
 function addon:ShowEditModeFrames()

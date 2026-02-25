@@ -794,6 +794,69 @@ function addon:DialogAddCheckbox(dialog, yOffset, label, checked, onChange)
 end
 
 -- ---------------------------------------------------------------------------
+-- AddTextInput - single-line text input (Text Input Control)
+-- ---------------------------------------------------------------------------
+
+function addon:DialogAddTextInput(dialog, yOffset, label, currentValue, onChange)
+    yOffset = yOffset - (CONTROL_TALL_SPACING_AFTER / 2)
+
+    local row = CreateFrame("Frame", nil, dialog)
+    row:SetHeight(CONTROL_TALL_HEIGHT)
+    local padLeft = GetDialogPadding(dialog)
+    row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
+    row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
+    row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+
+    local labelText = row:CreateFontString(nil, "OVERLAY")
+    labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
+    labelText:SetTextColor(1, 1, 1)
+    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+    labelText:SetText(label)
+    row.label = labelText
+
+    local box = CreateFrame("EditBox", nil, row, "BackdropTemplate")
+    box:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 0, -4)
+    box:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -4)
+    box:SetHeight(DROPDOWN_HEIGHT)
+    box:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        edgeSize = 1,
+        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    box:SetBackdropColor(0, 0, 0, 0.65)
+    box:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+    box:SetFont(dialog._fontPath, 12, "OUTLINE")
+    box:SetTextColor(1, 1, 1)
+    box:SetTextInsets(8, 8, 0, 0)
+    box:SetAutoFocus(false)
+    box:SetText(currentValue or "")
+    box:SetCursorPosition(0)
+
+    box:SetScript("OnTextChanged", function(self, userInput)
+        if not userInput then return end
+        if onChange then
+            onChange(self:GetText())
+        end
+    end)
+
+    box:SetScript("OnEnterPressed", function(self)
+        self:ClearFocus()
+    end)
+
+    box:SetScript("OnEscapePressed", function(self)
+        self:SetText(currentValue or "")
+        self:ClearFocus()
+        if onChange then
+            onChange(currentValue or "")
+        end
+    end)
+
+    row.editBox = box
+    return row, yOffset - CONTROL_TALL_HEIGHT - (CONTROL_TALL_SPACING_AFTER / 2)
+end
+
+-- ---------------------------------------------------------------------------
 -- AddEnableControl - checkbox + "Reload UI" button (Enable Control)
 -- ---------------------------------------------------------------------------
 
@@ -1287,6 +1350,25 @@ local function IsAuraFilterModule(configKey, moduleKey)
     return false
 end
 
+local function IsTextModule(configKey, moduleKey)
+    if not configKey or not moduleKey then
+        return false
+    end
+
+    local cfg = addon.config[configKey]
+    if not cfg or not cfg.modules or not cfg.modules.text then
+        return false
+    end
+
+    for _, textCfg in ipairs(cfg.modules.text) do
+        if textCfg.name == moduleKey then
+            return true
+        end
+    end
+
+    return false
+end
+
 local LARGE_SUB_DIALOG_MODULES = {
     castbar = true,
 }
@@ -1674,6 +1756,10 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     if InCombatLockdown() then return end
     if not configKey then return end
 
+    if self._textTagHelpDialog and self._textTagHelpDialog:IsShown() then
+        self._textTagHelpDialog:Hide()
+    end
+
     -- Get position of any currently open dialog BEFORE building sub-dialog
     -- (BuildSubDialog returns singleton, so we need position before we get the frame)
     local centerX, centerY = self:GetOpenConfigDialogCenter(nil)
@@ -1784,6 +1870,10 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
         if self.PopulateAuraFilterSubDialog then
             self:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
         end
+    elseif IsTextModule(configKey, moduleKey) then
+        if self.PopulateTextSubDialog then
+            self:PopulateTextSubDialog(sub, configKey, moduleKey, contentY)
+        end
     else
         local methodName = MODULE_SUB_DIALOG_METHODS[moduleKey]
         if methodName and self[methodName] then
@@ -1818,7 +1908,20 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
             end
         end
 
-        if not isAuraFilter and moduleKey and cfg.modules and cfg.modules[moduleKey] then
+        local isTextModule = false
+        local textIndex = nil
+        if not isAuraFilter and moduleKey and cfg.modules and cfg.modules.text then
+            for i, textCfg in ipairs(cfg.modules.text) do
+                if textCfg.name == moduleKey then
+                    targetCfg = textCfg
+                    isTextModule = true
+                    textIndex = i
+                    break
+                end
+            end
+        end
+
+        if not isAuraFilter and not isTextModule and moduleKey and cfg.modules and cfg.modules[moduleKey] then
             targetCfg = cfg.modules[moduleKey]
         end
 
@@ -1832,6 +1935,11 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
             end
             if preserveHideBlizzard ~= nil then
                 self:SetOverride({configKey, "modules", "auraFilters", auraFilterIndex, "hideBlizzard"}, preserveHideBlizzard)
+            end
+        elseif isTextModule then
+            self:ClearOverrides({configKey, "modules", "text", textIndex})
+            if preserveEnabled ~= nil then
+                self:SetOverride({configKey, "modules", "text", textIndex, "enabled"}, preserveEnabled)
             end
         elseif moduleKey then
             self:ClearOverrides({configKey, "modules", moduleKey})
