@@ -141,7 +141,10 @@ function addon:PopulateArenaTargetsSubDialog(subDialog, configKey, moduleKey, yO
     table.insert(subDialog._controls, enabledRow)
 
     local modeRow
-    modeRow, currentY = self:DialogAddDropdown(subDialog, currentY, "Mode", { "friendly", "enemy" }, moduleCfg.mode, function(value)
+    modeRow, currentY = self:DialogAddDropdown(subDialog, currentY, "Mode", {
+        { label = "Show Friendly Units", value = "friendly" },
+        { label = "Show Enemy Units", value = "enemy" },
+    }, moduleCfg.mode, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "mode"}, value)
     end)
     table.insert(subDialog._controls, modeRow)

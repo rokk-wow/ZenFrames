@@ -225,6 +225,50 @@ function addon:RefreshModule(configKey, moduleKey)
     frame:ClearAllPoints()
     frame:SetPoint(moduleCfg.anchor, _G[moduleCfg.relativeTo], moduleCfg.relativePoint, moduleCfg.offsetX, moduleCfg.offsetY)
     
+    -- Castbar-specific: update text visibility, size, and alignment
+    local fontPath = moduleCfg.textSize and self:GetFontPath()
+    if frame.Text then
+        frame.Text:SetShown(moduleCfg.showSpellName == true)
+        if fontPath then
+            frame.Text:SetFont(fontPath, moduleCfg.textSize, "OUTLINE")
+        end
+        local align = moduleCfg.textAlignment or "LEFT"
+        local padding = moduleCfg.textPadding or 4
+        frame.Text:ClearAllPoints()
+        if align == "CENTER" then
+            frame.Text:SetPoint("CENTER", frame, "CENTER", 0, 0)
+        elseif align == "RIGHT" then
+            frame.Text:SetPoint("RIGHT", frame, "RIGHT", -padding, 0)
+        else
+            frame.Text:SetPoint("LEFT", frame, "LEFT", padding, 0)
+        end
+        frame.Text:SetJustifyH(align)
+    end
+    if frame.Time then
+        frame.Time:SetShown(moduleCfg.showCastTime == true)
+        if fontPath then
+            frame.Time:SetFont(fontPath, moduleCfg.textSize, "OUTLINE")
+        end
+        local align = moduleCfg.textAlignment or "LEFT"
+        frame.Time:ClearAllPoints()
+        if align == "RIGHT" then
+            frame.Time:SetPoint("LEFT", frame, "LEFT", 8, 0)
+        else
+            frame.Time:SetPoint("RIGHT", frame, "RIGHT", -4, 0)
+        end
+    end
+    if frame.IconFrame then
+        frame.IconFrame:SetShown(moduleCfg.showIcon == true)
+        frame.IconFrame:ClearAllPoints()
+        local bw = moduleCfg.borderWidth or 1
+        if moduleCfg.iconPosition == "RIGHT" then
+            frame.IconFrame:SetPoint("LEFT", frame, "RIGHT", 2 + bw, 0)
+        else
+            frame.IconFrame:SetPoint("RIGHT", frame, "LEFT", -(2 + bw), 0)
+        end
+        self:AddBorder(frame.IconFrame, moduleCfg)
+    end
+    
     if frame.UpdateAllElements then
         frame:UpdateAllElements("RefreshConfig")
     end

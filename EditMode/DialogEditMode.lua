@@ -59,7 +59,10 @@ local function BuildDialog()
     if dialog then return dialog end
 
     addon:RefreshConfig()
-    dialog = addon:CreateDialog("ZenFramesEditModeDialog", addon:L("editModeDialogTitle"), 320)
+    dialog = addon:CreateEditModeSubDialog("ZenFramesEditModeDialog", addon:L("editModeDialogTitle"), {
+        width = 320,
+        showBackButton = false,
+    })
     addon._editModeDialog = dialog
 
     local titleIcon = dialog:CreateTexture(nil, "OVERLAY")
@@ -85,7 +88,7 @@ local function BuildDialog()
     end)
     dialog._titleHover = titleHover
 
-    local y = dialog._contentTop
+    local y = dialog._contentAreaTopOffset
 
     local rows = {}
 
@@ -122,10 +125,6 @@ local function BuildDialog()
         )
         rows[def.configKey] = row
     end
-
-    local divider
-    divider, y = addon:DialogAddDivider(dialog, y - 6)
-    y = y - 6
 
     for _, def in ipairs(ENABLED_FRAMES) do
         AddRow(def)

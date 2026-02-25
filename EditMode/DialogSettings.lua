@@ -137,6 +137,33 @@ local function PopulateSettingsContent(dialog)
         textures = { "Smooth" }
     end
 
+    local function BuildDropdownOptions(values)
+        local dropdownOptions = {}
+
+        for _, value in ipairs(values) do
+            local label = tostring(value or "")
+            label = label:gsub("_", " ")
+            label = label:gsub("-", " ")
+            label = label:gsub("(%l)(%u)", "%1 %2")
+            label = label:gsub("%s+", " ")
+            label = label:gsub("^%s+", "")
+            label = label:gsub("%s+$", "")
+            label = label:gsub("(%a)([%w']*)", function(first, rest)
+                return string.upper(first) .. rest
+            end)
+
+            table.insert(dropdownOptions, {
+                label = label,
+                value = value,
+            })
+        end
+
+        return dropdownOptions
+    end
+
+    local fontOptions = BuildDropdownOptions(fonts)
+    local textureOptions = BuildDropdownOptions(textures)
+
     ClearSettingsControls()
     dialog._controls = dialog._controls or {}
 
@@ -495,7 +522,7 @@ local function PopulateSettingsContent(dialog)
         leftColumn,
         leftY,
         "Font",
-        fonts,
+        fontOptions,
         addon.config.global and addon.config.global.font or fonts[1],
         function(value)
             ApplyGlobalSetting("font", value)
@@ -508,7 +535,7 @@ local function PopulateSettingsContent(dialog)
         leftColumn,
         leftY,
         "Health Texture",
-        textures,
+        textureOptions,
         addon.config.global and addon.config.global.healthTexture or textures[1],
         function(value)
             ApplyGlobalSetting("healthTexture", value)
@@ -521,7 +548,7 @@ local function PopulateSettingsContent(dialog)
         leftColumn,
         leftY,
         "Power Texture",
-        textures,
+        textureOptions,
         addon.config.global and addon.config.global.powerTexture or textures[1],
         function(value)
             ApplyGlobalSetting("powerTexture", value)
@@ -534,7 +561,7 @@ local function PopulateSettingsContent(dialog)
         leftColumn,
         leftY,
         "Absorb Texture",
-        textures,
+        textureOptions,
         addon.config.global and addon.config.global.absorbTexture or textures[1],
         function(value)
             ApplyGlobalSetting("absorbTexture", value)
@@ -547,7 +574,7 @@ local function PopulateSettingsContent(dialog)
         leftColumn,
         leftY,
         "Castbar Texture",
-        textures,
+        textureOptions,
         addon.config.global and addon.config.global.castbarTexture or textures[1],
         function(value)
             ApplyGlobalSetting("castbarTexture", value)
@@ -673,45 +700,15 @@ end
 local function BuildSettingsDialog()
     if settingsDialog then return settingsDialog end
 
-    local baseDialog = addon._editModeDialog
-    local baseWidth = baseDialog and baseDialog:GetWidth() or 320
-    -- Add padding for column insets (BORDER_WIDTH + PADDING = 38px on each side)
-    local width = (baseWidth * 2) + 40 + 76
-
-    settingsDialog = addon:CreateDialog("ZenFramesEditModeSettingsDialog", addon:L("settingsTitle"), width)
+    settingsDialog = addon:CreateEditModeSubDialog("ZenFramesEditModeSettingsDialog", addon:L("settingsTitle"), {
+        sizeMode = "large",
+        onBackClick = function()
+            addon:ReturnFromEditModeSettingsDialog()
+        end,
+    })
     addon._editModeSettingsDialog = settingsDialog
 
-    local titleIcon = settingsDialog:CreateTexture(nil, "OVERLAY")
-    titleIcon:SetSize(20, 20)
-    titleIcon:SetAtlas("CreditsScreen-Assets-Buttons-Play")
-    titleIcon:SetRotation(math.pi)
-    titleIcon:SetPoint("CENTER", settingsDialog, "TOPLEFT", settingsDialog._borderWidth + settingsDialog._padding + 14, -(settingsDialog._borderWidth + settingsDialog._padding + 11))
-    titleIcon:SetDesaturated(true)
-    settingsDialog._titleIcon = titleIcon
-
-    local titleHover = CreateFrame("Frame", nil, settingsDialog)
-    titleHover:SetPoint("TOPLEFT", titleIcon, "TOPLEFT", 0, 0)
-    titleHover:SetPoint("BOTTOMRIGHT", titleIcon, "BOTTOMRIGHT", 0, 0)
-    titleHover:EnableMouse(true)
-    titleHover:SetScript("OnEnter", function()
-        titleIcon:SetDesaturated(false)
-    end)
-    titleHover:SetScript("OnLeave", function()
-        titleIcon:SetDesaturated(true)
-    end)
-    titleHover:SetScript("OnMouseDown", function(_, button)
-        if button ~= "LeftButton" then return end
-        if InCombatLockdown() then return end
-        addon:ReturnFromEditModeSettingsDialog()
-    end)
-    settingsDialog._titleHover = titleHover
-
-    local y = settingsDialog._contentTop
-    local titleDivider
-    titleDivider, y = addon:DialogAddDivider(settingsDialog, y - 6)
-    settingsDialog._titleDivider = titleDivider
-
-    settingsDialog._contentAreaTopOffset = y - 8
+    local width = settingsDialog:GetWidth()
 
     local innerInset = settingsDialog._borderWidth + settingsDialog._padding
     -- Columns will apply their own insets to controls, so don't subtract from available width

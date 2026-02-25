@@ -43,7 +43,7 @@ function addon:AddCastbar(frame, cfg)
     Spark:SetPoint("CENTER", Castbar:GetStatusBarTexture(), "RIGHT", 0, 0)
     Castbar.Spark = Spark
 
-    if cfg.showSpellName then
+    do
         local fontPath = addon:GetFontPath()
         local Text = Castbar:CreateFontString(nil, "OVERLAY")
         Text:SetFont(fontPath, cfg.textSize, "OUTLINE")
@@ -57,26 +57,43 @@ function addon:AddCastbar(frame, cfg)
             Text:SetPoint("LEFT", Castbar, "LEFT", padding, 0)
         end
         Text:SetJustifyH(align)
+        Text:SetShown(cfg.showSpellName == true)
         Castbar.Text = Text
     end
 
-    if cfg.showCastTime then
+    do
         local Time = Castbar:CreateFontString(nil, "OVERLAY")
         local fontPath = addon:GetFontPath()
-        Time:SetFont(fontPath, 10, "OUTLINE")
-        Time:SetPoint("RIGHT", Castbar, "RIGHT", -4, 0)
+        Time:SetFont(fontPath, cfg.textSize, "OUTLINE")
+        if cfg.textAlignment == "RIGHT" then
+            Time:SetPoint("LEFT", Castbar, "LEFT", 8, 0)
+        else
+            Time:SetPoint("RIGHT", Castbar, "RIGHT", -4, 0)
+        end
+        Time:SetShown(cfg.showCastTime == true)
         Castbar.Time = Time
     end
 
-    if cfg.showIcon then
-        local Icon = Castbar:CreateTexture(nil, "OVERLAY")
+    do
+        local IconFrame = CreateFrame("Frame", nil, Castbar)
         local iconSize = cfg.height
+        local bw = cfg.borderWidth or 1
         if cfg.iconPosition == "RIGHT" then
-            Icon:SetPoint("LEFT", Castbar, "RIGHT", 2, 0)
+            IconFrame:SetPoint("LEFT", Castbar, "RIGHT", 2 + bw, 0)
         else
-            Icon:SetPoint("RIGHT", Castbar, "LEFT", -2, 0)
+            IconFrame:SetPoint("RIGHT", Castbar, "LEFT", -(2 + bw), 0)
         end
-        Icon:SetSize(iconSize, iconSize)
+        IconFrame:SetSize(iconSize, iconSize)
+
+        local Icon = IconFrame:CreateTexture(nil, "ARTWORK")
+        Icon:SetAllPoints(IconFrame)
+        Icon:SetTexCoord(0.15, 0.85, 0.15, 0.85)
+
+        addon:AddBackground(IconFrame, cfg)
+        addon:AddBorder(IconFrame, cfg)
+
+        IconFrame:SetShown(cfg.showIcon == true)
+        Castbar.IconFrame = IconFrame
         Castbar.Icon = Icon
     end
 
