@@ -22,9 +22,8 @@ local DIVIDER_COLOR = { 0, 0, 0, 1 }
 -- Common sizing
 local CONTROL_PADDING = 8              -- Horizontal padding between control elements (checkbox to label, etc)
 local CONTROL_SIZE = 28                -- Size for checkboxes and color swatches
-local CONTROL_BASE_HEIGHT = 32         -- Base row height for single-line controls (checkbox, color picker)
-local CONTROL_TALL_HEIGHT = 50         -- Row height for controls with labels above (dropdown, slider)
-local CONTROL_TALL_SPACING_AFTER = 10   -- Extra spacing after tall controls (dropdown, slider)
+local CONTROL_ROW_HEIGHT = 80          -- Standard row height for all form controls
+local CONTROL_ROW_HEIGHT_HALF = 40     -- Half-height row for compact controls (checkbox, color picker)
 
 -- Font sizes
 local CONTROL_LABEL_FONT_SIZE = 14     -- Font size for control labels (checkboxes, visibility toggles)
@@ -120,10 +119,8 @@ end
 -- ---------------------------------------------------------------------------
 
 function addon:DialogAddToggleRow(dialog, yOffset, label, checked, visible, onCheckChanged, onVisibilityChanged)
-    local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Slightly taller for better visual spacing
-    
     local row = CreateFrame("Frame", nil, dialog)
-    row:SetHeight(rowHeight)
+    row:SetHeight(CONTROL_ROW_HEIGHT_HALF)
     local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
@@ -176,7 +173,7 @@ function addon:DialogAddToggleRow(dialog, yOffset, label, checked, visible, onCh
     text:SetText(label)
     row.label = text
 
-    return row, yOffset - rowHeight
+    return row, yOffset - CONTROL_ROW_HEIGHT_HALF
 end
 
 -- ---------------------------------------------------------------------------
@@ -187,7 +184,6 @@ local DROPDOWN_HEIGHT = 32
 local DROPDOWN_ITEM_HEIGHT = 22
 local DROPDOWN_MENU_MAX_VISIBLE = 10
 local DROPDOWN_ARROW_ATLAS = "CreditsScreen-Assets-Buttons-Play"
-local DROPDOWN_EXTRA_BOTTOM_PADDING = 4
 
 local CreateGlobalLockButton
 
@@ -262,10 +258,8 @@ function addon:DialogScrollOpenDropdown(delta)
 end
 
 function addon:DialogAddDropdown(dialog, yOffset, label, options, currentValue, onChange, globalOption)
-    yOffset = yOffset - (CONTROL_TALL_SPACING_AFTER / 2)  -- Apply half spacing before control
-    
     local row = CreateFrame("Frame", nil, dialog)
-    row:SetHeight(CONTROL_TALL_HEIGHT)
+    row:SetHeight(CONTROL_ROW_HEIGHT)
     local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
@@ -284,15 +278,15 @@ function addon:DialogAddDropdown(dialog, yOffset, label, options, currentValue, 
     local labelText = row:CreateFontString(nil, "OVERLAY")
     labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
     labelText:SetTextColor(1, 1, 1)
-    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -11)
     labelText:SetText(label)
     row.label = labelText
 
     local lockButton
 
     local button = CreateFrame("Button", nil, row, "BackdropTemplate")
-    button:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 0, -4)
-    button:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -4)
+    button:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -27)
+    button:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -27)
     button:SetHeight(DROPDOWN_HEIGHT)
     button:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
@@ -460,17 +454,15 @@ function addon:DialogAddDropdown(dialog, yOffset, label, options, currentValue, 
     local function UpdateDropdownState()
         if lockButton then
             lockButton:ClearAllPoints()
-            lockButton:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -2)
+            lockButton:SetPoint("LEFT", row, "LEFT", 0, 0)
         end
+
+        local leftOffset = lockButton and (GLOBAL_LOCK_ICON_SIZE + CONTROL_PADDING) or 0
 
         if isLocked then
             labelText:SetFont(dialog._fontPath, CONTROL_LABEL_FONT_SIZE, "OUTLINE")
             labelText:ClearAllPoints()
-            if lockButton then
-                labelText:SetPoint("LEFT", lockButton, "RIGHT", CONTROL_PADDING + 1, 0)
-            else
-                labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
-            end
+            labelText:SetPoint("LEFT", row, "LEFT", leftOffset, 0)
             labelText:SetText(label .. ": " .. addon:L("emGlobal"))
             if menu:IsShown() then
                 menu:Hide()
@@ -479,16 +471,12 @@ function addon:DialogAddDropdown(dialog, yOffset, label, options, currentValue, 
         else
             labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
             labelText:ClearAllPoints()
-            if lockButton then
-                labelText:SetPoint("TOPLEFT", lockButton, "TOPRIGHT", CONTROL_PADDING, 5)
-            else
-                labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
-            end
+            labelText:SetPoint("TOPLEFT", row, "TOPLEFT", leftOffset, -11)
             labelText:SetText(label)
             button:Show()
             button:ClearAllPoints()
-            button:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 0, -4)
-            button:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -4)
+            button:SetPoint("TOPLEFT", row, "TOPLEFT", leftOffset, -27)
+            button:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -27)
             SetSelectedValue(unlockedValue)
         end
     end
@@ -564,7 +552,7 @@ function addon:DialogAddDropdown(dialog, yOffset, label, options, currentValue, 
 
     row.dropdown = button
     row.dropdownMenu = menu
-    return row, yOffset - CONTROL_TALL_HEIGHT - (CONTROL_TALL_SPACING_AFTER / 2) - DROPDOWN_EXTRA_BOTTOM_PADDING
+    return row, yOffset - CONTROL_ROW_HEIGHT
 end
 
 -- ---------------------------------------------------------------------------
@@ -572,7 +560,6 @@ end
 -- ---------------------------------------------------------------------------
 
 local SLIDER_HEIGHT = 16
-local SLIDER_BOTTOM_PADDING_REDUCTION = 3
 
 CreateGlobalLockButton = function(row, isLocked, onToggle)
     local lockButton = CreateFrame("Button", nil, row)
@@ -620,13 +607,8 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
         end
     end
 
-    if not isInitiallyLocked then
-        yOffset = yOffset - (CONTROL_TALL_SPACING_AFTER / 2)
-    end
-    
-    local rowHeight = isInitiallyLocked and (CONTROL_BASE_HEIGHT + 4) or CONTROL_TALL_HEIGHT
     local row = CreateFrame("Frame", nil, dialog)
-    row:SetHeight(rowHeight)
+    row:SetHeight(CONTROL_ROW_HEIGHT)
     local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
@@ -636,7 +618,7 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
     local labelText = row:CreateFontString(nil, "OVERLAY")
     labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
     labelText:SetTextColor(1, 1, 1)
-    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -11)
     row.label = labelText
 
     local isLocked = isInitiallyLocked
@@ -667,8 +649,8 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
 
     -- Slider
     local slider = CreateFrame("Slider", nil, row, "OptionsSliderTemplate")
-    slider:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 3, -8)
-    slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -3, -20)
+    slider:SetPoint("TOPLEFT", row, "TOPLEFT", 3, -27)
+    slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -3, -27)
     slider:SetMinMaxValues(minVal, maxVal)
     slider:SetValue(numericValue)
     slider:SetValueStep(step or 1)
@@ -683,30 +665,26 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
     local suppressSliderCallback = false
 
     local function UpdateSliderState()
+        local leftOffset = row.lockButton and (GLOBAL_LOCK_ICON_SIZE + CONTROL_PADDING) or 0
+
         if isLocked then
             labelText:SetFont(dialog._fontPath, CONTROL_LABEL_FONT_SIZE, "OUTLINE")
-            if row.lockButton then
-                labelText:ClearAllPoints()
-                labelText:SetPoint("LEFT", row.lockButton, "RIGHT", CONTROL_PADDING + 1, 0)
-            else
-                labelText:ClearAllPoints()
-                labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
-            end
+            labelText:ClearAllPoints()
+            labelText:SetPoint("LEFT", row, "LEFT", leftOffset, 0)
             labelText:SetText(label .. ": " .. addon:L("emGlobal"))
             slider:Hide()
         else
             labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
             labelText:ClearAllPoints()
-            if row.lockButton then
-                labelText:SetPoint("TOPLEFT", row.lockButton, "TOPRIGHT", CONTROL_PADDING, 0)
-            else
-                labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
-            end
+            labelText:SetPoint("TOPLEFT", row, "TOPLEFT", leftOffset, -11)
             local displayValue = math.floor(unlockedValue + 0.5)
             labelText:SetText(label .. ": " .. displayValue)
             suppressSliderCallback = true
             slider:SetValue(unlockedValue)
             suppressSliderCallback = false
+            slider:ClearAllPoints()
+            slider:SetPoint("TOPLEFT", row, "TOPLEFT", leftOffset + 3, -27)
+            slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -3, -27)
             slider:Show()
         end
     end
@@ -740,22 +718,14 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
             UpdateSliderState()
         end)
         lockButton:ClearAllPoints()
-        lockButton:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -2)
-        labelText:ClearAllPoints()
-        labelText:SetPoint("TOPLEFT", lockButton, "TOPRIGHT", CONTROL_PADDING, 0)
-        slider:ClearAllPoints()
-        slider:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 3, -8)
-        slider:SetPoint("TOPRIGHT", row, "TOPRIGHT", -3, -20)
+        lockButton:SetPoint("LEFT", row, "LEFT", 0, 0)
         row.lockButton = lockButton
     end
 
     UpdateSliderState()
     
     row.slider = slider
-    if isInitiallyLocked then
-        return row, yOffset - (CONTROL_BASE_HEIGHT + 4) - (CONTROL_TALL_SPACING_AFTER / 2)
-    end
-    return row, yOffset - CONTROL_TALL_HEIGHT - (CONTROL_TALL_SPACING_AFTER / 2) + SLIDER_BOTTOM_PADDING_REDUCTION
+    return row, yOffset - CONTROL_ROW_HEIGHT
 end
 
 -- ---------------------------------------------------------------------------
@@ -763,11 +733,8 @@ end
 -- ---------------------------------------------------------------------------
 
 function addon:DialogAddCheckbox(dialog, yOffset, label, checked, onChange)
-    local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Match visibility control spacing
-    local spacingAfter = CONTROL_TALL_SPACING_AFTER / 2  -- Match EnableControl spacing
-    
     local row = CreateFrame("Frame", nil, dialog)
-    row:SetHeight(rowHeight)
+    row:SetHeight(CONTROL_ROW_HEIGHT_HALF)
     local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
@@ -791,7 +758,7 @@ function addon:DialogAddCheckbox(dialog, yOffset, label, checked, onChange)
     text:SetText(label)
     row.label = text
 
-    return row, yOffset - rowHeight - spacingAfter
+    return row, yOffset - CONTROL_ROW_HEIGHT_HALF
 end
 
 -- ---------------------------------------------------------------------------
@@ -799,10 +766,8 @@ end
 -- ---------------------------------------------------------------------------
 
 function addon:DialogAddTextInput(dialog, yOffset, label, currentValue, onChange)
-    yOffset = yOffset - (CONTROL_TALL_SPACING_AFTER / 2)
-
     local row = CreateFrame("Frame", nil, dialog)
-    row:SetHeight(CONTROL_TALL_HEIGHT)
+    row:SetHeight(CONTROL_ROW_HEIGHT)
     local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
@@ -811,13 +776,13 @@ function addon:DialogAddTextInput(dialog, yOffset, label, currentValue, onChange
     local labelText = row:CreateFontString(nil, "OVERLAY")
     labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
     labelText:SetTextColor(1, 1, 1)
-    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+    labelText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -11)
     labelText:SetText(label)
     row.label = labelText
 
     local box = CreateFrame("EditBox", nil, row, "BackdropTemplate")
-    box:SetPoint("TOPLEFT", labelText, "BOTTOMLEFT", 0, -4)
-    box:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -4)
+    box:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -27)
+    box:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -27)
     box:SetHeight(DROPDOWN_HEIGHT)
     box:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
@@ -854,7 +819,7 @@ function addon:DialogAddTextInput(dialog, yOffset, label, currentValue, onChange
     end)
 
     row.editBox = box
-    return row, yOffset - CONTROL_TALL_HEIGHT - (CONTROL_TALL_SPACING_AFTER / 2)
+    return row, yOffset - CONTROL_ROW_HEIGHT
 end
 
 -- ---------------------------------------------------------------------------
@@ -864,13 +829,11 @@ end
 local ShowEditModeConfirmDialog
 
 function addon:DialogAddEnableControl(dialog, yOffset, label, checked, configKey, moduleKey, onChange)
-    local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Match visibility control spacing
     local buttonWidth = 80
     local buttonHeight = 24
-    local spacingAfter = CONTROL_TALL_SPACING_AFTER / 2
-    
+
     local row = CreateFrame("Frame", nil, dialog)
-    row:SetHeight(rowHeight)
+    row:SetHeight(CONTROL_ROW_HEIGHT_HALF)
     local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
@@ -957,7 +920,7 @@ function addon:DialogAddEnableControl(dialog, yOffset, label, checked, configKey
         ReloadForPendingChange()
     end)
 
-    return row, yOffset - rowHeight - spacingAfter
+    return row, yOffset - CONTROL_ROW_HEIGHT_HALF
 end
 
 -- ---------------------------------------------------------------------------
@@ -978,11 +941,6 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
         end
     end
 
-    if not isLocked then
-        yOffset = yOffset - 5
-    end
-    local rowHeight = CONTROL_BASE_HEIGHT + 4  -- Match visibility control spacing
-
     local unlockedColor = currentColor
     if isLocked then
         unlockedColor = globalOption and globalOption.globalValue
@@ -992,7 +950,7 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
     end
     
     local row = CreateFrame("Frame", nil, dialog)
-    row:SetHeight(rowHeight)
+    row:SetHeight(CONTROL_ROW_HEIGHT_HALF)
     local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
@@ -1039,25 +997,19 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
             lockButton:SetPoint("LEFT", row, "LEFT", 0, 0)
         end
 
+        local leftOffset = lockButton and (GLOBAL_LOCK_ICON_SIZE + CONTROL_PADDING) or 0
+
         if isLocked then
             swatch:Hide()
             labelText:ClearAllPoints()
-            if lockButton then
-                labelText:SetPoint("LEFT", lockButton, "RIGHT", CONTROL_PADDING + 1, 0)
-            else
-                labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
-            end
+            labelText:SetPoint("LEFT", row, "LEFT", leftOffset, 0)
             labelText:SetText(label .. ": " .. addon:L("emGlobal"))
         else
             local cr, cg, cb, ca = ParseHexColor(unlockedColor)
             swatchColor:SetColorTexture(cr, cg, cb, ca)
             swatch:Show()
             swatch:ClearAllPoints()
-            if lockButton then
-                swatch:SetPoint("LEFT", lockButton, "RIGHT", CONTROL_PADDING, 0)
-            else
-                swatch:SetPoint("LEFT", row, "LEFT", 0, 0)
-            end
+            swatch:SetPoint("LEFT", row, "LEFT", leftOffset, 0)
             labelText:ClearAllPoints()
             labelText:SetPoint("LEFT", swatch, "RIGHT", CONTROL_PADDING + 3, 0)
             labelText:SetText(label)
@@ -1142,10 +1094,7 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
     UpdateColorState()
     
     row.swatch = swatch
-    if isLocked then
-        return row, yOffset - rowHeight - (CONTROL_TALL_SPACING_AFTER / 2)
-    end
-    return row, yOffset - rowHeight - 10  -- Extra 5px spacing below color picker
+    return row, yOffset - CONTROL_ROW_HEIGHT_HALF
 end
 
 -- ---------------------------------------------------------------------------
@@ -1233,13 +1182,24 @@ end
 local BUTTON_HEIGHT = 28
 
 function addon:DialogAddButton(dialog, yOffset, label, onClick)
-    local btn = CreateFrame("Button", nil, dialog, "UIPanelButtonTemplate")
-    btn:SetSize(dialog:GetWidth() - 2 * (BORDER_WIDTH + PADDING), BUTTON_HEIGHT)
-    btn:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+    local padLeft = BORDER_WIDTH + PADDING
+
+    local row = CreateFrame("Frame", nil, dialog)
+    row:SetHeight(CONTROL_ROW_HEIGHT)
+    row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
+    row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
+    row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
+
+    local btn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
+    btn:SetSize(row:GetWidth() or (dialog:GetWidth() - 2 * padLeft), BUTTON_HEIGHT)
+    btn:SetPoint("LEFT", row, "LEFT", 0, 0)
+    btn:SetPoint("RIGHT", row, "RIGHT", 0, 0)
     btn:SetText(label)
     btn:GetFontString():SetFont(dialog._fontPath, BUTTON_FONT_SIZE, "OUTLINE")
     btn:SetScript("OnClick", onClick)
-    return btn, yOffset - BUTTON_HEIGHT
+
+    row.button = btn
+    return row, yOffset - CONTROL_ROW_HEIGHT
 end
 
 local function ResolveEditModeSubDialogWidth(sizeMode, explicitWidth)
@@ -1299,6 +1259,33 @@ function addon:CreateEditModeSubDialog(name, titleText, options)
         end)
         dialog._titleHover = titleHover
     end
+
+    local closeBtnSize = 24
+    local closeBtn = CreateFrame("Button", nil, dialog)
+    closeBtn:SetSize(closeBtnSize, closeBtnSize)
+    closeBtn:SetPoint("CENTER", dialog, "TOPRIGHT", -(dialog._borderWidth + dialog._padding + 14), -(dialog._borderWidth + dialog._padding + 11))
+
+    local closeBg = closeBtn:CreateTexture(nil, "ARTWORK")
+    closeBg:SetAllPoints()
+    closeBg:SetAtlas("BackupPet-DeadFrame")
+    closeBg:SetDesaturated(true)
+
+    closeBtn:SetScript("OnEnter", function()
+        closeBg:SetDesaturated(false)
+    end)
+    closeBtn:SetScript("OnLeave", function()
+        closeBg:SetDesaturated(true)
+    end)
+
+    closeBtn:SetScript("OnClick", function()
+        if InCombatLockdown() then return end
+        if options.onCloseClick then
+            options.onCloseClick()
+        else
+            dialog:Hide()
+        end
+    end)
+    dialog._closeButton = closeBtn
 
     local dividerY = -(dialog._borderWidth + dialog._padding + TITLE_FONT_SIZE + 20)
     local titleDivider, y = self:DialogAddDivider(dialog, dividerY)
@@ -1503,6 +1490,9 @@ local function BuildSubDialog()
     subDialog = addon:CreateEditModeSubDialog("ZenFramesEditModeSubDialog", "", {
         sizeMode = "normal",
         onBackClick = function()
+            addon:ReturnFromEditModeSubDialog()
+        end,
+        onCloseClick = function()
             addon:ReturnFromEditModeSubDialog()
         end,
     })

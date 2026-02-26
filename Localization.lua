@@ -216,6 +216,9 @@ addon.locale.enEN = {
 
 
 
+	-- ZenDialog strings
+	zenDialogOk = "OK",
+
 	-- Edit mode UI strings
 	emGlobal = "Global",
 	emCancel = "Cancel",
@@ -240,6 +243,38 @@ addon.locale.enEN = {
 	announcementApology = "Major config changes were unavoidable, my apologies.",
 	announcementContact = "If you need help (or find bugs):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Launch Edit Mode",
+
+	-- Test dialog strings (REMOVE LATER)
+	testDialogTitle1 = "Control Showcase",
+	testDialogTitle2 = "Two Column Layout",
+	testDialogTitle3 = "Custom Width Dialog",
+	testDialogCloseButton = "Close",
+	testDialogHeaderControls = "Control Examples",
+	testDialogSubHeaderInputs = "Input Controls",
+	testDialogSectionTitle = "Section Title Example",
+	testDialogCheckbox = "Example Checkbox",
+	testDialogToggle = "Example Toggle Row",
+	testDialogDropdownLabel = "Example Dropdown",
+	testDialogDropdownOpt1 = "Option One",
+	testDialogDropdownOpt2 = "Option Two",
+	testDialogDropdownOpt3 = "Option Three",
+	testDialogSliderLabel = "Example Slider",
+	testDialogTextInputLabel = "Example Text Input",
+	testDialogColorPickerLabel = "Example Color",
+	testDialogEnableLabel = "Enable",
+	testDialogButtonLabel = "Example Button",
+	testDialogHiTitle = "Hi",
+	testDialogHiBody = "Hi!",
+	testDialogDescParagraph1 = "This is the first paragraph of a description control. It can contain longer text that wraps across multiple lines.",
+	testDialogDescParagraph2 = "This is the second paragraph. Each localization key passed to the description control becomes a separate paragraph.",
+	testDialogCol1Header = "Lorem ipsum",
+	testDialogCol1Text1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+	testDialogCol1Text2 = "Sed ullamcorper tortor in nisi hendrerit, nec imperdiet purus vehicula.",
+	testDialogCol2Header = "Dolor sit",
+	testDialogCol2Text1 = "Aliquam venenatis sit amet augue eu facilisis. Donec magna tortorl.",
+	testDialogCol2Text2 = "Etiam convallis.",
+	testDialogAvatarSpeech = "ZenDialog rocks.",
+	testDialogBody3 = "Fusce ultrices dictum nibh ut gravida. In mattis neque ac purus interdum porttitor.",
 
 	-- Text tag help content
 	emTextTagHelpContent = "|cff00ff98Text Tag Reference|r\n\n|cffffffffTags are enclosed in square brackets and combined with literal text.|r\n\n|cff00ff98Syntax Examples|r\n|cffffd100  [name]|r |cffaaaaaa-> Full unit name|r\n|cffffd100  [perhp]%|r |cffaaaaaa-> 85%|r\n|cffffd100  [curhp:short] / [maxhp:short]|r |cffaaaaaa-> 245K / 300K|r\n|cffffd100  [raidcolor][name:medium]\\|r|r |cffaaaaaa-> Class-colored name|r\n\n|cffffffffOptional prefix/suffix (shown only if the tag returns a value):|r\n|cffffd100  [==$>name<$==]|r |cffaaaaaa-> ==Thrall==|r\n|cffffd100  [perhp<$%]|r |cffaaaaaa-> 85%|r\n\n|cff00ff98Name Tags|r\n|cffffd100  [name]|r |cffffffffFull name|r\n|cffffd100  [name:short]|r |cffffffffShort name|r\n|cffffd100  [name:medium]|r |cffffffffMedium name|r\n|cffffd100  [name:long]|r |cffffffffLong name|r\n|cffffd100  [name:abbrev]|r |cffffffffAbbreviated name|r\n|cffffd100  [name:trunc(12)]|r |cffffffffTruncated to 12 characters|r\n\n|cff00ff98Health Tags|r\n|cffffd100  [curhp]|r |cffffffffCurrent HP (raw number)|r\n|cffffd100  [maxhp]|r |cffffffffMax HP (raw number)|r\n|cffffd100  [perhp]|r |cffffffffHealth percent (e.g. 85)|r\n|cffffd100  [missinghp]|r |cffffffffMissing HP|r\n|cffffd100  [curhp:short]|r |cffffffffCurrent HP abbreviated (245K)|r\n|cffffd100  [maxhp:short]|r |cffffffffMax HP abbreviated (300K)|r\n|cffffd100  [hp:percent]|r |cffffffffHealth percent with % (85%)|r\n|cffffd100  [hp:cur-percent]|r |cffffffff245K - 85%|r\n|cffffd100  [hp:cur-max]|r |cffffffff245K / 300K|r\n|cffffd100  [hp:deficit]|r |cffffffffMissing HP as -245K|r\n\n|cff00ff98Power Tags|r\n|cffffd100  [curpp]|r |cffffffffCurrent power (raw)|r\n|cffffd100  [maxpp]|r |cffffffffMax power (raw)|r\n|cffffd100  [perpp]|r |cffffffffPower percent|r\n|cffffd100  [curpp:short]|r |cffffffffCurrent power abbreviated|r\n|cffffd100  [maxpp:short]|r |cffffffffMax power abbreviated|r\n|cffffd100  [pp:percent]|r |cffffffffPower percent with %|r\n|cffffd100  [pp:cur-percent]|r |cffffffffCurrent - percent%|r\n|cffffd100  [pp:cur-max]|r |cffffffffCurrent / Max|r\n\n|cff00ff98Info Tags|r\n|cffffd100  [level]|r |cffffffffUnit level|r\n|cffffd100  [smartlevel]|r |cffffffffLevel with elite/boss indicator|r\n|cffffd100  [class]|r |cffffffffClass name|r\n|cffffd100  [smartclass]|r |cffffffffClass (players) or creature type (NPCs)|r\n|cffffd100  [spec]|r |cffffffffSpec abbreviation (e.g. ARMS, RESTO)|r\n|cffffd100  [race]|r |cffffffffRace name|r\n|cffffd100  [creature]|r |cffffffffCreature family or type|r\n|cffffd100  [faction]|r |cffffffffFaction name|r\n|cffffd100  [group]|r |cffffffffRaid group number|r\n\n|cff00ff98Status Tags|r\n|cffffd100  [dead]|r |cffffffffDead or Ghost|r\n|cffffd100  [offline]|r |cffffffffOffline if disconnected|r\n|cffffd100  [status]|r |cffffffffDead / Ghost / Offline / zzz|r\n|cffffd100  [resting]|r |cffffffffzzz if resting|r\n|cffffd100  [pvp]|r |cffffffffPvP if flagged|r\n|cffffd100  [leader]|r |cffffffffL if group leader|r\n|cffffd100  [sex]|r |cffffffffMale / Female|r\n\n|cff00ff98Color Tags|r\n|cffffd100  [raidcolor]|r |cffffffffClass color hex (use before name, \\|r after)|r\n|cffffd100  [powercolor]|r |cffffffffPower type color hex|r\n|cffffd100  [threatcolor]|r |cffffffffThreat level color hex|r\n\n|cff00ff98Classification Tags|r\n|cffffd100  [classification]|r |cffffffffRare / Rare Elite / Elite / Boss|r\n|cffffd100  [shortclassification]|r |cffffffffR / R+ / + / B / -|r\n|cffffd100  [threat]|r |cffffffffAggro / ++ / --|r",
@@ -456,6 +491,9 @@ addon.locale.esES = {
 	emInspect = "Inspeccionar",
 	emShowFriendlyUnits = "Mostrar Unidades Aliadas",
 	emShowEnemyUnits = "Mostrar Unidades Enemigas",
+
+	-- ZenDialog strings
+	zenDialogOk = "Aceptar",
 
 	-- Edit mode UI strings
 	emGlobal = "Global",
@@ -699,6 +737,9 @@ addon.locale.ptBR = {
 	emShowFriendlyUnits = "Mostrar Unidades Aliadas",
 	emShowEnemyUnits = "Mostrar Unidades Inimigas",
 
+	-- ZenDialog strings
+	zenDialogOk = "OK",
+
 	-- Edit mode UI strings
 	emGlobal = "Global",
 	emCancel = "Cancelar",
@@ -939,6 +980,9 @@ addon.locale.frFR = {
 	emInspect = "Inspecter",
 	emShowFriendlyUnits = "Afficher les Unités Alliées",
 	emShowEnemyUnits = "Afficher les Unités Ennemies",
+
+	-- ZenDialog strings
+	zenDialogOk = "OK",
 
 	-- Edit mode UI strings
 	emGlobal = "Global",
@@ -1181,6 +1225,9 @@ addon.locale.deDE = {
 	emShowFriendlyUnits = "Verbündete Einheiten anzeigen",
 	emShowEnemyUnits = "Feindliche Einheiten anzeigen",
 
+	-- ZenDialog strings
+	zenDialogOk = "OK",
+
 	-- Edit mode UI strings
 	emGlobal = "Global",
 	emCancel = "Abbrechen",
@@ -1421,6 +1468,9 @@ addon.locale.ruRU = {
 	emInspect = "Осмотреть",
 	emShowFriendlyUnits = "Показать дружественных",
 	emShowEnemyUnits = "Показать вражеских",
+
+	-- ZenDialog strings
+	zenDialogOk = "ОК",
 
 	-- Edit mode UI strings
 	emGlobal = "Глобально",

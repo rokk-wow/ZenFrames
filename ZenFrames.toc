@@ -18,6 +18,7 @@ Localization.lua
 EditMode\Placeholder.lua
 
 Modules\Media.lua
+Modules\ZenDialog.lua
 Modules\Tags.lua
 Modules\UnitFrame.lua
 Modules\Castbar.lua

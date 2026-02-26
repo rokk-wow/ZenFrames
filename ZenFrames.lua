@@ -174,7 +174,7 @@ function addon:RefreshFrame(configKey, skipElementUpdate)
                 local renderWidth = math.max(1, cfg.width)
                 frame.Power:SetWidth(renderWidth)
                 if frame.Power._topBorder then
-                    frame.Power._topBorder:SetHeight(math.max(1, borderWidth))
+                    frame.Power._topBorder:SetHeight(math.max(1, cfg.borderWidth))
                     local r, g, b, a = self:HexToRGB(cfg.borderColor or "000000FF")
                     frame.Power._topBorder:SetColorTexture(r, g, b, a)
                 end
@@ -574,4 +574,130 @@ function addon:SpawnAuraFilters()
     end
 end
 
+-- ===========================================================================
+-- ===========================================================================
+-- TEST DIALOG CODE — REMOVE THIS ENTIRE SECTION LATER
+-- ===========================================================================
+-- ===========================================================================
 
+local function SpawnTestDialogs()
+    local screenWidth = UIParent:GetWidth()
+
+    -- -----------------------------------------------------------------------
+    -- Dialog 1: Single-column control showcase (left side of screen)
+    -- -----------------------------------------------------------------------
+
+    local dlg1 = addon:CreateZenDialog({
+        name = "ZenFramesTestDialog1",
+        title = "testDialogTitle1",
+        height = 700,
+        dismissOnEscape = true,
+    })
+
+    local y = dlg1._contentTop
+    local _
+
+    _, _, y = addon:ZenDialogAddHeader(dlg1, y, "testDialogHeaderControls")
+    _, y = addon:ZenDialogAddCheckbox(dlg1, y, "testDialogCheckbox", true, function(v) end)
+    _, y = addon:ZenDialogAddToggleRow(dlg1, y, "testDialogToggle", true, true, function(v) end, function(v) end)
+    _, y = addon:ZenDialogAddDropdown(dlg1, y, "testDialogDropdownLabel", {
+        { value = "opt1", label = "testDialogDropdownOpt1" },
+        { value = "opt2", label = "testDialogDropdownOpt2" },
+        { value = "opt3", label = "testDialogDropdownOpt3" },
+    }, "opt1", function(v) end)
+    _, y = addon:ZenDialogAddSlider(dlg1, y, "testDialogSliderLabel", 0, 100, 50, 1, function(v) end)
+
+    _, _, y = addon:ZenDialogAddSubHeader(dlg1, y, "testDialogSubHeaderInputs")
+    _, y = addon:ZenDialogAddTextInput(dlg1, y, "testDialogTextInputLabel", "Hello", function(v) end)
+    _, y = addon:ZenDialogAddColorPicker(dlg1, y, "testDialogColorPickerLabel", "FF00FF98", function(v) end)
+    _, y = addon:ZenDialogAddEnableControl(dlg1, y, "testDialogEnableLabel", false)
+
+    _, y = addon:ZenDialogAddDescription(dlg1, y, { "testDialogDescParagraph1", "testDialogDescParagraph2" })
+
+    _, y = addon:ZenDialogAddSectionTitle(dlg1, y, "testDialogSectionTitle")
+    _, y = addon:ZenDialogAddDivider(dlg1, y)
+    _, y = addon:ZenDialogAddSpacer(dlg1, y)
+    _, y = addon:ZenDialogAddButton(dlg1, y, "testDialogButtonLabel", function() end)
+
+    _, y = addon:ZenDialogAddTextureButton(dlg1, y, {
+        atlas = "Bags-icon-AddAuthenticator",
+        width = 32,
+        height = 32,
+        desaturate = true,
+        onClick = function()
+            addon:ShowZenDialogConfirm({
+                title = "testDialogHiTitle",
+                body = "testDialogHiBody",
+                onConfirm = function()
+                    addon:Info("Confirmed!")
+                end,
+            })
+        end,
+    })
+
+    addon:ZenDialogFinalize(dlg1, y)
+
+    dlg1:ClearAllPoints()
+    dlg1:SetPoint("LEFT", UIParent, "LEFT", 40, 0)
+    dlg1:Show()
+
+    -- -----------------------------------------------------------------------
+    -- Dialog 2: Two-column layout (center of screen)
+    -- -----------------------------------------------------------------------
+
+    local dlg2 = addon:CreateZenDialog({
+        name = "ZenFramesTestDialog2",
+        title = "testDialogTitle2",
+        columns = 2,
+        height = 320,
+        dismissOnEscape = true,
+        showAvatar = true,
+        avatarSpeech = "testDialogAvatarSpeech",
+    })
+
+    local leftY = 0
+    local rightY = 0
+    local leftCol = dlg2._leftColumn
+    local rightCol = dlg2._rightColumn
+
+    _, _, leftY = addon:ZenDialogAddHeader(leftCol, leftY, "testDialogCol1Header")
+    _, leftY = addon:ZenDialogAddDescription(leftCol, leftY, { "testDialogCol1Text1", "testDialogCol1Text2" })
+
+    _, _, rightY = addon:ZenDialogAddHeader(rightCol, rightY, "testDialogCol2Header")
+    _, rightY = addon:ZenDialogAddDescription(rightCol, rightY, { "testDialogCol2Text1", "testDialogCol2Text2" }, "CENTER")
+
+    dlg2:ClearAllPoints()
+    dlg2:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    dlg2:Show()
+
+    -- -----------------------------------------------------------------------
+    -- Dialog 3: Custom width with avatar (right side of screen)
+    -- -----------------------------------------------------------------------
+
+    local dlg3 = addon:CreateZenDialog({
+        name = "ZenFramesTestDialog3",
+        title = "testDialogTitle3",
+        width = 400,
+        dismissOnEscape = true,
+        showAvatar = true,
+        avatarSpeech = "testDialogAvatarSpeech",
+        bodyText = "testDialogBody3",
+    })
+
+    addon:ZenDialogFinalize(dlg3, dlg3._contentTop - 80)
+
+    dlg3:ClearAllPoints()
+    dlg3:SetPoint("RIGHT", UIParent, "RIGHT", -40, 0)
+    dlg3:Show()
+end
+
+local testFrame = CreateFrame("Frame")
+testFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+testFrame:SetScript("OnEvent", function(self, event)
+    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    C_Timer.After(1, SpawnTestDialogs)
+end)
+
+-- ===========================================================================
+-- END OF TEST DIALOG CODE — REMOVE EVERYTHING ABOVE BACK TO THE MARKER
+-- ===========================================================================

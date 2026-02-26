@@ -711,6 +711,9 @@ local function BuildSettingsDialog()
         onBackClick = function()
             addon:ReturnFromEditModeSettingsDialog()
         end,
+        onCloseClick = function()
+            addon:ReturnFromEditModeSettingsDialog()
+        end,
     })
     addon._editModeSettingsDialog = settingsDialog
 

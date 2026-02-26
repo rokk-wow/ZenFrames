@@ -62,6 +62,9 @@ local function BuildDialog()
     dialog = addon:CreateEditModeSubDialog("ZenFramesEditModeDialog", addon:L("editModeDialogTitle"), {
         width = 320,
         showBackButton = false,
+        onCloseClick = function()
+            addon:DisableEditMode()
+        end,
     })
     addon._editModeDialog = dialog
 
