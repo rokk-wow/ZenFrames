@@ -986,6 +986,10 @@ function addon:GetDefaultConfig()
                         enabled = true,
                         baseFilter = "HELPFUL",
                         subFilters = {"IMPORTANT"},
+                        excludeSubFilters = {
+                            "BIG_DEFENSIVE",
+                            "EXTERNAL_DEFENSIVE"
+                        },
                         disableMouse = true,
                         anchor = "TOPLEFT",
                         relativePoint = "TOPRIGHT",
@@ -1298,6 +1302,10 @@ function addon:GetDefaultConfig()
                         enabled = true,
                         baseFilter = "HELPFUL",
                         subFilters = {"IMPORTANT"},
+                        excludeSubFilters = {
+                            "BIG_DEFENSIVE",
+                            "EXTERNAL_DEFENSIVE"
+                        },
                         disableMouse = true,
                         anchor = "TOPRIGHT",
                         relativePoint = "TOPLEFT",
