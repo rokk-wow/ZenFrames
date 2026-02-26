@@ -124,6 +124,7 @@ function addon:ResetAllSettings()
     if not self.savedVars then return end
     self.savedVars.data = self.savedVars.data or {}
     self.savedVars.data.overrides = {}
+    self.savedVars.data.dismissedAnnouncements = {}
     self._configDirty = true
     ReloadUI()
 end
@@ -416,6 +417,10 @@ function addon:Initialize()
     if self.config.auraFilterDebug and self.config.auraFilterDebug.enabled then
         self:CreateAuraFilterDebug(self.config.auraFilterDebug)
     end
+
+    C_Timer.After(1, function()
+        self:ShowAnnouncement("v2.0.0")
+    end)
 end
 
 function addon:OverridePowerColors()
