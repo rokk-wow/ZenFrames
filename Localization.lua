@@ -142,12 +142,10 @@ addon.locale.enEN = {
 	arenaReloadDescription = "Reload the UI to apply changes.",
 	enabled = "Enable Frame",
 	enabledTooltip = "Enable or disable this frame.",
-	release_v1_1_0_desc_1 = "Added option to show the new Blizzard dispel icons.",
-	release_v1_2_0_desc_1 = "Removed Custom Config in favor of Edit Mode.",
 
 	-- Edit Mode / Settings panel
 	editModeHeader = "Edit Mode",
-	editModeDescription = "Type /zf to toggle edit mode at any time.",
+	editModeDescription = "Type |cffffd100/zf to toggle edit mode at any time.",
 	editModeButton = "Edit Mode",
 	resetAllButton = "Reset All",
 	resetButton = "Reset",
@@ -237,11 +235,10 @@ addon.locale.enEN = {
 	-- Announcement dialog
 	announcementTitle = "ZenFrames v2.0.0",
 	announcementGreeting = "Greetings, gladiator.",
-	announcementBody = "I have completely rebuilt ZenFrame configuration. Everything is now customizable.",
-	announcementBullet1 = "To open Edit Mode, type: /zf",
-	announcementBullet2 = "Hold ALT to hide dragging frames",
-	announcementApology = "Major config changes were required. I apologize if I have ruined your settings. I bow low to the ground in your honor.",
-	announcementContact = "If you've lost something you'd like back, I can help. Please send me a note: reddit.com/u/rokk--/",
+	announcementBullet1 = "To open Edit Mode, type: |cffffd100/zf",
+	announcementBullet2 = "Hold ALT to hide edit placeholders",
+	announcementApology = "Major config changes were unavoidable, my apologies.",
+	announcementContact = "If you need help (or find bugs):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Launch Edit Mode",
 
 	-- Text tag help content
@@ -388,12 +385,10 @@ addon.locale.esES = {
 	arenaReloadDescription = "Recarga la interfaz para aplicar los cambios.",
 	enabled = "Activar Marco",
 	enabledTooltip = "Activar o desactivar este marco.",
-	release_v1_1_0_desc_1 = "Añadida opción para mostrar los nuevos iconos de disipar de Blizzard.",
-	release_v1_2_0_desc_1 = "Eliminada la Configuración Personalizada en favor del Modo de Edición.",
 
 	-- Edit Mode / Settings panel
 	editModeHeader = "Modo de Edición",
-	editModeDescription = "Escribe /zf para alternar el modo de edición en cualquier momento.",
+	editModeDescription = "Escribe |cffffd100/zf para alternar el modo de edición en cualquier momento.",
 	editModeButton = "Modo de Edición",
 	resetAllButton = "Restablecer Todo",
 	resetButton = "Restablecer",
@@ -481,11 +476,10 @@ addon.locale.esES = {
 	-- Announcement dialog
 	announcementTitle = "ZenFrames v2.0.0",
 	announcementGreeting = "Saludos, gladiador.",
-	announcementBody = "He reconstruido completamente la configuración de ZenFrames. Ahora todo es personalizable.",
-	announcementBullet1 = "Para abrir el Modo de Edición, escribe: /zf",
-	announcementBullet2 = "Mantén ALT para ocultar los marcos de arrastre",
-	announcementApology = "Se requirieron cambios importantes en la configuración. Me disculpo si he arruinado tus ajustes. Me inclino profundamente en tu honor.",
-	announcementContact = "Si has perdido algo que te gustaría recuperar, puedo ayudar. Envíame una nota: reddit.com/u/rokk--/",
+	announcementBullet1 = "Para abrir el Modo de Edición, escribe: |cffffd100/zf",
+	announcementBullet2 = "Mantén ALT para ocultar los marcadores de edición",
+	announcementApology = "Los cambios importantes en la configuración eran inevitables, mis disculpas.",
+	announcementContact = "Si necesitas ayuda (o encuentras errores):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Abrir Modo de Edición",
 
 	-- Text tag help content
@@ -633,12 +627,10 @@ addon.locale.ptBR = {
 	arenaReloadDescription = "Recarregue a interface para aplicar as alterações.",
 	enabled = "Ativar Quadro",
 	enabledTooltip = "Ativar ou desativar este quadro.",
-	release_v1_1_0_desc_1 = "Adicionada opção para mostrar os novos ícones de dissipar da Blizzard.",
-	release_v1_2_0_desc_1 = "Removida a Configuração Personalizada em favor do Modo de Edição.",
 
 	-- Edit Mode / Settings panel
 	editModeHeader = "Modo de Edição",
-	editModeDescription = "Digite /zf para alternar o modo de edição a qualquer momento.",
+	editModeDescription = "Digite |cffffd100/zf para alternar o modo de edição a qualquer momento.",
 	editModeButton = "Modo de Edição",
 	resetAllButton = "Redefinir Tudo",
 	resetButton = "Redefinir",
@@ -726,11 +718,10 @@ addon.locale.ptBR = {
 	-- Announcement dialog
 	announcementTitle = "ZenFrames v2.0.0",
 	announcementGreeting = "Saudações, gladiador.",
-	announcementBody = "Eu reconstruí completamente a configuração do ZenFrames. Agora tudo é personalizável.",
-	announcementBullet1 = "Para abrir o Modo de Edição, digite: /zf",
-	announcementBullet2 = "Segure ALT para ocultar os quadros de arrasto",
-	announcementApology = "Mudanças importantes na configuração foram necessárias. Peço desculpas se arruinei suas configurações. Eu me curvo profundamente em sua honra.",
-	announcementContact = "Se você perdeu algo que gostaria de recuperar, posso ajudar. Envie-me uma mensagem: reddit.com/u/rokk--/",
+	announcementBullet1 = "Para abrir o Modo de Edição, digite: |cffffd100/zf",
+	announcementBullet2 = "Segure ALT para ocultar os marcadores de edição",
+	announcementApology = "Mudanças importantes na configuração eram inevitáveis, minhas desculpas.",
+	announcementContact = "Se precisar de ajuda (ou encontrar bugs):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Abrir Modo de Edição",
 
 	-- Text tag help content
@@ -877,12 +868,10 @@ addon.locale.frFR = {
 	arenaReloadDescription = "Rechargez l'interface pour appliquer les modifications.",
 	enabled = "Activer le Cadre",
 	enabledTooltip = "Activer ou désactiver ce cadre.",
-	release_v1_1_0_desc_1 = "Ajout de l'option pour afficher les nouvelles icônes de dissipation Blizzard.",
-	release_v1_2_0_desc_1 = "Suppression de la Configuration Personnalisée en faveur du Mode Édition.",
 
 	-- Edit Mode / Settings panel
 	editModeHeader = "Mode Édition",
-	editModeDescription = "Tapez /zf pour basculer le mode édition à tout moment.",
+	editModeDescription = "Tapez |cffffd100/zf pour basculer le mode édition à tout moment.",
 	editModeButton = "Mode Édition",
 	resetAllButton = "Tout Réinitialiser",
 	resetButton = "Réinitialiser",
@@ -970,11 +959,10 @@ addon.locale.frFR = {
 	-- Announcement dialog
 	announcementTitle = "ZenFrames v2.0.0",
 	announcementGreeting = "Salutations, gladiateur.",
-	announcementBody = "J'ai entièrement reconstruit la configuration de ZenFrames. Tout est désormais personnalisable.",
-	announcementBullet1 = "Pour ouvrir le Mode Édition, tapez : /zf",
-	announcementBullet2 = "Maintenez ALT pour masquer les cadres de déplacement",
-	announcementApology = "Des changements majeurs de configuration étaient nécessaires. Je m'excuse si j'ai perturbé vos paramètres. Je m'incline profondément en votre honneur.",
-	announcementContact = "Si vous avez perdu quelque chose que vous aimeriez récupérer, je peux vous aider. Envoyez-moi un message : reddit.com/u/rokk--/",
+	announcementBullet1 = "Pour ouvrir le Mode Édition, tapez : |cffffd100/zf",
+	announcementBullet2 = "Maintenez ALT pour masquer les repères d'édition",
+	announcementApology = "Des changements majeurs de configuration étaient inévitables, mes excuses.",
+	announcementContact = "Si vous avez besoin d'aide (ou trouvez des bugs):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Ouvrir le Mode Édition",
 
 	-- Text tag help content
@@ -1121,12 +1109,10 @@ addon.locale.deDE = {
 	arenaReloadDescription = "Oberfläche neu laden, um Änderungen anzuwenden.",
 	enabled = "Fenster aktivieren",
 	enabledTooltip = "Dieses Fenster aktivieren oder deaktivieren.",
-	release_v1_1_0_desc_1 = "Option zum Anzeigen der neuen Blizzard-Reinigungssymbole hinzugefügt.",
-	release_v1_2_0_desc_1 = "Benutzerdefinierte Konfiguration zugunsten des Bearbeitungsmodus entfernt.",
 
 	-- Edit Mode / Settings panel
 	editModeHeader = "Bearbeitungsmodus",
-	editModeDescription = "Gib /zf ein, um den Bearbeitungsmodus jederzeit umzuschalten.",
+	editModeDescription = "Gib |cffffd100/zf ein, um den Bearbeitungsmodus jederzeit umzuschalten.",
 	editModeButton = "Bearbeitungsmodus",
 	resetAllButton = "Alles zurücksetzen",
 	resetButton = "Zurücksetzen",
@@ -1214,11 +1200,10 @@ addon.locale.deDE = {
 	-- Announcement dialog
 	announcementTitle = "ZenFrames v2.0.0",
 	announcementGreeting = "Seid gegrüßt, Gladiator.",
-	announcementBody = "Ich habe die ZenFrames-Konfiguration komplett neu aufgebaut. Alles ist jetzt anpassbar.",
-	announcementBullet1 = "Um den Bearbeitungsmodus zu öffnen, gib ein: /zf",
-	announcementBullet2 = "Halte ALT gedrückt, um Ziehfenster auszublenden",
-	announcementApology = "Umfangreiche Konfigurationsänderungen waren erforderlich. Ich entschuldige mich, falls ich deine Einstellungen ruiniert habe. Ich verneige mich tief zu deinen Ehren.",
-	announcementContact = "Falls du etwas verloren hast, das du zurückhaben möchtest, kann ich helfen. Schreib mir eine Nachricht: reddit.com/u/rokk--/",
+	announcementBullet1 = "Um den Bearbeitungsmodus zu öffnen, gib ein: |cffffd100/zf",
+	announcementBullet2 = "Halte ALT gedrückt, um Bearbeitungsplatzhalter auszublenden",
+	announcementApology = "Große Konfigurationsänderungen waren unvermeidlich, meine Entschuldigung.",
+	announcementContact = "Wenn du Hilfe brauchst (oder Bugs findest):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Bearbeitungsmodus öffnen",
 
 	-- Text tag help content
@@ -1365,12 +1350,10 @@ addon.locale.ruRU = {
 	arenaReloadDescription = "Перезагрузите интерфейс для применения изменений.",
 	enabled = "Включить окно",
 	enabledTooltip = "Включить или отключить это окно.",
-	release_v1_1_0_desc_1 = "Добавлена возможность отображения новых значков рассеивания Blizzard.",
-	release_v1_2_0_desc_1 = "Пользовательская конфигурация удалена в пользу режима редактирования.",
 
 	-- Edit Mode / Settings panel
 	editModeHeader = "Режим редактирования",
-	editModeDescription = "Введите /zf для переключения режима редактирования в любое время.",
+	editModeDescription = "Введите |cffffd100/zf для переключения режима редактирования в любое время.",
 	editModeButton = "Режим редактирования",
 	resetAllButton = "Сбросить всё",
 	resetButton = "Сбросить",
@@ -1458,11 +1441,10 @@ addon.locale.ruRU = {
 	-- Announcement dialog
 	announcementTitle = "ZenFrames v2.0.0",
 	announcementGreeting = "Приветствую, гладиатор.",
-	announcementBody = "Я полностью перестроил конфигурацию ZenFrames. Теперь всё можно настроить.",
-	announcementBullet1 = "Чтобы открыть режим редактирования, введите: /zf",
-	announcementBullet2 = "Удерживайте ALT, чтобы скрыть окна перетаскивания",
-	announcementApology = "Потребовались серьёзные изменения конфигурации. Приношу извинения, если я нарушил ваши настройки. Я низко кланяюсь в вашу честь.",
-	announcementContact = "Если вы потеряли что-то, что хотели бы вернуть, я могу помочь. Напишите мне: reddit.com/u/rokk--/",
+	announcementBullet1 = "Чтобы открыть режим редактирования, введите: |cffffd100/zf",
+	announcementBullet2 = "Удерживайте ALT, чтобы скрыть маркеры редактирования",
+	announcementApology = "Крупные изменения конфигурации были неизбежны, приношу извинения.",
+	announcementContact = "Если нужна помощь (или нашли баги):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Открыть режим редактирования",
 
 	-- Text tag help content

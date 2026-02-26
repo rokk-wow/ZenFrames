@@ -491,16 +491,18 @@ function addon:AttachPlaceholder(element)
                 if button == "LeftButton" and self._configKey then
                     addon:ShowEditModeSubDialog(self._configKey, self._moduleKey)
                     
-                    -- Deselect previously selected overlay
-                    if selectedOverlay and selectedOverlay ~= self then
-                        selectedOverlay:EnableKeyboard(false)
-                        selectedOverlay:SetPropagateKeyboardInput(true)
-                    end
-                    
-                    -- Set this as the selected overlay for keyboard input
                     selectedOverlay = self
-                    self:EnableKeyboard(true)
-                    self:SetPropagateKeyboardInput(false)
+                    addon:SelectNudgeTarget(function(dx, dy)
+                        local parent = self:GetParent()
+                        if parent and not InCombatLockdown() then
+                            local point, relativeTo, relativePoint, xOfs, yOfs = parent:GetPoint(1)
+                            if point and relativeTo and relativePoint then
+                                parent:ClearAllPoints()
+                                parent:SetPoint(point, relativeTo, relativePoint, (xOfs or 0) + dx, (yOfs or 0) + dy)
+                                UpdatePlaceholderPosition(self)
+                            end
+                        end
+                    end)
                     
                     local parent = self:GetParent()
                     if parent and not InCombatLockdown() then
@@ -522,56 +524,6 @@ function addon:AttachPlaceholder(element)
                 end
             end)
 
-            overlay:SetScript("OnKeyDown", function(self, key)
-                if InCombatLockdown() then
-                    self:SetPropagateKeyboardInput(true)
-                    return
-                end
-                
-                if key == "ESCAPE" then
-                    -- Deselect on escape
-                    self:EnableKeyboard(false)
-                    self:SetPropagateKeyboardInput(true)
-                    if selectedOverlay == self then
-                        selectedOverlay = nil
-                    end
-                    return
-                end
-                
-                -- Handle arrow keys for nudging
-                local dx, dy = 0, 0
-                local distance = IsShiftKeyDown() and 10 or 1
-                
-                if key == "UP" then
-                    dy = distance
-                elseif key == "DOWN" then
-                    dy = -distance
-                elseif key == "LEFT" then
-                    dx = -distance
-                elseif key == "RIGHT" then
-                    dx = distance
-                else
-                    -- Not an arrow key, let it propagate
-                    self:SetPropagateKeyboardInput(true)
-                    return
-                end
-                
-                -- Nudge the frame
-                local parent = self:GetParent()
-                if parent and not InCombatLockdown() then
-                    local point, relativeTo, relativePoint, xOfs, yOfs = parent:GetPoint(1)
-                    if point and relativeTo and relativePoint then
-                        parent:ClearAllPoints()
-                        parent:SetPoint(point, relativeTo, relativePoint, (xOfs or 0) + dx, (yOfs or 0) + dy)
-                        
-                        UpdatePlaceholderPosition(self)
-                    end
-                end
-                
-                -- Prevent keyboard input from propagating for arrow keys
-                self:SetPropagateKeyboardInput(false)
-            end)
-
             self._placeholder = overlay
         end
 
@@ -580,8 +532,6 @@ function addon:AttachPlaceholder(element)
         overlay._moduleKey = moduleKey
         overlay:SetFrameStrata("DIALOG")
         overlay:EnableMouse(true)
-        overlay:EnableKeyboard(false)
-        overlay:SetPropagateKeyboardInput(true)
 
         RegisterPlaceholder(overlay)
         EnsureModifierStateListener()
@@ -604,9 +554,8 @@ function addon:AttachPlaceholder(element)
             UnregisterPlaceholder(self._placeholder)
             self._placeholder:SetFrameStrata("BACKGROUND")
             self._placeholder:EnableMouse(false)
-            self._placeholder:EnableKeyboard(false)
-            self._placeholder:SetPropagateKeyboardInput(true)
             if selectedOverlay == self._placeholder then
+                addon:DeselectNudgeTarget()
                 selectedOverlay = nil
             end
             self._placeholder:Hide()

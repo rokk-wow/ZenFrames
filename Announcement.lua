@@ -11,11 +11,12 @@ local DIALOG_HEIGHT = 200
 local BORDER_WIDTH = 8
 local PADDING = 30
 local TITLE_FONT_SIZE = 22
-local BODY_FONT_SIZE = 12
-local BULLET_FONT_SIZE = 12
+local BODY_FONT_SIZE = 13
+local BULLET_FONT_SIZE = 13
 local BUTTON_FONT_SIZE = 13
 local BUTTON_HEIGHT = 28
 local DIVIDER_HEIGHT = 2
+local ICON_SIZE = 64
 local TITLE_COLOR = { 0, 1, 0.596 }
 local BODY_COLOR = { 0.9, 0.9, 0.9 }
 local HIGHLIGHT_COLOR = { 1, 0.82, 0 }
@@ -52,13 +53,6 @@ local function BuildAnnouncementDialog()
     frame:SetScript("OnDragStart", frame.StartMoving)
     frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 
-    -- Atlas icon
-    local icon = frame:CreateTexture(nil, "OVERLAY")
-    icon:SetSize(64, 64)
-    icon:SetAtlas("raceicon128-pandaren-male")
-    icon:SetPoint("TOPLEFT", frame, "TOPLEFT", 15, 50)
-    frame._icon = icon
-
     -- Title
     local title = frame:CreateFontString(nil, "OVERLAY")
     title:SetFont(fontPath, TITLE_FONT_SIZE, "OUTLINE")
@@ -77,35 +71,27 @@ local function BuildAnnouncementDialog()
     divider:SetPoint("TOP", frame, "TOP", 0, dividerY)
     frame._divider = divider
 
-    local contentTop = dividerY - 12
     local contentLeft = BORDER_WIDTH + PADDING
-    local contentRight = -(BORDER_WIDTH + PADDING)
     local contentWidth = DIALOG_WIDTH - 2 * (BORDER_WIDTH + PADDING)
 
-    -- Greeting
+    -- Icon (left-aligned, 5px below divider)
+    local icon = frame:CreateTexture(nil, "OVERLAY")
+    icon:SetSize(ICON_SIZE, ICON_SIZE)
+    icon:SetAtlas("raceicon128-pandaren-male")
+    icon:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft, dividerY - 10)
+    frame._icon = icon
+
+    -- Greeting (speech bubble near icon mouth)
     local greeting = frame:CreateFontString(nil, "OVERLAY")
     greeting:SetFont(fontPath, BODY_FONT_SIZE + 1, "OUTLINE")
     greeting:SetTextColor(HIGHLIGHT_COLOR[1], HIGHLIGHT_COLOR[2], HIGHLIGHT_COLOR[3])
-    greeting:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft, contentTop)
-    greeting:SetWidth(contentWidth)
+    greeting:SetPoint("LEFT", icon, "RIGHT", 10, -10)
     greeting:SetJustifyH("LEFT")
-    greeting:SetText(addon:L("announcementGreeting"))
+    greeting:SetText("\226\128\148" .. addon:L("announcementGreeting"))
     frame._greeting = greeting
 
-    local y = contentTop - greeting:GetStringHeight() - 10
-
-    -- Body
-    local body = frame:CreateFontString(nil, "OVERLAY")
-    body:SetFont(fontPath, BODY_FONT_SIZE, "OUTLINE")
-    body:SetTextColor(BODY_COLOR[1], BODY_COLOR[2], BODY_COLOR[3])
-    body:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft, y)
-    body:SetWidth(contentWidth)
-    body:SetJustifyH("LEFT")
-    body:SetWordWrap(true)
-    body:SetText(addon:L("announcementBody"))
-    frame._body = body
-
-    y = y - body:GetStringHeight() - 10
+    -- Content starts 20px below icon
+    local y = dividerY - 10 - ICON_SIZE - 40
 
     -- Bullet 1
     local bullet1 = frame:CreateFontString(nil, "OVERLAY")
@@ -117,7 +103,7 @@ local function BuildAnnouncementDialog()
     bullet1:SetText("* " .. addon:L("announcementBullet1"))
     frame._bullet1 = bullet1
 
-    y = y - bullet1:GetStringHeight() - 4
+    y = y - bullet1:GetStringHeight() - 6
 
     -- Bullet 2
     local bullet2 = frame:CreateFontString(nil, "OVERLAY")
@@ -129,7 +115,7 @@ local function BuildAnnouncementDialog()
     bullet2:SetText("* " .. addon:L("announcementBullet2"))
     frame._bullet2 = bullet2
 
-    y = y - bullet2:GetStringHeight() - 10
+    y = y - bullet2:GetStringHeight() - 35
 
     -- Apology
     local apology = frame:CreateFontString(nil, "OVERLAY")
@@ -142,7 +128,7 @@ local function BuildAnnouncementDialog()
     apology:SetText(addon:L("announcementApology"))
     frame._apology = apology
 
-    y = y - apology:GetStringHeight() - 10
+    y = y - apology:GetStringHeight() - 35
 
     -- Contact
     local contact = frame:CreateFontString(nil, "OVERLAY")
@@ -155,7 +141,7 @@ local function BuildAnnouncementDialog()
     contact:SetText(addon:L("announcementContact"))
     frame._contact = contact
 
-    y = y - contact:GetStringHeight() - 16
+    y = y - contact:GetStringHeight() - 20
 
     -- Launch Edit Mode button
     local btn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")

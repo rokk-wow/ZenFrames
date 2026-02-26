@@ -7,12 +7,6 @@ local CONFIG_REQUEST_DEBOUNCE_SECONDS = 0.1
 addon.sadCore.savedVarsGlobalName = "ZenFramesSettings_Global"
 addon.sadCore.savedVarsPerCharName = "ZenFramesSettings_Char"
 addon.sadCore.compartmentFuncName = "ZenFramesCompartment_Func"
-addon.sadCore.releaseNotes = {
-    version = "1.2.0",
-    notes = {
-        "release_v1_2_0_desc_1",
-    }
-}
 
 local function deepCopy(src)
     if type(src) ~= "table" then return src end

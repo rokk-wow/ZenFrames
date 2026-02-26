@@ -288,13 +288,10 @@ local function GetOrCreateTextPin(frame, index)
 
         addon:ShowEditModeSubDialog(self._configKey, self._textName)
 
-        if selectedTextPin and selectedTextPin ~= self then
-            selectedTextPin:EnableKeyboard(false)
-            selectedTextPin:SetPropagateKeyboardInput(true)
-        end
         selectedTextPin = self
-        self:EnableKeyboard(true)
-        self:SetPropagateKeyboardInput(false)
+        addon:SelectNudgeTarget(function(dx, dy)
+            ApplyTextPinOffset(self, dx, dy)
+        end)
     end)
 
     pin:SetScript("OnDragStart", function(self)
@@ -325,41 +322,6 @@ local function GetOrCreateTextPin(frame, index)
         self._dragStartY = nil
 
         ApplyTextPinOffset(self, deltaX, deltaY)
-    end)
-
-    pin:SetScript("OnKeyDown", function(self, key)
-        if InCombatLockdown() then
-            self:SetPropagateKeyboardInput(true)
-            return
-        end
-
-        if key == "ESCAPE" then
-            self:EnableKeyboard(false)
-            self:SetPropagateKeyboardInput(true)
-            if selectedTextPin == self then
-                selectedTextPin = nil
-            end
-            return
-        end
-
-        local dx, dy = 0, 0
-        local distance = IsShiftKeyDown() and 10 or 1
-
-        if key == "UP" then
-            dy = distance
-        elseif key == "DOWN" then
-            dy = -distance
-        elseif key == "LEFT" then
-            dx = -distance
-        elseif key == "RIGHT" then
-            dx = distance
-        else
-            self:SetPropagateKeyboardInput(true)
-            return
-        end
-
-        self:SetPropagateKeyboardInput(false)
-        ApplyTextPinOffset(self, dx, dy)
     end)
 
     frame._textPins[index] = pin
@@ -399,8 +361,7 @@ local function HideTextPins(frame)
     if not frame._textPins then return end
     for _, pin in pairs(frame._textPins) do
         if selectedTextPin == pin then
-            pin:EnableKeyboard(false)
-            pin:SetPropagateKeyboardInput(true)
+            addon:DeselectNudgeTarget()
             selectedTextPin = nil
         end
         pin._active = false

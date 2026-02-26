@@ -38,7 +38,8 @@ local GLOBAL_LOCKED_ALPHA = 0.4
 local HEADER_FONT_SIZE = 16            -- Main section headers
 local HEADER_COLOR = { 0, 1, 0.596 }   -- Green header color
 local HEADER_SPACING_AFTER = 8         -- Space after header divider
-local SUBHEADER_FONT_SIZE = 14         -- Sub-section headers  
+local SUBHEADER_FONT_SIZE = 14         -- Sub-section headers
+local SUBHEADER_COLOR = { 1, 0.82, 0 } -- Yellow sub-header color
 local SUBHEADER_SPACING_AFTER = 6      -- Space after sub-header divider
 
 -- ---------------------------------------------------------------------------
@@ -1196,7 +1197,7 @@ function addon:DialogAddSectionTitle(dialog, yOffset, text)
     
     local title = dialog:CreateFontString(nil, "OVERLAY")
     title:SetFont(dialog._fontPath, SECTION_TITLE_FONT_SIZE, "OUTLINE")
-    title:SetTextColor(1, 1, 1)
+    title:SetTextColor(SUBHEADER_COLOR[1], SUBHEADER_COLOR[2], SUBHEADER_COLOR[3])
     title:SetPoint("TOP", dialog, "TOP", 0, yOffset)
     title:SetText(text)
     
