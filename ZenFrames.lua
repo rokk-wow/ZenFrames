@@ -85,6 +85,10 @@ function addon:SetOverride(pathSegments, value)
     self.savedVars.data.overrides = self.savedVars.data.overrides or {}
     setNested(self.savedVars.data.overrides, pathSegments, value)
 
+    if self.editMode then
+        self._editModeChangesMade = true
+    end
+
     if pathSegments[1] == "global" then
         self._configDirty = true
         return
@@ -106,6 +110,10 @@ end
 
 function addon:ClearOverrides(pathSegments)
     if not self.savedVars or not self.savedVars.data or not self.savedVars.data.overrides then return end
+
+    if self.editMode then
+        self._editModeChangesMade = true
+    end
     
     local current = self.savedVars.data.overrides
     for i = 1, #pathSegments - 1 do

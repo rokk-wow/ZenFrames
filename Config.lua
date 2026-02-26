@@ -118,8 +118,8 @@ function addon:GetDefaultConfig()
         },
 
         player = {
-            enabled = true,
-            hideBlizzard = true,
+            enabled = false,
+            hideBlizzard = false,
             frameName = "zfPlayerFrame",
             anchor = "TOPRIGHT",
             relativeTo = "UIParent",
@@ -340,8 +340,8 @@ function addon:GetDefaultConfig()
             },
         },
         target = {
-            enabled = true,
-            hideBlizzard = true,
+            enabled = false,
+            hideBlizzard = false,
             frameName = "zfTargetFrame",
             anchor = "TOPLEFT",
             relativeTo = "UIParent",
@@ -539,8 +539,8 @@ function addon:GetDefaultConfig()
             },
         },
         targetTarget = {
-            enabled = true,
-            hideBlizzard = true,
+            enabled = false,
+            hideBlizzard = false,
             frameName = "zfTargetTargetFrame",
             anchor = "TOPLEFT",
             relativeTo = "zfTargetFrame",
@@ -581,8 +581,8 @@ function addon:GetDefaultConfig()
             },
         },
         focus = {
-            enabled = true,
-            hideBlizzard = true,
+            enabled = false,
+            hideBlizzard = false,
             frameName = "zfFocusFrame",
             anchor = "TOPRIGHT",
             relativeTo = "zfPlayerFrame",
@@ -623,8 +623,8 @@ function addon:GetDefaultConfig()
             },
         },
         focusTarget = {
-            enabled = true,
-            hideBlizzard = true,
+            enabled = false,
+            hideBlizzard = false,
             frameName = "zfFocusTargetFrame",
             anchor = "TOPLEFT",
             relativeTo = "zfFocusFrame",
@@ -665,8 +665,8 @@ function addon:GetDefaultConfig()
             },
         },
         pet = {
-            enabled = true,
-            hideBlizzard = true,
+            enabled = false,
+            hideBlizzard = false,
             frameName = "zfPetFrame",
             anchor = "TOPLEFT",
             relativeTo = "zfPlayerFrame",

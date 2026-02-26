@@ -12,6 +12,7 @@ function addon:EnableEditMode()
     self:CombatSafe(function()
         if addon.editMode then return end
         addon.editMode = true
+        addon._editModeChangesMade = false
         addon:ShowEditModeFrames()
         addon:ShowEditModeDialog()
         addon:Info(addon:L("emEnteringEditMode"))
@@ -28,10 +29,17 @@ end
 function addon:DisableEditMode()
     if not self.editMode then return end
     if InCombatLockdown() then return end
+
+    local changesMade = self._editModeChangesMade
     self.editMode = false
+    self._editModeChangesMade = false
     self:HideEditModeDialog()
     self:HideEditModeFrames()
     self:Info(addon:L("emLeavingEditMode"))
+
+    if changesMade then
+        ReloadUI()
+    end
 end
 
 function addon:EditModeCommand()

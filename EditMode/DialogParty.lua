@@ -79,6 +79,10 @@ local function RefreshPartyVisuals(self, configKey)
     container:SetSize(containerW, containerH)
 end
 
+function addon:RefreshGroupContainerVisuals(configKey)
+    RefreshPartyVisuals(self, configKey)
+end
+
 function addon:PopulatePartySubDialog(subDialog, configKey, moduleKey, yOffset)
     if not subDialog or not configKey then return end
 

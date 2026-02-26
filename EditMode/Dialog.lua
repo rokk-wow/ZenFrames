@@ -1338,6 +1338,7 @@ local MODULE_RESET_REFRESH_METHODS = {
 
 local UNIT_FRAME_SUB_DIALOG_METHODS = {
     party = "PopulatePartySubDialog",
+    arena = "PopulatePartySubDialog",
 }
 
 local function IsAuraFilterModule(configKey, moduleKey)
@@ -1384,6 +1385,7 @@ local LARGE_SUB_DIALOG_MODULES = {
 
 local LARGE_SUB_DIALOG_CONFIGS = {
     party = true,
+    arena = true,
     player = true,
     target = true,
     targetTarget = true,
@@ -2049,6 +2051,10 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
             end
         else
             self:RefreshFrame(configKey)
+
+            if (configKey == "party" or configKey == "arena") and self.RefreshGroupContainerVisuals then
+                self:RefreshGroupContainerVisuals(configKey)
+            end
         end
 
         if self.editMode then
