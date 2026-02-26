@@ -90,63 +90,47 @@ local function BuildAnnouncementDialog()
     greeting:SetText("\226\128\148" .. addon:L("announcementGreeting"))
     frame._greeting = greeting
 
-    -- Content starts 20px below icon
-    local y = dividerY - 10 - ICON_SIZE - 40
-
     -- Bullet 1
     local bullet1 = frame:CreateFontString(nil, "OVERLAY")
     bullet1:SetFont(fontPath, BULLET_FONT_SIZE, "OUTLINE")
     bullet1:SetTextColor(BODY_COLOR[1], BODY_COLOR[2], BODY_COLOR[3])
-    bullet1:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft + 10, y)
     bullet1:SetWidth(contentWidth - 10)
     bullet1:SetJustifyH("LEFT")
     bullet1:SetText("* " .. addon:L("announcementBullet1"))
     frame._bullet1 = bullet1
 
-    y = y - bullet1:GetStringHeight() - 6
-
     -- Bullet 2
     local bullet2 = frame:CreateFontString(nil, "OVERLAY")
     bullet2:SetFont(fontPath, BULLET_FONT_SIZE, "OUTLINE")
     bullet2:SetTextColor(BODY_COLOR[1], BODY_COLOR[2], BODY_COLOR[3])
-    bullet2:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft + 10, y)
     bullet2:SetWidth(contentWidth - 10)
     bullet2:SetJustifyH("LEFT")
     bullet2:SetText("* " .. addon:L("announcementBullet2"))
     frame._bullet2 = bullet2
 
-    y = y - bullet2:GetStringHeight() - 35
-
     -- Apology
     local apology = frame:CreateFontString(nil, "OVERLAY")
     apology:SetFont(fontPath, BODY_FONT_SIZE, "OUTLINE")
     apology:SetTextColor(BODY_COLOR[1], BODY_COLOR[2], BODY_COLOR[3])
-    apology:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft, y)
     apology:SetWidth(contentWidth)
     apology:SetJustifyH("LEFT")
     apology:SetWordWrap(true)
     apology:SetText(addon:L("announcementApology"))
     frame._apology = apology
 
-    y = y - apology:GetStringHeight() - 35
-
     -- Contact
     local contact = frame:CreateFontString(nil, "OVERLAY")
     contact:SetFont(fontPath, BODY_FONT_SIZE, "OUTLINE")
     contact:SetTextColor(BODY_COLOR[1], BODY_COLOR[2], BODY_COLOR[3])
-    contact:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft, y)
     contact:SetWidth(contentWidth)
     contact:SetJustifyH("LEFT")
     contact:SetWordWrap(true)
     contact:SetText(addon:L("announcementContact"))
     frame._contact = contact
 
-    y = y - contact:GetStringHeight() - 20
-
     -- Launch Edit Mode button
     local btn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     btn:SetSize(contentWidth, BUTTON_HEIGHT)
-    btn:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft, y)
     btn:SetText(addon:L("announcementLaunchButton"))
     btn:GetFontString():SetFont(fontPath, BUTTON_FONT_SIZE, "OUTLINE")
     btn:SetScript("OnClick", function()
@@ -155,10 +139,39 @@ local function BuildAnnouncementDialog()
     end)
     frame._launchButton = btn
 
-    y = y - BUTTON_HEIGHT - PADDING - BORDER_WIDTH
+    -- Layout is deferred to OnShow so font metrics are available
+    frame._contentLeft = contentLeft
+    frame._contentWidth = contentWidth
+    frame._dividerY = dividerY
 
-    -- Auto-size height based on content
-    frame:SetHeight(math.abs(y))
+    local function LayoutContent(self)
+        local cy = self._dividerY - 10 - ICON_SIZE - 30
+        local cl = self._contentLeft
+
+        self._bullet1:ClearAllPoints()
+        self._bullet1:SetPoint("TOPLEFT", self, "TOPLEFT", cl + 10, cy)
+        cy = cy - self._bullet1:GetStringHeight() - 6
+
+        self._bullet2:ClearAllPoints()
+        self._bullet2:SetPoint("TOPLEFT", self, "TOPLEFT", cl + 10, cy)
+        cy = cy - self._bullet2:GetStringHeight() - 30
+
+        self._apology:ClearAllPoints()
+        self._apology:SetPoint("TOPLEFT", self, "TOPLEFT", cl, cy)
+        cy = cy - self._apology:GetStringHeight() - 30
+
+        self._contact:ClearAllPoints()
+        self._contact:SetPoint("TOPLEFT", self, "TOPLEFT", cl, cy)
+        cy = cy - self._contact:GetStringHeight() - 30
+
+        self._launchButton:ClearAllPoints()
+        self._launchButton:SetPoint("TOPLEFT", self, "TOPLEFT", cl, cy)
+        cy = cy - BUTTON_HEIGHT - PADDING - BORDER_WIDTH
+
+        self:SetHeight(math.abs(cy))
+    end
+
+    frame:SetScript("OnShow", LayoutContent)
 
     frame:Hide()
     announcementDialog = frame

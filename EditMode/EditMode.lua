@@ -110,22 +110,21 @@ nudgeFrame:EnableKeyboard(false)
 nudgeFrame:SetPropagateKeyboardInput(true)
 
 function addon:SelectNudgeTarget(nudgeCallback)
+    if InCombatLockdown() then return end
     self._nudgeCallback = nudgeCallback
     nudgeFrame:EnableKeyboard(true)
     nudgeFrame:SetPropagateKeyboardInput(false)
 end
 
 function addon:DeselectNudgeTarget()
+    if InCombatLockdown() then return end
     self._nudgeCallback = nil
     nudgeFrame:EnableKeyboard(false)
     nudgeFrame:SetPropagateKeyboardInput(true)
 end
 
 nudgeFrame:SetScript("OnKeyDown", function(self, key)
-    if InCombatLockdown() then
-        self:SetPropagateKeyboardInput(true)
-        return
-    end
+    if InCombatLockdown() then return end
 
     if not addon._nudgeCallback then
         self:SetPropagateKeyboardInput(true)

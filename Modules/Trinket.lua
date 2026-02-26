@@ -64,16 +64,9 @@ function addon:AddTrinket(frame, cfg)
 
     local cooldownDesaturate = cfg.cooldownDesaturate ~= false
     local cooldownAlpha = cfg.cooldownAlpha
-    local healerReduction = cfg.healerReduction
 
     trinket.spellID = nil
     trinket.unit = nil
-
-    local function IsUnitHealer(unit)
-        if not unit then return false end
-        local role = UnitGroupRolesAssigned(unit)
-        return role == "HEALER"
-    end
 
     local function SetSpellTexture(spellID)
         if spellID and spellID > 0 then
@@ -97,10 +90,6 @@ function addon:AddTrinket(frame, cfg)
 
         local startTime = startTimeMs and (startTimeMs / 1000) or 0
         local duration = durationMs and (durationMs / 1000) or 0
-
-        if duration > 0 and IsUnitHealer(unit) then
-            duration = math.max(0, duration - healerReduction)
-        end
 
         if duration > 0 then
             cooldown:SetCooldown(startTime, duration)

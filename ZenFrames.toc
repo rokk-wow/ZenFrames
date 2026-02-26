@@ -13,6 +13,7 @@ Libs\LibSAdCore\LibSAdCore.lua
 Libs\oUF\oUF.xml
 
 Config.lua
+Localization.lua
 
 EditMode\Placeholder.lua
 
@@ -55,4 +56,3 @@ EditMode\Frames.lua
 
 Announcement.lua
 ZenFrames.lua
-Localization.lua

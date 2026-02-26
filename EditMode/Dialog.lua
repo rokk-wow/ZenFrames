@@ -1512,8 +1512,22 @@ local function BuildSubDialog()
         subDialog:SetSize(mainDialog:GetWidth(), mainDialog:GetHeight())
     end
 
-    local resetY = -(subDialog:GetHeight() - subDialog._borderWidth - subDialog._padding)
-    local resetBtn = addon:DialogAddButton(subDialog, resetY, addon:L("resetButton"), function()
+    local resetIconSize = 32
+    local resetPadding = 10
+    local resetY = -(subDialog:GetHeight() - subDialog._borderWidth - resetPadding - resetIconSize)
+    local resetBtn = CreateFrame("Button", nil, subDialog)
+    resetBtn:SetSize(resetIconSize, resetIconSize)
+    resetBtn:SetPoint("TOP", subDialog, "TOP", 0, resetY)
+    local resetIcon = resetBtn:CreateTexture(nil, "ARTWORK")
+    resetIcon:SetAllPoints()
+    resetIcon:SetAtlas("UI-RefreshButton")
+    resetBtn:SetScript("OnEnter", function(self)
+        resetIcon:SetAlpha(0.7)
+    end)
+    resetBtn:SetScript("OnLeave", function(self)
+        resetIcon:SetAlpha(1)
+    end)
+    resetBtn:SetScript("OnClick", function()
         if subDialog._configKey then
             addon:ShowResetConfirmDialog(subDialog._configKey, subDialog._moduleKey)
         end
@@ -1832,10 +1846,9 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     sub.title:SetWidth(width - 2 * (BORDER_WIDTH + PADDING) - 60)
 
     if sub._resetButton then
-        local resetY = -(height - sub._borderWidth - sub._padding)
-        local normalWidth = ResolveEditModeSubDialogWidth("normal")
-        local resetButtonWidth = normalWidth - 2 * (BORDER_WIDTH + PADDING)
-        sub._resetButton:SetWidth(resetButtonWidth)
+        local resetIconSize = 32
+        local resetPadding = 10
+        local resetY = -(height - sub._borderWidth - resetPadding - resetIconSize)
         sub._resetButton:ClearAllPoints()
         sub._resetButton:SetPoint("TOP", sub, "TOP", 0, resetY)
     end
