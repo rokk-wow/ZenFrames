@@ -20,21 +20,23 @@ local unitConfigMap = {
     pet = "pet",
 }
 
-local DISPLAY_NAMES = {
-    player = "Player",
-    target = "Target",
-    targettarget = "Target of Target",
-    focus = "Focus",
-    focustarget = "Focus Target",
-    pet = "Pet",
-    party1 = "Party 1",
-    party2 = "Party 2",
-    party3 = "Party 3",
-    party4 = "Party 4",
-    arena1 = "Arena 1",
-    arena2 = "Arena 2",
-    arena3 = "Arena 3",
-}
+local function GetDisplayNames()
+    return {
+        player = addon:L("emDisplayPlayer"),
+        target = addon:L("emDisplayTarget"),
+        targettarget = addon:L("emDisplayTargetOfTarget"),
+        focus = addon:L("emDisplayFocus"),
+        focustarget = addon:L("emDisplayFocusTarget"),
+        pet = addon:L("emDisplayPet"),
+        party1 = addon:L("emDisplayParty") .. " 1",
+        party2 = addon:L("emDisplayParty") .. " 2",
+        party3 = addon:L("emDisplayParty") .. " 3",
+        party4 = addon:L("emDisplayParty") .. " 4",
+        arena1 = addon:L("emDisplayArena") .. " 1",
+        arena2 = addon:L("emDisplayArena") .. " 2",
+        arena3 = addon:L("emDisplayArena") .. " 3",
+    }
+end
 
 local function RandomClassToken()
     return CLASS_TOKENS[math.random(#CLASS_TOKENS)]
@@ -554,7 +556,7 @@ function addon:ShowEditModeFrames()
         end
 
         ApplyClassColor(frame, RandomClassToken())
-        OverrideNameText(frame, DISPLAY_NAMES[unit], unitConfigMap[unit])
+        OverrideNameText(frame, GetDisplayNames()[unit], unitConfigMap[unit])
         ShowPlaceholders(frame, unitConfigMap[unit])
 
         addon:AttachPlaceholder(frame)
@@ -580,7 +582,7 @@ function addon:ShowEditModeFrames()
                     end
 
                     ApplyClassColor(child, RandomClassToken())
-                    OverrideNameText(child, DISPLAY_NAMES[originalUnit] or originalUnit, configKey)
+                    OverrideNameText(child, GetDisplayNames()[originalUnit] or originalUnit, configKey)
                     ShowPlaceholders(child, configKey)
                 end
             end

@@ -14,7 +14,7 @@ function addon:EnableEditMode()
         addon.editMode = true
         addon:ShowEditModeFrames()
         addon:ShowEditModeDialog()
-        addon:Info("Entering Edit Mode")
+        addon:Info(addon:L("emEnteringEditMode"))
         
         -- Check for pending sub-dialog first (takes priority)
         if self.savedVars and self.savedVars.data and self.savedVars.data.reopenSubDialog then
@@ -31,7 +31,7 @@ function addon:DisableEditMode()
     self.editMode = false
     self:HideEditModeDialog()
     self:HideEditModeFrames()
-    self:Info("Leaving Edit Mode")
+    self:Info(addon:L("emLeavingEditMode"))
 end
 
 function addon:EditModeCommand()

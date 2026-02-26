@@ -11,7 +11,7 @@ function addon:PopulateCombatIndicatorSubDialog(subDialog, configKey, moduleKey,
     local moduleCfg = cfg.modules[moduleKey]
     subDialog._controls = subDialog._controls or {}
 
-    local enabledRow = self:DialogAddEnableControl(subDialog, yOffset, "Enabled", moduleCfg.enabled, configKey, moduleKey, function(value)
+    local enabledRow = self:DialogAddEnableControl(subDialog, yOffset, self:L("emEnabled"), moduleCfg.enabled, configKey, moduleKey, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
     end)
     table.insert(subDialog._controls, enabledRow)

@@ -94,33 +94,33 @@ function addon:PopulateDRTrackerSubDialog(subDialog, configKey, moduleKey, yOffs
     local currentY = yOffset
 
     local enabledRow
-    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, "Enabled", moduleCfg.enabled, configKey, moduleKey, function(value)
+    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, self:L("emEnabled"), moduleCfg.enabled, configKey, moduleKey, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
     end)
     table.insert(subDialog._controls, enabledRow)
 
     local sizeRow
-    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Size", 1, 100, moduleCfg.iconSize, 1, function(value)
+    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emSize"), 1, 100, moduleCfg.iconSize, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
         RefreshDRTrackerVisuals(self, configKey, moduleKey)
     end)
     table.insert(subDialog._controls, sizeRow)
 
     local showSwipeRow
-    showSwipeRow, currentY = self:DialogAddCheckbox(subDialog, currentY, "Show Swipe", moduleCfg.showSwipe ~= false, function(value)
+    showSwipeRow, currentY = self:DialogAddCheckbox(subDialog, currentY, self:L("emShowSwipe"), moduleCfg.showSwipe ~= false, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "showSwipe"}, value)
     end)
     table.insert(subDialog._controls, showSwipeRow)
 
     local showCooldownRow
-    showCooldownRow, currentY = self:DialogAddCheckbox(subDialog, currentY, "Show Cooldown", moduleCfg.showCooldownNumbers ~= false, function(value)
+    showCooldownRow, currentY = self:DialogAddCheckbox(subDialog, currentY, self:L("emShowCooldownNumbers"), moduleCfg.showCooldownNumbers ~= false, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "showCooldownNumbers"}, value)
     end)
     table.insert(subDialog._controls, showCooldownRow)
 
     local borderSizeGlobalValue = self.config.global and self.config.global.borderWidth or 1
     local borderSizeRow
-    borderSizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Border Size", 1, 10, moduleCfg.borderWidth, 1, function(value)
+    borderSizeRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emBorderSize"), 1, 10, moduleCfg.borderWidth, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "borderWidth"}, value)
         RefreshDRTrackerVisuals(self, configKey, moduleKey)
     end, {
@@ -131,7 +131,7 @@ function addon:PopulateDRTrackerSubDialog(subDialog, configKey, moduleKey, yOffs
 
     local borderColorGlobalValue = self.config.global and self.config.global.borderColor or "000000FF"
     local borderColorRow
-    borderColorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, "Border Color", moduleCfg.borderColor, function(value)
+    borderColorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, self:L("emBorderColor"), moduleCfg.borderColor, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "borderColor"}, value)
         RefreshDRTrackerVisuals(self, configKey, moduleKey)
     end, {

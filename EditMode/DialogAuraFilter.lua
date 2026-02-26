@@ -161,32 +161,32 @@ function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, yOff
 
     -- LEFT COLUMN: Core settings
     local enabledRow
-    enabledRow, leftY = self:DialogAddEnableControl(subDialog._leftColumn or subDialog, leftY, "Enabled", filterCfg.enabled, configKey, moduleKey, function(value)
+    enabledRow, leftY = self:DialogAddEnableControl(subDialog._leftColumn or subDialog, leftY, self:L("emEnabled"), filterCfg.enabled, configKey, moduleKey, function(value)
         ApplyFilterSetting("enabled", value)
     end)
     table.insert(subDialog._controls, enabledRow)
 
     local sizeRow
-    sizeRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, "Size", 1, 100, filterCfg.iconSize, 1, function(value)
+    sizeRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, self:L("emSize"), 1, 100, filterCfg.iconSize, 1, function(value)
         ApplyFilterSetting("iconSize", value, true)
     end)
     table.insert(subDialog._controls, sizeRow)
 
     local showSwipeRow
-    showSwipeRow, leftY = self:DialogAddCheckbox(subDialog._leftColumn or subDialog, leftY, "Show Swipe", filterCfg.showSwipe ~= false, function(value)
+    showSwipeRow, leftY = self:DialogAddCheckbox(subDialog._leftColumn or subDialog, leftY, self:L("emShowSwipe"), filterCfg.showSwipe ~= false, function(value)
         ApplyFilterSetting("showSwipe", value)
     end)
     table.insert(subDialog._controls, showSwipeRow)
 
     local showCooldownRow
-    showCooldownRow, leftY = self:DialogAddCheckbox(subDialog._leftColumn or subDialog, leftY, "Show Cooldown", filterCfg.showCooldownNumbers ~= false, function(value)
+    showCooldownRow, leftY = self:DialogAddCheckbox(subDialog._leftColumn or subDialog, leftY, self:L("emShowCooldownNumbers"), filterCfg.showCooldownNumbers ~= false, function(value)
         ApplyFilterSetting("showCooldownNumbers", value)
     end)
     table.insert(subDialog._controls, showCooldownRow)
 
     local borderSizeGlobalValue = self.config.global and self.config.global.borderWidth or 1
     local borderSizeRow
-    borderSizeRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, "Border Size", 1, 10, filterCfg.borderWidth, 1, function(value)
+    borderSizeRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, self:L("emBorderSize"), 1, 10, filterCfg.borderWidth, 1, function(value)
         ApplyFilterSetting("borderWidth", value, true)
     end, {
         enabled = true,
@@ -196,7 +196,7 @@ function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, yOff
 
     local borderColorGlobalValue = self.config.global and self.config.global.borderColor or "000000FF"
     local borderColorRow
-    borderColorRow, leftY = self:DialogAddColorPicker(subDialog._leftColumn or subDialog, leftY, "Border Color", filterCfg.borderColor, function(value)
+    borderColorRow, leftY = self:DialogAddColorPicker(subDialog._leftColumn or subDialog, leftY, self:L("emBorderColor"), filterCfg.borderColor, function(value)
         ApplyFilterSetting("borderColor", value, true)
     end, {
         enabled = true,
@@ -206,19 +206,19 @@ function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, yOff
 
     -- RIGHT COLUMN: Glow & placeholder
     local showPlaceholderRow
-    showPlaceholderRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, "Show Placeholder", filterCfg.showPlaceholderIcon == true, function(value)
+    showPlaceholderRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, self:L("emShowPlaceholder"), filterCfg.showPlaceholderIcon == true, function(value)
         ApplyFilterSetting("showPlaceholderIcon", value, true)
     end)
     table.insert(subDialog._controls, showPlaceholderRow)
 
     local showGlowRow
-    showGlowRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, "Show Glow", filterCfg.showGlow == true, function(value)
+    showGlowRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, self:L("emShowGlow"), filterCfg.showGlow == true, function(value)
         ApplyFilterSetting("showGlow", value)
     end)
     table.insert(subDialog._controls, showGlowRow)
 
     local glowColorRow
-    glowColorRow, rightY = self:DialogAddColorPicker(subDialog._rightColumn or subDialog, rightY, "Glow Color", filterCfg.glowColor, function(value)
+    glowColorRow, rightY = self:DialogAddColorPicker(subDialog._rightColumn or subDialog, rightY, self:L("emGlowColor"), filterCfg.glowColor, function(value)
         ApplyFilterSetting("glowColor", value)
     end)
     table.insert(subDialog._controls, glowColorRow)

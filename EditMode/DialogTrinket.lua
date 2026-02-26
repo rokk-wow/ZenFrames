@@ -106,13 +106,13 @@ function addon:PopulateTrinketSubDialog(subDialog, configKey, moduleKey, yOffset
     local currentY = yOffset
 
     local enabledRow
-    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, "Enabled", moduleCfg.enabled, configKey, moduleKey, function(value)
+    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, self:L("emEnabled"), moduleCfg.enabled, configKey, moduleKey, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
     end)
     table.insert(subDialog._controls, enabledRow)
 
     local sizeRow
-    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Size", 10, 100, moduleCfg.iconSize, 1, function(value)
+    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emSize"), 10, 100, moduleCfg.iconSize, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
         RefreshTrinketVisuals(self, configKey, moduleKey)
     end)
@@ -120,7 +120,7 @@ function addon:PopulateTrinketSubDialog(subDialog, configKey, moduleKey, yOffset
 
     local borderSizeGlobalValue = self.config.global and self.config.global.borderWidth or 1
     local borderSizeRow
-    borderSizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Border Size", 1, 10, moduleCfg.borderWidth, 1, function(value)
+    borderSizeRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emBorderSize"), 1, 10, moduleCfg.borderWidth, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "borderWidth"}, value)
         RefreshTrinketVisuals(self, configKey, moduleKey)
     end, {
@@ -131,7 +131,7 @@ function addon:PopulateTrinketSubDialog(subDialog, configKey, moduleKey, yOffset
 
     local borderColorGlobalValue = self.config.global and self.config.global.borderColor or "000000FF"
     local borderColorRow
-    borderColorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, "Border Color", moduleCfg.borderColor, function(value)
+    borderColorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, self:L("emBorderColor"), moduleCfg.borderColor, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "borderColor"}, value)
         RefreshTrinketVisuals(self, configKey, moduleKey)
     end, {
@@ -141,13 +141,13 @@ function addon:PopulateTrinketSubDialog(subDialog, configKey, moduleKey, yOffset
     table.insert(subDialog._controls, borderColorRow)
 
     local showSwipeRow
-    showSwipeRow, currentY = self:DialogAddCheckbox(subDialog, currentY, "Show Swipe", moduleCfg.showSwipe ~= false, function(value)
+    showSwipeRow, currentY = self:DialogAddCheckbox(subDialog, currentY, self:L("emShowSwipe"), moduleCfg.showSwipe ~= false, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "showSwipe"}, value)
     end)
     table.insert(subDialog._controls, showSwipeRow)
 
     local showCooldownNumbersRow
-    showCooldownNumbersRow, currentY = self:DialogAddCheckbox(subDialog, currentY, "Show Cooldown Numbers", moduleCfg.showCooldownNumbers ~= false, function(value)
+    showCooldownNumbersRow, currentY = self:DialogAddCheckbox(subDialog, currentY, self:L("emShowCooldownNumbers"), moduleCfg.showCooldownNumbers ~= false, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "showCooldownNumbers"}, value)
     end)
     table.insert(subDialog._controls, showCooldownNumbersRow)

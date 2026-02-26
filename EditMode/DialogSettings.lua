@@ -492,7 +492,7 @@ local function PopulateSettingsContent(dialog)
     end
 
     local globalHeader, globalDivider
-    globalHeader, globalDivider, leftY = addon:DialogAddHeader(leftColumn, leftY, "Global Options")
+    globalHeader, globalDivider, leftY = addon:DialogAddHeader(leftColumn, leftY, addon:L("emGlobalOptions"))
     table.insert(dialog._controls, globalHeader)
     table.insert(dialog._controls, globalDivider)
 
@@ -500,7 +500,7 @@ local function PopulateSettingsContent(dialog)
     borderColorRow, leftY = addon:DialogAddColorPicker(
         leftColumn,
         leftY,
-        "Border Color",
+        addon:L("emBorderColor"),
         addon.config.global and addon.config.global.borderColor or "000000FF",
         function(value)
             ApplyGlobalSetting("borderColor", value)
@@ -512,7 +512,7 @@ local function PopulateSettingsContent(dialog)
     borderSizeRow, leftY = addon:DialogAddSlider(
         leftColumn,
         leftY,
-        "Border Size",
+        addon:L("emBorderSize"),
         1,
         10,
         addon.config.global and addon.config.global.borderWidth or 2,
@@ -527,7 +527,7 @@ local function PopulateSettingsContent(dialog)
     fontRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        "Font",
+        addon:L("emFont"),
         fontOptions,
         addon.config.global and addon.config.global.font or fonts[1],
         function(value)
@@ -540,7 +540,7 @@ local function PopulateSettingsContent(dialog)
     healthTextureRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        "Health Texture",
+        addon:L("emHealthTexture"),
         textureOptions,
         addon.config.global and addon.config.global.healthTexture or textures[1],
         function(value)
@@ -553,7 +553,7 @@ local function PopulateSettingsContent(dialog)
     powerTextureRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        "Power Texture",
+        addon:L("emPowerTexture"),
         textureOptions,
         addon.config.global and addon.config.global.powerTexture or textures[1],
         function(value)
@@ -566,7 +566,7 @@ local function PopulateSettingsContent(dialog)
     absorbTextureRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        "Absorb Texture",
+        addon:L("emAbsorbTexture"),
         textureOptions,
         addon.config.global and addon.config.global.absorbTexture or textures[1],
         function(value)
@@ -579,7 +579,7 @@ local function PopulateSettingsContent(dialog)
     castbarTextureRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        "Castbar Texture",
+        addon:L("emCastbarTexture"),
         textureOptions,
         addon.config.global and addon.config.global.castbarTexture or textures[1],
         function(value)
@@ -589,7 +589,7 @@ local function PopulateSettingsContent(dialog)
     table.insert(dialog._controls, castbarTextureRow)
 
     local disabledHeader, disabledDivider
-    disabledHeader, disabledDivider, rightY = addon:DialogAddHeader(rightColumn, rightY, "Disabled Modules")
+    disabledHeader, disabledDivider, rightY = addon:DialogAddHeader(rightColumn, rightY, addon:L("emDisabledModules"))
     table.insert(dialog._controls, disabledHeader)
     table.insert(dialog._controls, disabledDivider)
 
@@ -599,7 +599,7 @@ local function PopulateSettingsContent(dialog)
         emptyText:SetFont(rightColumn._fontPath, 14, "OUTLINE")
         emptyText:SetTextColor(1, 1, 1)
         emptyText:SetPoint("TOPLEFT", rightColumn, "TOPLEFT", 38, rightY)
-        emptyText:SetText("No disabled modules")
+        emptyText:SetText(addon:L("emNoDisabledModules"))
         table.insert(dialog._controls, emptyText)
         rightY = rightY - 24
     else
@@ -632,7 +632,7 @@ local function PopulateSettingsContent(dialog)
         -- Add reload button below disabled modules
         rightY = rightY - 10
         local reloadButton
-        reloadButton, rightY = addon:DialogAddButton(rightColumn, rightY, "Reload UI", function()
+        reloadButton, rightY = addon:DialogAddButton(rightColumn, rightY, addon:L("emReloadUI"), function()
             -- Save state to reopen settings after reload and resume edit mode
             addon:SetPendingSettingsDialogReopen(true)
             if addon.savedVars and addon.savedVars.data then

@@ -70,13 +70,13 @@ function addon:PopulateDispelIconSubDialog(subDialog, configKey, moduleKey, yOff
     local currentY = yOffset
 
     local enabledRow
-    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, "Enabled", moduleCfg.enabled, configKey, moduleKey, function(value)
+    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, self:L("emEnabled"), moduleCfg.enabled, configKey, moduleKey, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
     end)
     table.insert(subDialog._controls, enabledRow)
 
     local sizeRow
-    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "Size", 10, 100, moduleCfg.iconSize, 1, function(value)
+    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emSize"), 10, 100, moduleCfg.iconSize, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
         self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
     end)

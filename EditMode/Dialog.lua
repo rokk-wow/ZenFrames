@@ -470,7 +470,7 @@ function addon:DialogAddDropdown(dialog, yOffset, label, options, currentValue, 
             else
                 labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
             end
-            labelText:SetText(label .. ": Global")
+            labelText:SetText(label .. ": " .. addon:L("emGlobal"))
             if menu:IsShown() then
                 menu:Hide()
             end
@@ -691,7 +691,7 @@ function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentVa
                 labelText:ClearAllPoints()
                 labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
             end
-            labelText:SetText(label .. ": Global")
+            labelText:SetText(label .. ": " .. addon:L("emGlobal"))
             slider:Hide()
         else
             labelText:SetFont(dialog._fontPath, CONTROL_SMALL_LABEL_FONT_SIZE, "OUTLINE")
@@ -894,7 +894,7 @@ function addon:DialogAddEnableControl(dialog, yOffset, label, checked, configKey
     local reloadBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
     reloadBtn:SetSize(buttonWidth, buttonHeight)
     reloadBtn:SetPoint("RIGHT", row, "RIGHT", 0, 0)
-    reloadBtn:SetText("Reload UI")
+    reloadBtn:SetText(addon:L("emReloadUI"))
     reloadBtn:GetFontString():SetFont(dialog._fontPath, BUTTON_FONT_SIZE, "OUTLINE")
     reloadBtn:Disable()
     reloadBtn:SetAlpha(0.5)
@@ -1046,7 +1046,7 @@ function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChan
             else
                 labelText:SetPoint("LEFT", row, "LEFT", 0, 0)
             end
-            labelText:SetText(label .. ": Global")
+            labelText:SetText(label .. ": " .. addon:L("emGlobal"))
         else
             local cr, cg, cb, ca = ParseHexColor(unlockedColor)
             swatchColor:SetColorTexture(cr, cg, cb, ca)
@@ -1567,7 +1567,7 @@ local function BuildConfirmDialog()
     local cancelBtn = CreateFrame("Button", nil, confirmDialog, "UIPanelButtonTemplate")
     cancelBtn:SetSize(buttonWidth, buttonHeight)
     cancelBtn:SetPoint("LEFT", resetBtn, "RIGHT", 10, 0)
-    cancelBtn:SetText("Cancel")
+    cancelBtn:SetText(addon:L("emCancel"))
     cancelBtn:GetFontString():SetFont(confirmDialog._fontPath, 13, "OUTLINE")
     cancelBtn:SetScript("OnClick", function()
         if confirmDialog.onCancel then

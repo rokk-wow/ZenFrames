@@ -135,36 +135,36 @@ function addon:PopulateArenaTargetsSubDialog(subDialog, configKey, moduleKey, yO
     local currentY = yOffset
 
     local enabledRow
-    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, "Enabled", moduleCfg.enabled, configKey, moduleKey, function(value)
+    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, self:L("emEnabled"), moduleCfg.enabled, configKey, moduleKey, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
     end)
     table.insert(subDialog._controls, enabledRow)
 
     local modeRow
-    modeRow, currentY = self:DialogAddDropdown(subDialog, currentY, "Mode", {
-        { label = "Show Friendly Units", value = "friendly" },
-        { label = "Show Enemy Units", value = "enemy" },
+    modeRow, currentY = self:DialogAddDropdown(subDialog, currentY, self:L("emMode"), {
+        { label = self:L("emShowFriendlyUnits"), value = "friendly" },
+        { label = self:L("emShowEnemyUnits"), value = "enemy" },
     }, moduleCfg.mode, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "mode"}, value)
     end)
     table.insert(subDialog._controls, modeRow)
 
     local indicatorWidthRow
-    indicatorWidthRow, currentY = self:DialogAddSlider(subDialog, currentY, "Indicator Width", 2, 100, moduleCfg.indicatorWidth, 1, function(value)
+    indicatorWidthRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emIndicatorWidth"), 2, 100, moduleCfg.indicatorWidth, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "indicatorWidth"}, value)
         self:RefreshArenaTargetsEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, indicatorWidthRow)
 
     local indicatorHeightRow
-    indicatorHeightRow, currentY = self:DialogAddSlider(subDialog, currentY, "Indicator Height", 2, 100, moduleCfg.indicatorHeight, 1, function(value)
+    indicatorHeightRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emIndicatorHeight"), 2, 100, moduleCfg.indicatorHeight, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "indicatorHeight"}, value)
         self:RefreshArenaTargetsEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, indicatorHeightRow)
 
     local indicatorSpacingRow
-    indicatorSpacingRow, currentY = self:DialogAddSlider(subDialog, currentY, "Indicator Spacing", 0, 100, moduleCfg.spacing, 1, function(value)
+    indicatorSpacingRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emIndicatorSpacing"), 0, 100, moduleCfg.spacing, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "spacing"}, value)
         self:RefreshArenaTargetsEditModeVisuals(configKey, moduleKey)
     end)
