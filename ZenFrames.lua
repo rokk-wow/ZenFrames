@@ -410,7 +410,12 @@ function addon:Initialize()
         preferredIndex = 3,
     }
 
-    self:RunMigrations()
+    if self.savedVars and self.savedVars.version ~= "2.0.0" then
+        wipe(self.savedVars)
+        self.savedVars.version = "2.0.0"
+        self.savedVars.data = { overrides = {}, dismissedAnnouncements = {} }
+        self._configDirty = true
+    end
 
     self:RefreshConfig()
     self.unitFrames = {}

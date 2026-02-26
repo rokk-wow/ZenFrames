@@ -53,7 +53,6 @@ EditMode\DialogEditMode.lua
 EditMode\EditMode.lua
 EditMode\Frames.lua
 
-Migrations.lua
 Announcement.lua
 ZenFrames.lua
 Localization.lua
