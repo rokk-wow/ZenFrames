@@ -429,9 +429,9 @@ function addon:Initialize()
         self:CreateAuraFilterDebug(self.config.auraFilterDebug)
     end
 
-    -- C_Timer.After(1, function()
-    --     self:ShowAnnouncement("v2.0.0")
-    -- end)
+    C_Timer.After(1, function()
+        self:ShowAnnouncement(self:GetCurrentAnnouncementId())
+    end)
 end
 
 function addon:OverridePowerColors()
