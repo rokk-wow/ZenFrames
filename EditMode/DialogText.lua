@@ -16,8 +16,8 @@ local function GetOrCreateHelpDialog()
     local dialog = addon:CreateDialog({
         name = "ZenFramesTextTagHelpDialog",
         title = "emTextTagReference",
-        width = 420,
-        height = 500,
+        width = 600,
+        height = 400,
         frameStrata = "TOOLTIP",
         frameLevel = 500,
         dismissOnEscape = true,
@@ -33,7 +33,7 @@ local function GetOrCreateHelpDialog()
     scroll:SetPoint("BOTTOMRIGHT", dialog, "BOTTOMRIGHT", -(padLeft + 22), scrollBottom)
 
     local content = CreateFrame("Frame", nil, scroll)
-    content:SetWidth(420 - 2 * padLeft - 22)
+    content:SetWidth(600 - 2 * padLeft - 22)
     content:SetHeight(1)
     scroll:SetScrollChild(content)
 
