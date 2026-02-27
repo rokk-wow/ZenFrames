@@ -3,6 +3,8 @@ local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
 local ZDS = addon.DialogStyle
+addon.EDIT_MODE_DIALOG_HEIGHT = addon.EDIT_MODE_DIALOG_HEIGHT or 525
+local EDIT_MODE_DIALOG_HEIGHT = addon.EDIT_MODE_DIALOG_HEIGHT
 
 -- ---------------------------------------------------------------------------
 -- Edit mode sub-dialog width resolver
@@ -13,11 +15,10 @@ local function ResolveEditModeSubDialogWidth(sizeMode, explicitWidth)
         return explicitWidth
     end
 
-    local mainDialog = addon._editModeDialog
-    local baseWidth = mainDialog and mainDialog:GetWidth() or 320
+    local baseWidth = (ZDS and ZDS.DIALOG_WIDTH_1_COL) or 300
 
     if sizeMode == "large" then
-        return (baseWidth * 2) + 116
+        return (ZDS and ZDS.DIALOG_WIDTH_2_COL) or 600
     end
 
     return baseWidth
@@ -44,6 +45,7 @@ function addon:CreateEditModeSubDialog(name, titleText, options)
         title = titleText or "",
         titleFontSize = options.titleFontSize,
         width = width,
+        height = options.height or EDIT_MODE_DIALOG_HEIGHT,
         frameStrata = options.frameStrata or "TOOLTIP",
         frameLevel = options.frameLevel or 300,
         showCloseButton = true,
@@ -262,23 +264,22 @@ local function BuildSubDialog()
     local resetIconSize = 32
     local resetPadding = 10
     local resetY = -(subDialog:GetHeight() - subDialog._borderWidth - resetPadding - resetIconSize)
-    local resetBtn = CreateFrame("Button", nil, subDialog)
-    resetBtn:SetSize(resetIconSize, resetIconSize)
-    resetBtn:SetPoint("TOP", subDialog, "TOP", 0, resetY)
-    local resetIcon = resetBtn:CreateTexture(nil, "ARTWORK")
-    resetIcon:SetAllPoints()
-    resetIcon:SetAtlas("UI-RefreshButton")
-    resetBtn:SetScript("OnEnter", function(self)
-        resetIcon:SetAlpha(0.7)
-    end)
-    resetBtn:SetScript("OnLeave", function(self)
-        resetIcon:SetAlpha(1)
-    end)
-    resetBtn:SetScript("OnClick", function()
-        if subDialog._configKey then
-            addon:ShowResetConfirmDialog(subDialog._configKey, subDialog._moduleKey)
-        end
-    end)
+    local resetBtn = addon:DialogAddTextureButton(subDialog, 0, {
+        atlas = "UI-RefreshButton",
+        width = resetIconSize,
+        height = resetIconSize,
+        desaturate = true,
+        parent = subDialog,
+        anchor = "TOP",
+        attachTo = "TOP",
+        offsetX = 0,
+        offsetY = resetY,
+        onClick = function()
+            if subDialog._configKey then
+                addon:ShowResetConfirmDialog(subDialog._configKey, subDialog._moduleKey)
+            end
+        end,
+    })
     subDialog._resetButton = resetBtn
 
     return subDialog
@@ -410,6 +411,9 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
     self:HideOpenConfigDialogs(sub)
     local mainDialog = addon._editModeDialog
     local height = (mainDialog and mainDialog:GetHeight()) or sub:GetHeight()
+    if height < EDIT_MODE_DIALOG_HEIGHT then
+        height = EDIT_MODE_DIALOG_HEIGHT
+    end
     local sizeMode = ShouldUseLargeSubDialog(configKey, moduleKey) and "large" or "normal"
     local width = ResolveEditModeSubDialogWidth(sizeMode)
     sub:SetSize(width, height)

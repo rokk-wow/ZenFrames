@@ -2,3 +2,4 @@
 .release/
 **/.git/
 !/.git/
+.ai-instructions.md

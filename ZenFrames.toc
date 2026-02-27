@@ -19,6 +19,7 @@ EditMode\Placeholder.lua
 
 Modules\Media.lua
 Modules\Dialog.lua
+Modules\DialogControls.lua
 Modules\Tags.lua
 Modules\UnitFrame.lua
 Modules\Castbar.lua

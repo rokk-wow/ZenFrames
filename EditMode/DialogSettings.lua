@@ -601,7 +601,7 @@ local function PopulateSettingsContent(dialog)
         emptyText:SetPoint("TOPLEFT", rightColumn, "TOPLEFT", 38, rightY)
         emptyText:SetText(addon:L("emNoDisabledModules"))
         table.insert(dialog._controls, emptyText)
-        rightY = rightY - 24
+        rightY = rightY - (emptyText:GetStringHeight() or 14)
     else
         for _, moduleLabel in ipairs(disabledModules) do
             local row
@@ -630,7 +630,6 @@ local function PopulateSettingsContent(dialog)
         end
         
         -- Add reload button below disabled modules
-        rightY = rightY - 10
         local reloadButton
         reloadButton, rightY = addon:DialogAddButton(rightColumn, rightY, "emReloadUI", function()
             -- Save state to reopen settings after reload and resume edit mode

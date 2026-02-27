@@ -1,6 +1,8 @@
 local addonName, ns = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
+addon.EDIT_MODE_DIALOG_HEIGHT = addon.EDIT_MODE_DIALOG_HEIGHT or 525
+local EDIT_MODE_DIALOG_HEIGHT = addon.EDIT_MODE_DIALOG_HEIGHT
 
 -- ---------------------------------------------------------------------------
 -- Frame definitions: config key, localization key, default enabled
@@ -56,12 +58,7 @@ local visibilityState = {}
 local initialEnabledState = {}
 local dialog
 
-local ROW_HEIGHT = 24
-local CHECKBOX_SIZE = 24
-local EYE_SIZE = 24
-local EYE_VISIBLE_SIZE = EYE_SIZE + 2
-local CONTROL_GAP = 6
-local COLUMN_GAP = 24
+local TOGGLE_ROW_CFG = addon.DialogStyle and addon.DialogStyle.CONTROL_LAYOUT and addon.DialogStyle.CONTROL_LAYOUT.toggleRow or nil
 
 local function ResetVisibilityState()
     for k in pairs(visibilityState) do
@@ -157,10 +154,18 @@ end
 local function ApplyRowVisibility(def, row, isVisible)
     local visible = isVisible == true
     if row and row.eye and row.eye.icon then
+        local baseEyeSize = row.eye:GetWidth() or (TOGGLE_ROW_CFG and TOGGLE_ROW_CFG.controlSize) or 24
         row.eye._visible = visible
-        row.eye.icon:SetAtlas(visible and "GM-icon-visible" or "GM-icon-visibleDis")
-        row.eye.icon:SetVertexColor(visible and 1 or 1, visible and 0.82 or 1, visible and 0 or 1, 1)
-        row.eye.icon:SetSize(visible and EYE_VISIBLE_SIZE or EYE_SIZE, visible and EYE_VISIBLE_SIZE or EYE_SIZE)
+        row.eye.icon:SetAtlas(visible and (TOGGLE_ROW_CFG and TOGGLE_ROW_CFG.eyeVisibleAtlas or "GM-icon-visible") or (TOGGLE_ROW_CFG and TOGGLE_ROW_CFG.eyeHiddenAtlas or "GM-icon-visibleDis"))
+        if visible then
+            local c = TOGGLE_ROW_CFG and TOGGLE_ROW_CFG.eyeVisibleColor or { 1, 0.82, 0, 1 }
+            row.eye.icon:SetVertexColor(c[1], c[2], c[3], c[4] or 1)
+        else
+            local c = TOGGLE_ROW_CFG and TOGGLE_ROW_CFG.eyeHiddenColor or { 1, 1, 1, 1 }
+            row.eye.icon:SetVertexColor(c[1], c[2], c[3], c[4] or 1)
+        end
+        local iconSize = visible and (baseEyeSize + 2) or baseEyeSize
+        row.eye.icon:SetSize(iconSize, iconSize)
     end
 
     visibilityState[def.configKey] = visible
@@ -178,7 +183,9 @@ local function BuildDialog()
     dialog = addon:CreateDialog({
         name = "ZenFramesEditModeDialog",
         title = "editModeDialogTitle",
+        columns = 2,
         width = addon.DialogStyle and addon.DialogStyle.DIALOG_WIDTH_2_COL or 600,
+        height = EDIT_MODE_DIALOG_HEIGHT,
         frameStrata = "TOOLTIP",
         frameLevel = 300,
         showCloseButton = true,
@@ -200,49 +207,16 @@ local function BuildDialog()
 
     local rows = {}
 
-    local contentLeft = dialog._contentLeft or 38
-    local contentWidth = dialog._contentWidth or (dialog:GetWidth() - 76)
-    local columnWidth = math.floor((contentWidth - COLUMN_GAP) / 2)
-    local rightColumnX = contentLeft + columnWidth + COLUMN_GAP
+    local leftColumn = dialog._leftColumn or dialog
+    local rightColumn = dialog._rightColumn or dialog
 
-    local function AddColumnToggleRow(def, columnX, rowY)
+    local function AddColumnToggleRow(parent, def, rowY)
         local isEnabled = GetRowEnabled(def)
         local isVisible = GetStoredOrDefaultVisibility(def)
         visibilityState[def.configKey] = isVisible
 
-        local row = CreateFrame("Frame", nil, dialog)
-        row:SetSize(columnWidth, ROW_HEIGHT)
-        row:SetPoint("TOPLEFT", dialog, "TOPLEFT", columnX, rowY)
-
-        local checkbox = CreateFrame("CheckButton", nil, row, "UICheckButtonTemplate")
-        checkbox:SetSize(CHECKBOX_SIZE, CHECKBOX_SIZE)
-        checkbox:SetPoint("LEFT", row, "LEFT", 0, 0)
-        checkbox:SetChecked(isEnabled)
-        row.checkbox = checkbox
-
-        local eye = CreateFrame("Button", nil, row)
-        eye:SetSize(EYE_SIZE, EYE_SIZE)
-        eye:SetPoint("LEFT", checkbox, "RIGHT", CONTROL_GAP, 0)
-
-        local eyeIcon = eye:CreateTexture(nil, "ARTWORK")
-        eyeIcon:SetSize(EYE_SIZE, EYE_SIZE)
-        eyeIcon:SetPoint("CENTER", eye, "CENTER", 0, 0)
-        eye.icon = eyeIcon
-        eye._visible = isVisible
-        eye.icon:SetAtlas(isVisible and "GM-icon-visible" or "GM-icon-visibleDis")
-        row.eye = eye
-
-        local label = row:CreateFontString(nil, "OVERLAY")
-        label:SetFont(dialog._fontPath, 12, "OUTLINE")
-        label:SetTextColor(1, 1, 1)
-        label:SetPoint("LEFT", eye, "RIGHT", CONTROL_GAP, 0)
-        label:SetPoint("RIGHT", row, "RIGHT", -4, 0)
-        label:SetJustifyH("LEFT")
-        label:SetText(addon:L(def.locKey))
-        row.label = label
-
-        checkbox:SetScript("OnClick", function(self)
-            local checked = self:GetChecked()
+        local row
+        row, rowY = addon:DialogAddToggleRow(parent, rowY, def.locKey, isEnabled, isVisible, function(checked)
             SetRowEnabled(def, checked)
 
             local r = rows[def.configKey]
@@ -278,11 +252,8 @@ local function BuildDialog()
             end
 
             CheckForChanges()
-        end)
-
-        eye:SetScript("OnClick", function(self)
+        end, function(makeVisible)
             local r = rows[def.configKey]
-            local makeVisible = not self._visible
 
             if makeVisible and IsRaidVisibilityGroupKey(def.configKey) then
                 for _, otherDef in ipairs(LEFT_COLUMN_FRAMES) do
@@ -315,20 +286,20 @@ local function BuildDialog()
         row._def = def
         rows[def.configKey] = row
 
-        return rowY - ROW_HEIGHT
+        return rowY
     end
 
-    local leftY = y
+    local leftY = 0
     for _, def in ipairs(LEFT_COLUMN_FRAMES) do
-        leftY = AddColumnToggleRow(def, contentLeft, leftY)
+        leftY = AddColumnToggleRow(leftColumn, def, leftY)
     end
 
-    local rightY = y
+    local rightY = 0
     for _, def in ipairs(RIGHT_COLUMN_FRAMES) do
-        rightY = AddColumnToggleRow(def, rightColumnX, rightY)
+        rightY = AddColumnToggleRow(rightColumn, def, rightY)
     end
 
-    y = math.min(leftY, rightY)
+    y = dialog._contentTop + math.min(leftY, rightY)
 
     dialog._rows = rows
 
@@ -352,6 +323,12 @@ local function BuildDialog()
 
     addon:DialogFinalize(dialog, y)
 
+    local finalizedHeight = dialog:GetHeight() or 0
+    if finalizedHeight < EDIT_MODE_DIALOG_HEIGHT then
+        dialog:SetHeight(EDIT_MODE_DIALOG_HEIGHT)
+        dialog._contentBottom = -(EDIT_MODE_DIALOG_HEIGHT - (dialog._borderWidth or 0) - (dialog._padding or 0))
+    end
+
     return dialog
 end
 
@@ -368,6 +345,12 @@ function addon:ShowEditModeDialog()
 
     local dlg = BuildDialog()
     self:HideOpenConfigDialogs(dlg)
+
+    local currentHeight = dlg:GetHeight() or 0
+    if currentHeight < EDIT_MODE_DIALOG_HEIGHT then
+        dlg:SetHeight(EDIT_MODE_DIALOG_HEIGHT)
+        dlg._contentBottom = -(EDIT_MODE_DIALOG_HEIGHT - (dlg._borderWidth or 0) - (dlg._padding or 0))
+    end
 
     self:RefreshConfig()
     for configKey, row in pairs(dlg._rows) do

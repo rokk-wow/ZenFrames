@@ -259,26 +259,26 @@ function addon:PopulateTextSubDialog(subDialog, configKey, moduleKey, yOffset)
     end)
     table.insert(subDialog._controls, textRow)
 
-    local helpBtn = CreateFrame("Button", nil, textRow)
-    helpBtn:SetSize(18, 18)
-    helpBtn:SetPoint("RIGHT", textRow.label, "LEFT", -5, 0)
-
-    local helpIcon = helpBtn:CreateTexture(nil, "ARTWORK")
-    helpIcon:SetAllPoints()
-    helpIcon:SetAtlas("Crosshair_Questturnin_32")
-    helpIcon:SetDesaturated(true)
-    helpBtn.icon = helpIcon
-
-    helpBtn:SetScript("OnEnter", function() helpIcon:SetDesaturated(false) end)
-    helpBtn:SetScript("OnLeave", function() helpIcon:SetDesaturated(true) end)
-    helpBtn:SetScript("OnClick", function()
-        local dialog = GetOrCreateHelpDialog()
-        if dialog:IsShown() then
-            dialog:Hide()
-        else
-            addon:ShowDialog(dialog, "standalone")
-        end
-    end)
+    local helpBtn = addon:DialogAddTextureButton(subDialog, 0, {
+        atlas = "Crosshair_Questturnin_32",
+        width = 18,
+        height = 18,
+        desaturate = true,
+        parent = textRow,
+        relativeTo = textRow.label,
+        anchor = "RIGHT",
+        attachTo = "LEFT",
+        offsetX = -5,
+        offsetY = 0,
+        onClick = function()
+            local dialog = GetOrCreateHelpDialog()
+            if dialog:IsShown() then
+                dialog:Hide()
+            else
+                addon:ShowDialog(dialog, "standalone")
+            end
+        end,
+    })
     table.insert(subDialog._controls, helpBtn)
 
     local sizeRow
