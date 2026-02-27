@@ -59,39 +59,28 @@ local function BuildDialog()
     if dialog then return dialog end
 
     addon:RefreshConfig()
-    dialog = addon:CreateEditModeSubDialog("ZenFramesEditModeDialog", addon:L("editModeDialogTitle"), {
+    dialog = addon:CreateDialog({
+        name = "ZenFramesEditModeDialog",
+        title = "editModeDialogTitle",
         width = 320,
-        showBackButton = false,
+        frameStrata = "TOOLTIP",
+        frameLevel = 300,
+        showCloseButton = true,
         onCloseClick = function()
             addon:DisableEditMode()
         end,
+        leftIcon = {
+            atlas = "mechagon-projects",
+            size = 24,
+            desaturated = true,
+            onClick = function()
+                addon:ShowEditModeSettingsDialog()
+            end,
+        },
     })
     addon._editModeDialog = dialog
 
-    local titleIcon = dialog:CreateTexture(nil, "OVERLAY")
-    titleIcon:SetSize(24, 24)
-    titleIcon:SetAtlas("mechagon-projects")
-    titleIcon:SetPoint("CENTER", dialog, "TOPLEFT", dialog._borderWidth + dialog._padding + 14, -(dialog._borderWidth + dialog._padding + 11))
-    titleIcon:SetDesaturated(true)
-    dialog._titleIcon = titleIcon
-
-    local titleHover = CreateFrame("Frame", nil, dialog)
-    titleHover:SetPoint("TOPLEFT", titleIcon, "TOPLEFT", 0, 0)
-    titleHover:SetPoint("BOTTOMRIGHT", titleIcon, "BOTTOMRIGHT", 0, 0)
-    titleHover:EnableMouse(true)
-    titleHover:SetScript("OnEnter", function()
-        titleIcon:SetDesaturated(false)
-    end)
-    titleHover:SetScript("OnLeave", function()
-        titleIcon:SetDesaturated(true)
-    end)
-    titleHover:SetScript("OnMouseDown", function(_, button)
-        if button ~= "LeftButton" then return end
-        addon:ShowEditModeSettingsDialog()
-    end)
-    dialog._titleHover = titleHover
-
-    local y = dialog._contentAreaTopOffset
+    local y = dialog._contentTop
 
     local rows = {}
 
@@ -103,7 +92,7 @@ local function BuildDialog()
         local row
         row, y = addon:DialogAddToggleRow(
             dialog, y,
-            addon:L(def.locKey),
+            def.locKey,
             isEnabled,
             isVisible,
             function(checked)
@@ -144,15 +133,15 @@ local function BuildDialog()
     dialog._rows = rows
 
     local reloadBtn
-    reloadBtn, y = addon:DialogAddButton(dialog, y - 10, addon:L("reloadUI"), function()
+    reloadBtn, y = addon:DialogAddButton(dialog, y - 10, "reloadUI", function()
         if addon.savedVars then
             addon.savedVars.data = addon.savedVars.data or {}
             addon.savedVars.data.resumeEditModeAfterReload = true
         end
         ReloadUI()
     end)
-    reloadBtn:Disable()
-    dialog._reloadButton = reloadBtn
+    reloadBtn.button:Disable()
+    dialog._reloadButton = reloadBtn.button
 
     local credit = dialog:CreateFontString(nil, "OVERLAY")
     credit:SetFont(dialog._fontPath, 11, "OUTLINE")

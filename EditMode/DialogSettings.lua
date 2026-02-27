@@ -2,8 +2,8 @@ local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
+local ZDS = addon.DialogStyle
 local settingsDialog
-local COLUMN_GAP = 28
 local checkedCount = 0
 local globalSettingsRefreshTimer
 local lastGlobalSettingsRefreshTime = 0
@@ -492,7 +492,7 @@ local function PopulateSettingsContent(dialog)
     end
 
     local globalHeader, globalDivider
-    globalHeader, globalDivider, leftY = addon:DialogAddHeader(leftColumn, leftY, addon:L("emGlobalOptions"))
+    globalHeader, globalDivider, leftY = addon:DialogAddHeader(leftColumn, leftY, "emGlobalOptions")
     table.insert(dialog._controls, globalHeader)
     table.insert(dialog._controls, globalDivider)
 
@@ -500,7 +500,7 @@ local function PopulateSettingsContent(dialog)
     borderColorRow, leftY = addon:DialogAddColorPicker(
         leftColumn,
         leftY,
-        addon:L("emBorderColor"),
+        "emBorderColor",
         addon.config.global and addon.config.global.borderColor or "000000FF",
         function(value)
             ApplyGlobalSetting("borderColor", value)
@@ -512,7 +512,7 @@ local function PopulateSettingsContent(dialog)
     borderSizeRow, leftY = addon:DialogAddSlider(
         leftColumn,
         leftY,
-        addon:L("emBorderSize"),
+        "emBorderSize",
         1,
         10,
         addon.config.global and addon.config.global.borderWidth or 2,
@@ -527,7 +527,7 @@ local function PopulateSettingsContent(dialog)
     fontRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        addon:L("emFont"),
+        "emFont",
         fontOptions,
         addon.config.global and addon.config.global.font or fonts[1],
         function(value)
@@ -540,7 +540,7 @@ local function PopulateSettingsContent(dialog)
     healthTextureRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        addon:L("emHealthTexture"),
+        "emHealthTexture",
         textureOptions,
         addon.config.global and addon.config.global.healthTexture or textures[1],
         function(value)
@@ -553,7 +553,7 @@ local function PopulateSettingsContent(dialog)
     powerTextureRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        addon:L("emPowerTexture"),
+        "emPowerTexture",
         textureOptions,
         addon.config.global and addon.config.global.powerTexture or textures[1],
         function(value)
@@ -566,7 +566,7 @@ local function PopulateSettingsContent(dialog)
     absorbTextureRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        addon:L("emAbsorbTexture"),
+        "emAbsorbTexture",
         textureOptions,
         addon.config.global and addon.config.global.absorbTexture or textures[1],
         function(value)
@@ -579,7 +579,7 @@ local function PopulateSettingsContent(dialog)
     castbarTextureRow, leftY = addon:DialogAddDropdown(
         leftColumn,
         leftY,
-        addon:L("emCastbarTexture"),
+        "emCastbarTexture",
         textureOptions,
         addon.config.global and addon.config.global.castbarTexture or textures[1],
         function(value)
@@ -589,7 +589,7 @@ local function PopulateSettingsContent(dialog)
     table.insert(dialog._controls, castbarTextureRow)
 
     local disabledHeader, disabledDivider
-    disabledHeader, disabledDivider, rightY = addon:DialogAddHeader(rightColumn, rightY, addon:L("emDisabledModules"))
+    disabledHeader, disabledDivider, rightY = addon:DialogAddHeader(rightColumn, rightY, "emDisabledModules")
     table.insert(dialog._controls, disabledHeader)
     table.insert(dialog._controls, disabledDivider)
 
@@ -632,7 +632,7 @@ local function PopulateSettingsContent(dialog)
         -- Add reload button below disabled modules
         rightY = rightY - 10
         local reloadButton
-        reloadButton, rightY = addon:DialogAddButton(rightColumn, rightY, addon:L("emReloadUI"), function()
+        reloadButton, rightY = addon:DialogAddButton(rightColumn, rightY, "emReloadUI", function()
             -- Save state to reopen settings after reload and resume edit mode
             addon:SetPendingSettingsDialogReopen(true)
             if addon.savedVars and addon.savedVars.data then
@@ -640,10 +640,10 @@ local function PopulateSettingsContent(dialog)
             end
             ReloadUI()
         end)
-        dialog._reloadButton = reloadButton
-        reloadButton:SetAlpha(checkedCount > 0 and 1.0 or 0.5)
+        dialog._reloadButton = reloadButton.button
+        reloadButton.button:SetAlpha(checkedCount > 0 and 1.0 or 0.5)
         if checkedCount == 0 then
-            reloadButton:Disable()
+            reloadButton.button:Disable()
         end
         table.insert(dialog._controls, reloadButton)
     end
@@ -662,7 +662,7 @@ local function PopulateSettingsContent(dialog)
 
     -- Set dialog to a fixed maximum height for scrollability
     local maxDialogHeight = math.min(600, UIParent:GetHeight() * 0.7)
-    local titleAreaHeight = math.abs(dialog._contentAreaTopOffset)
+    local titleAreaHeight = math.abs(dialog._contentTop)
     local desiredHeight = titleAreaHeight + contentDepth + dialog._borderWidth + dialog._padding
     local finalHeight = math.min(desiredHeight, maxDialogHeight)
     dialog:SetHeight(finalHeight)
@@ -706,7 +706,7 @@ end
 local function BuildSettingsDialog()
     if settingsDialog then return settingsDialog end
 
-    settingsDialog = addon:CreateEditModeSubDialog("ZenFramesEditModeSettingsDialog", addon:L("settingsTitle"), {
+    settingsDialog = addon:CreateEditModeSubDialog("ZenFramesEditModeSettingsDialog", "settingsTitle", {
         sizeMode = "large",
         onBackClick = function()
             addon:ReturnFromEditModeSettingsDialog()
@@ -720,12 +720,11 @@ local function BuildSettingsDialog()
     local width = settingsDialog:GetWidth()
 
     local innerInset = settingsDialog._borderWidth + settingsDialog._padding
-    -- Columns will apply their own insets to controls, so don't subtract from available width
-    local columnWidth = math.floor((width - COLUMN_GAP) / 2)
+    local columnWidth = math.floor((width - ZDS.COLUMN_GAP) / 2)
 
     -- Create scroll frame for scrollable content
     local scrollFrame = CreateFrame("ScrollFrame", nil, settingsDialog, "UIPanelScrollFrameTemplate")
-    scrollFrame:SetPoint("TOPLEFT", settingsDialog, "TOPLEFT", innerInset, settingsDialog._contentAreaTopOffset)
+    scrollFrame:SetPoint("TOPLEFT", settingsDialog, "TOPLEFT", innerInset, settingsDialog._contentTop)
     scrollFrame:SetPoint("BOTTOMRIGHT", settingsDialog, "BOTTOMRIGHT", -innerInset, innerInset)
     settingsDialog._scrollFrame = scrollFrame
 
@@ -737,17 +736,18 @@ local function BuildSettingsDialog()
     settingsDialog._contentFrame = contentFrame
 
     local leftColumn = CreateFrame("Frame", nil, contentFrame)
-    -- Position left column with negative offset since controls add BORDER_WIDTH + PADDING themselves
     leftColumn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", -(settingsDialog._borderWidth + settingsDialog._padding), 0)
     leftColumn:SetWidth(columnWidth)
     leftColumn:SetHeight(1)
     leftColumn._fontPath = settingsDialog._fontPath
+    leftColumn._isDialogColumn = true
 
     local rightColumn = CreateFrame("Frame", nil, contentFrame)
-    rightColumn:SetPoint("TOPLEFT", leftColumn, "TOPRIGHT", COLUMN_GAP, 0)
+    rightColumn:SetPoint("TOPLEFT", leftColumn, "TOPRIGHT", ZDS.COLUMN_GAP, 0)
     rightColumn:SetWidth(columnWidth)
     rightColumn:SetHeight(1)
     rightColumn._fontPath = settingsDialog._fontPath
+    rightColumn._isDialogColumn = true
 
     settingsDialog._leftColumn = leftColumn
     settingsDialog._rightColumn = rightColumn

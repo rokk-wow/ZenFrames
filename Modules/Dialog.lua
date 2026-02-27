@@ -3,7 +3,7 @@ local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
 -- ---------------------------------------------------------------------------
--- ZenDialog style constants
+-- Dialog style constants
 -- ---------------------------------------------------------------------------
 
 local BORDER_WIDTH = 8
@@ -35,7 +35,7 @@ local COLUMN_GAP = 28
 -- Exported style constants for other modules
 -- ---------------------------------------------------------------------------
 
-addon.ZenDialogStyle = {
+addon.DialogStyle = {
     BORDER_WIDTH = BORDER_WIDTH,
     PADDING = PADDING,
     TITLE_FONT_SIZE = TITLE_FONT_SIZE,
@@ -69,7 +69,7 @@ addon.ZenDialogStyle = {
 local activeReplaceDialog
 
 -- ---------------------------------------------------------------------------
--- ESC dismiss stack — tracks all visible ZenDialogs with dismissOnEscape
+-- ESC dismiss stack — tracks all visible Dialogs with dismissOnEscape
 -- ---------------------------------------------------------------------------
 
 local STRATA_ORDER = {
@@ -77,20 +77,20 @@ local STRATA_ORDER = {
     DIALOG = 5, FULLSCREEN = 6, FULLSCREEN_DIALOG = 7, TOOLTIP = 8,
 }
 
-local zenDialogStack = {}
+local DialogStack = {}
 
-local function RegisterZenDialogForEscape(frame)
-    zenDialogStack[frame] = true
+local function RegisterDialogForEscape(frame)
+    DialogStack[frame] = true
 end
 
-local function UnregisterZenDialogForEscape(frame)
-    zenDialogStack[frame] = nil
+local function UnregisterDialogForEscape(frame)
+    DialogStack[frame] = nil
 end
 
-local function DismissTopZenDialog()
+local function DismissTopDialog()
     local topDialog, topScore = nil, -1
 
-    for dialog in pairs(zenDialogStack) do
+    for dialog in pairs(DialogStack) do
         if dialog:IsShown() then
             local strataValue = STRATA_ORDER[dialog:GetFrameStrata()] or 0
             local level = dialog:GetFrameLevel() or 0
@@ -100,7 +100,7 @@ local function DismissTopZenDialog()
                 topDialog = dialog
             end
         else
-            zenDialogStack[dialog] = nil
+            DialogStack[dialog] = nil
         end
     end
 
@@ -112,19 +112,39 @@ local function DismissTopZenDialog()
     return false
 end
 
-local zenEscFrame = CreateFrame("Frame", "ZenDialogEscapeHandler", UIParent)
-zenEscFrame:EnableKeyboard(true)
-zenEscFrame:SetPropagateKeyboardInput(true)
-zenEscFrame:SetScript("OnKeyDown", function(self, key)
-    if key ~= "ESCAPE" then
-        self:SetPropagateKeyboardInput(true)
+local escFrame = CreateFrame("Frame", "DialogEscapeHandler", UIParent)
+local function SetEscKeyPropagation(frame, propagate)
+    if frame._propagateKeyboardInput == propagate then
         return
     end
 
-    if DismissTopZenDialog() then
-        self:SetPropagateKeyboardInput(false)
+    frame._propagateKeyboardInput = propagate
+    if InCombatLockdown() then
+        return
+    end
+
+    frame:SetPropagateKeyboardInput(propagate)
+end
+
+escFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+escFrame:SetScript("OnEvent", function(self, event)
+    if event == "PLAYER_REGEN_ENABLED" then
+        self:SetPropagateKeyboardInput(self._propagateKeyboardInput ~= false)
+    end
+end)
+
+escFrame:EnableKeyboard(true)
+SetEscKeyPropagation(escFrame, true)
+escFrame:SetScript("OnKeyDown", function(self, key)
+    if key ~= "ESCAPE" then
+        SetEscKeyPropagation(self, true)
+        return
+    end
+
+    if DismissTopDialog() then
+        SetEscKeyPropagation(self, false)
     else
-        self:SetPropagateKeyboardInput(true)
+        SetEscKeyPropagation(self, true)
     end
 end)
 
@@ -176,7 +196,7 @@ local function CreateTitleBarIcon(frame, cfg, anchorPoint, anchorOffsetX, anchor
 end
 
 -- ---------------------------------------------------------------------------
--- CreateZenDialog
+-- CreateDialog
 --
 -- options:
 --   name              string    Global frame name
@@ -201,19 +221,17 @@ end
 --   avatarSize        number    Avatar icon size (default 64)
 --   avatarSpeech      string    Localization key for avatar speech text
 --
---   bodyText          string|table  Localization key(s) for paragraph(s) in the content area
---
 --   footerButtons     table     { { text, onClick }, ... } bottom buttons (text = loc key)
 --
 --   dismissOnEscape   boolean   Register with global ESC stack (default false).
---                               ESC closes the topmost visible ZenDialog by
+--                               ESC closes the topmost visible Dialog by
 --                               strata + frameLevel, so layered dialogs close
 --                               in the correct order.
 --   persistOnReload   boolean   If true, the dialog automatically reopens after
 --                               ReloadUI() if it was visible at reload time.
 --                               Requires a global frame name (options.name).
 --
--- Showing dialogs (addon:ShowZenDialog(dialog, mode)):
+-- Showing dialogs (addon:ShowDialog(dialog, mode)):
 --   "replace"      Hides the previous replace-mode dialog and opens the new
 --                  one at the same position. If no previous dialog, centers.
 --   "standalone"   Opens centered at a higher strata, independent of any
@@ -221,17 +239,17 @@ end
 --   Both modes check InCombatLockdown() and return false if in combat.
 --
 -- Hiding dialogs:
---   addon:HideZenDialog(dialog) - hides with combat lockdown guard
---   addon:DismissTopZenDialog() - closes the topmost ESC-stack dialog
+--   addon:HideDialog(dialog) - hides with combat lockdown guard
+--   addon:DismissTopDialog() - closes the topmost ESC-stack dialog
 --
 -- Confirmation popup helper:
---   addon:ShowZenDialogConfirm({ title, body, onConfirm, onCancel, width })
+--   addon:ShowDialogConfirm({ title, body, onConfirm, onCancel, width })
 --   Builds and shows a confirmation dialog with OK/Cancel buttons.
 --
 -- Persist on reload:
---   Set persistOnReload = true in CreateZenDialog options. The dialog
+--   Set persistOnReload = true in CreateDialog options. The dialog
 --   automatically saves its visibility state to savedVars on show/hide.
---   Call addon:ZenDialogRestorePersisted() once after login to reopen
+--   Call addon:DialogRestorePersisted() once after login to reopen
 --   any dialogs that were visible before the reload.
 --
 -- Returns the dialog frame with internal layout properties:
@@ -247,7 +265,6 @@ end
 --   _closeButton           Close icon button (if showCloseButton)
 --   _avatar                Avatar texture (if showAvatar)
 --   _avatarSpeech          Avatar speech FontString (if avatarSpeech)
---   _body                  Body text FontString (if bodyText)
 --   _footerButtons         Table of footer button frames (if footerButtons)
 --   _contentTop            Y offset where content area begins (below avatar or divider)
 --   _contentBottom         Y offset where content area ends (above footer or frame bottom)
@@ -261,7 +278,7 @@ end
 --   _titleDivider          Alias for _divider (backward compat)
 -- ---------------------------------------------------------------------------
 
-function addon:CreateZenDialog(options)
+function addon:CreateDialog(options)
     options = options or {}
 
     local name = options.name
@@ -347,7 +364,7 @@ function addon:CreateZenDialog(options)
     -- -------------------------------------------------------------------
 
     if options.leftIcon then
-        local iconOffsetX = BORDER_WIDTH + PADDING + TITLE_ICON_OFFSET_X
+        local iconOffsetX = BORDER_WIDTH + PADDING + TITLE_ICON_OFFSET_X - 8
         local iconOffsetY = -(BORDER_WIDTH + PADDING + TITLE_ICON_OFFSET_Y)
 
         frame._leftIcon = CreateTitleBarIcon(frame, options.leftIcon, "TOPLEFT", iconOffsetX, iconOffsetY)
@@ -519,43 +536,15 @@ function addon:CreateZenDialog(options)
     end
 
     -- -------------------------------------------------------------------
-    -- Body text (optional, positioned in content area)
-    -- -------------------------------------------------------------------
-
-    if options.bodyText then
-        local text
-        if type(options.bodyText) == "table" then
-            local resolved = {}
-            for i, key in ipairs(options.bodyText) do
-                resolved[i] = self:L(key)
-            end
-            text = table.concat(resolved, "\n\n")
-        else
-            text = self:L(options.bodyText)
-        end
-
-        local body = frame:CreateFontString(nil, "OVERLAY")
-        body:SetFont(fontPath, BODY_FONT_SIZE, "OUTLINE")
-        body:SetTextColor(BODY_COLOR[1], BODY_COLOR[2], BODY_COLOR[3])
-        body:SetPoint("TOPLEFT", frame, "TOPLEFT", contentLeft, contentY)
-        body:SetWidth(contentWidth)
-        body:SetJustifyH("LEFT")
-        body:SetWordWrap(true)
-        body:SetSpacing(3)
-        body:SetText(text)
-        frame._body = body
-    end
-
-    -- -------------------------------------------------------------------
     -- ESC key dismissal — register with global stack
     -- -------------------------------------------------------------------
 
     if options.dismissOnEscape then
         frame:HookScript("OnShow", function(self)
-            RegisterZenDialogForEscape(self)
+            RegisterDialogForEscape(self)
         end)
         frame:HookScript("OnHide", function(self)
-            UnregisterZenDialogForEscape(self)
+            UnregisterDialogForEscape(self)
         end)
     end
 
@@ -566,13 +555,13 @@ function addon:CreateZenDialog(options)
     if options.persistOnReload and name then
         frame:HookScript("OnShow", function()
             addon.savedVars.data = addon.savedVars.data or {}
-            addon.savedVars.data.zenDialogPersist = addon.savedVars.data.zenDialogPersist or {}
-            addon.savedVars.data.zenDialogPersist[name] = true
+            addon.savedVars.data.DialogPersist = addon.savedVars.data.DialogPersist or {}
+            addon.savedVars.data.DialogPersist[name] = true
         end)
         frame:HookScript("OnHide", function()
             if addon.savedVars and addon.savedVars.data
-                and addon.savedVars.data.zenDialogPersist then
-                addon.savedVars.data.zenDialogPersist[name] = nil
+                and addon.savedVars.data.DialogPersist then
+                addon.savedVars.data.DialogPersist[name] = nil
             end
         end)
     end
@@ -582,7 +571,7 @@ function addon:CreateZenDialog(options)
 end
 
 -- ---------------------------------------------------------------------------
--- ShowZenDialog
+-- ShowDialog
 --
 -- mode:
 --   "replace"     Finds the last shown replace-mode dialog, takes its
@@ -592,17 +581,17 @@ end
 --                 existing dialogs.
 -- ---------------------------------------------------------------------------
 
-function addon:ShowZenDialog(dialog, mode)
+function addon:ShowDialog(dialog, mode)
     local callHook = self.callHook or function() end
-    callHook(self, "BeforeShowZenDialog", dialog, mode)
+    callHook(self, "BeforeShowDialog", dialog, mode)
 
     if InCombatLockdown() then
-        callHook(self, "AfterShowZenDialog", false)
+        callHook(self, "AfterShowDialog", false)
         return false
     end
 
     mode = mode or "standalone"
-    dialog._zenDialogMode = mode
+    dialog._DialogMode = mode
 
     if mode == "replace" then
         local centerX, centerY
@@ -631,54 +620,54 @@ function addon:ShowZenDialog(dialog, mode)
         dialog:Show()
     end
 
-    callHook(self, "AfterShowZenDialog", dialog)
+    callHook(self, "AfterShowDialog", dialog)
     return dialog
 end
 
 -- ---------------------------------------------------------------------------
--- GetActiveZenDialogReplace - returns the current replace-mode dialog (if any)
+-- GetActiveDialogReplace - returns the current replace-mode dialog (if any)
 -- ---------------------------------------------------------------------------
 
-function addon:GetActiveZenDialogReplace()
+function addon:GetActiveDialogReplace()
     local callHook = self.callHook or function() end
-    callHook(self, "BeforeGetActiveZenDialogReplace")
+    callHook(self, "BeforeGetActiveDialogReplace")
 
     local result = activeReplaceDialog or false
 
-    callHook(self, "AfterGetActiveZenDialogReplace", result)
+    callHook(self, "AfterGetActiveDialogReplace", result)
     return result
 end
 
 -- ---------------------------------------------------------------------------
--- HideZenDialog — hide with combat lockdown guard
+-- HideDialog — hide with combat lockdown guard
 -- ---------------------------------------------------------------------------
 
-function addon:HideZenDialog(dialog)
+function addon:HideDialog(dialog)
     local callHook = self.callHook or function() end
-    callHook(self, "BeforeHideZenDialog", dialog)
+    callHook(self, "BeforeHideDialog", dialog)
 
     if InCombatLockdown() then
-        callHook(self, "AfterHideZenDialog", false)
+        callHook(self, "AfterHideDialog", false)
         return false
     end
 
     dialog:Hide()
 
-    callHook(self, "AfterHideZenDialog", true)
+    callHook(self, "AfterHideDialog", true)
     return true
 end
 
 -- ---------------------------------------------------------------------------
--- DismissTopZenDialog — public API for the ESC stack
+-- DismissTopDialog — public API for the ESC stack
 -- ---------------------------------------------------------------------------
 
-function addon:DismissTopZenDialog()
+function addon:DismissTopDialog()
     local callHook = self.callHook or function() end
-    callHook(self, "BeforeDismissTopZenDialog")
+    callHook(self, "BeforeDismissTopDialog")
 
-    local result = DismissTopZenDialog()
+    local result = DismissTopDialog()
 
-    callHook(self, "AfterDismissTopZenDialog", result)
+    callHook(self, "AfterDismissTopDialog", result)
     return result
 end
 
@@ -686,18 +675,18 @@ end
 -- Persist on reload — reopen dialogs that were visible before ReloadUI()
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogRestorePersisted()
+function addon:DialogRestorePersisted()
     local callHook = self.callHook or function() end
-    callHook(self, "BeforeZenDialogRestorePersisted")
+    callHook(self, "BeforeDialogRestorePersisted")
 
     if not self.savedVars or not self.savedVars.data
-        or not self.savedVars.data.zenDialogPersist then
-        callHook(self, "AfterZenDialogRestorePersisted", false)
+        or not self.savedVars.data.DialogPersist then
+        callHook(self, "AfterDialogRestorePersisted", false)
         return false
     end
 
     local reopened = false
-    for dialogName in pairs(self.savedVars.data.zenDialogPersist) do
+    for dialogName in pairs(self.savedVars.data.DialogPersist) do
         local frame = _G[dialogName]
         if frame and frame.Show then
             frame:Show()
@@ -705,12 +694,12 @@ function addon:ZenDialogRestorePersisted()
         end
     end
 
-    callHook(self, "AfterZenDialogRestorePersisted", reopened)
+    callHook(self, "AfterDialogRestorePersisted", reopened)
     return reopened
 end
 
 -- ---------------------------------------------------------------------------
--- ShowZenDialogConfirm — confirmation popup helper
+-- ShowDialogConfirm — confirmation popup helper
 --
 --   options:
 --     title       string        Localization key for the title
@@ -718,30 +707,30 @@ end
 --     onConfirm   function      Called when the user clicks OK
 --     onCancel    function      Called when the user clicks Cancel (optional)
 --     width       number        Dialog width (default 350)
+--     height      number        Minimum dialog height (optional)
 -- ---------------------------------------------------------------------------
 
-function addon:ShowZenDialogConfirm(options)
+function addon:ShowDialogConfirm(options)
     local callHook = self.callHook or function() end
-    callHook(self, "BeforeShowZenDialogConfirm", options)
+    callHook(self, "BeforeShowDialogConfirm", options)
 
     if InCombatLockdown() then
-        callHook(self, "AfterShowZenDialogConfirm", false)
+        callHook(self, "AfterShowDialogConfirm", false)
         return false
     end
 
     options = options or {}
     local confirmWidth = options.width or 350
 
-    local dialog = self:CreateZenDialog({
+    local dialog = self:CreateDialog({
         title = options.title or "",
         width = confirmWidth,
         frameStrata = "TOOLTIP",
         frameLevel = 900,
         dismissOnEscape = true,
-        bodyText = options.body,
         footerButtons = {
             {
-                text = "zenDialogOk",
+                text = options.confirmText or "DialogOk",
                 onClick = function(dlg)
                     dlg:Hide()
                     if options.onConfirm then
@@ -750,7 +739,7 @@ function addon:ShowZenDialogConfirm(options)
                 end,
             },
             {
-                text = "emCancel",
+                text = options.cancelText or "emCancel",
                 onClick = function(dlg)
                     dlg:Hide()
                     if options.onCancel then
@@ -761,18 +750,29 @@ function addon:ShowZenDialogConfirm(options)
         },
     })
 
-    self:ZenDialogFinalize(dialog, dialog._contentTop - 60)
-    self:ShowZenDialog(dialog, "standalone")
+    local y = dialog._contentTop
+    if options.body then
+        local _, newY = self:DialogAddDescription(dialog, y, options.body)
+        y = newY
+    end
+    self:DialogFinalize(dialog, y)
+    if options.height and dialog.GetHeight and dialog.SetHeight then
+        local currentHeight = dialog:GetHeight() or 0
+        if currentHeight < options.height then
+            dialog:SetHeight(options.height)
+        end
+    end
+    self:ShowDialog(dialog, "standalone")
 
-    callHook(self, "AfterShowZenDialogConfirm", dialog)
+    callHook(self, "AfterShowDialogConfirm", dialog)
     return dialog
 end
 
 -- ===========================================================================
--- ZenDialog Controls
--- Standardized form controls for use with any ZenDialog frame.
+-- Dialog Controls
+-- Standardized form controls for use with any Dialog frame.
 -- All controls follow the yOffset accumulator pattern:
---   local row, yOffset = addon:ZenDialogAdd*(dialog, yOffset, ...)
+--   local row, yOffset = addon:DialogAdd*(dialog, yOffset, ...)
 -- ===========================================================================
 
 -- ---------------------------------------------------------------------------
@@ -781,7 +781,7 @@ end
 
 local CONTROL_PADDING = 8
 local CONTROL_SIZE = 28
-local CONTROL_ROW_HEIGHT = 80
+local CONTROL_ROW_HEIGHT = 78
 local CONTROL_ROW_HEIGHT_HALF = 40
 local CONTROL_LABEL_FONT_SIZE = 14
 local CONTROL_SMALL_LABEL_FONT_SIZE = 12
@@ -812,25 +812,25 @@ local COLOR_SWATCH_SIZE = 20
 -- Export control style constants
 -- ---------------------------------------------------------------------------
 
-addon.ZenDialogStyle.CONTROL_PADDING = CONTROL_PADDING
-addon.ZenDialogStyle.CONTROL_SIZE = CONTROL_SIZE
-addon.ZenDialogStyle.CONTROL_ROW_HEIGHT = CONTROL_ROW_HEIGHT
-addon.ZenDialogStyle.CONTROL_ROW_HEIGHT_HALF = CONTROL_ROW_HEIGHT_HALF
-addon.ZenDialogStyle.CONTROL_LABEL_FONT_SIZE = CONTROL_LABEL_FONT_SIZE
-addon.ZenDialogStyle.CONTROL_SMALL_LABEL_FONT_SIZE = CONTROL_SMALL_LABEL_FONT_SIZE
-addon.ZenDialogStyle.CONTROL_BUTTON_FONT_SIZE = CONTROL_BUTTON_FONT_SIZE
-addon.ZenDialogStyle.CONTROL_BUTTON_HEIGHT = CONTROL_BUTTON_HEIGHT
-addon.ZenDialogStyle.HEADER_FONT_SIZE = HEADER_FONT_SIZE
-addon.ZenDialogStyle.HEADER_COLOR = HEADER_COLOR
-addon.ZenDialogStyle.SUBHEADER_FONT_SIZE = SUBHEADER_FONT_SIZE
-addon.ZenDialogStyle.SUBHEADER_COLOR = SUBHEADER_COLOR
-addon.ZenDialogStyle.SECTION_TITLE_FONT_SIZE = SECTION_TITLE_FONT_SIZE
+addon.DialogStyle.CONTROL_PADDING = CONTROL_PADDING
+addon.DialogStyle.CONTROL_SIZE = CONTROL_SIZE
+addon.DialogStyle.CONTROL_ROW_HEIGHT = CONTROL_ROW_HEIGHT
+addon.DialogStyle.CONTROL_ROW_HEIGHT_HALF = CONTROL_ROW_HEIGHT_HALF
+addon.DialogStyle.CONTROL_LABEL_FONT_SIZE = CONTROL_LABEL_FONT_SIZE
+addon.DialogStyle.CONTROL_SMALL_LABEL_FONT_SIZE = CONTROL_SMALL_LABEL_FONT_SIZE
+addon.DialogStyle.CONTROL_BUTTON_FONT_SIZE = CONTROL_BUTTON_FONT_SIZE
+addon.DialogStyle.CONTROL_BUTTON_HEIGHT = CONTROL_BUTTON_HEIGHT
+addon.DialogStyle.HEADER_FONT_SIZE = HEADER_FONT_SIZE
+addon.DialogStyle.HEADER_COLOR = HEADER_COLOR
+addon.DialogStyle.SUBHEADER_FONT_SIZE = SUBHEADER_FONT_SIZE
+addon.DialogStyle.SUBHEADER_COLOR = SUBHEADER_COLOR
+addon.DialogStyle.SECTION_TITLE_FONT_SIZE = SECTION_TITLE_FONT_SIZE
 
 -- ---------------------------------------------------------------------------
 -- Helpers
 -- ---------------------------------------------------------------------------
 
-local function GetZenDialogPadding(parent)
+local function GetDialogPadding(parent)
     if parent and parent._isDialogColumn then
         return 0
     end
@@ -923,24 +923,24 @@ end
 -- Active dropdown tracking
 -- ---------------------------------------------------------------------------
 
-local activeZenDropdown
+local activeDropdown
 
-local function HideActiveZenDropdown()
-    if activeZenDropdown and activeZenDropdown.menu and activeZenDropdown.menu:IsShown() then
-        activeZenDropdown.menu:Hide()
+local function HideactiveDropdown()
+    if activeDropdown and activeDropdown.menu and activeDropdown.menu:IsShown() then
+        activeDropdown.menu:Hide()
     end
 end
 
-function addon:ZenDialogHasOpenDropdown()
-    return activeZenDropdown and activeZenDropdown.menu and activeZenDropdown.menu:IsShown() or false
+function addon:DialogHasOpenDropdown()
+    return activeDropdown and activeDropdown.menu and activeDropdown.menu:IsShown() or false
 end
 
-function addon:ZenDialogScrollOpenDropdown(delta)
-    if not self:ZenDialogHasOpenDropdown() then
+function addon:DialogScrollOpenDropdown(delta)
+    if not self:DialogHasOpenDropdown() then
         return false
     end
 
-    local dropdown = activeZenDropdown
+    local dropdown = activeDropdown
     local range = dropdown.scroll:GetVerticalScrollRange()
     if range <= 0 then
         return true
@@ -959,11 +959,11 @@ function addon:ZenDialogScrollOpenDropdown(delta)
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddDivider
+-- DialogAddDivider
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddDivider(dialog, yOffset)
-    local padLeft = GetZenDialogPadding(dialog)
+function addon:DialogAddDivider(dialog, yOffset)
+    local padLeft = GetDialogPadding(dialog)
     local divider = dialog:CreateTexture(nil, "ARTWORK")
     divider:SetHeight(DIVIDER_HEIGHT)
     divider:SetColorTexture(DIVIDER_COLOR[1], DIVIDER_COLOR[2], DIVIDER_COLOR[3], DIVIDER_COLOR[4])
@@ -974,15 +974,15 @@ function addon:ZenDialogAddDivider(dialog, yOffset)
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddToggleRow - checkbox + visibility eye + label
+-- DialogAddToggleRow - checkbox + visibility eye + label
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddToggleRow(dialog, yOffset, label, checked, visible, onCheckChanged, onVisibilityChanged)
+function addon:DialogAddToggleRow(dialog, yOffset, label, checked, visible, onCheckChanged, onVisibilityChanged)
     label = addon:L(label)
 
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(CONTROL_ROW_HEIGHT_HALF)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
     row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
@@ -1038,15 +1038,15 @@ function addon:ZenDialogAddToggleRow(dialog, yOffset, label, checked, visible, o
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddCheckbox - simple checkbox + label
+-- DialogAddCheckbox - simple checkbox + label
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddCheckbox(dialog, yOffset, label, checked, onChange)
+function addon:DialogAddCheckbox(dialog, yOffset, label, checked, onChange)
     label = addon:L(label)
 
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(CONTROL_ROW_HEIGHT_HALF)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
     row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
@@ -1073,15 +1073,15 @@ function addon:ZenDialogAddCheckbox(dialog, yOffset, label, checked, onChange)
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddDropdown - dropdown selector with optional global lock
+-- DialogAddDropdown - dropdown selector with optional global lock
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddDropdown(dialog, yOffset, label, options, currentValue, onChange, globalOption)
+function addon:DialogAddDropdown(dialog, yOffset, label, options, currentValue, onChange, globalOption)
     label = addon:L(label)
 
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(CONTROL_ROW_HEIGHT)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
     row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
@@ -1223,7 +1223,7 @@ function addon:ZenDialogAddDropdown(dialog, yOffset, label, options, currentValu
 
                 optionButton:EnableMouseWheel(true)
                 optionButton:SetScript("OnMouseWheel", function(_, delta)
-                    addon:ZenDialogScrollOpenDropdown(delta)
+                    addon:DialogScrollOpenDropdown(delta)
                 end)
 
                 optionButtons[index] = optionButton
@@ -1261,12 +1261,12 @@ function addon:ZenDialogAddDropdown(dialog, yOffset, label, options, currentValu
     end
 
     scroll:SetScript("OnMouseWheel", function(_, delta)
-        addon:ZenDialogScrollOpenDropdown(delta)
+        addon:DialogScrollOpenDropdown(delta)
     end)
 
     menu:SetScript("OnHide", function(self)
-        if activeZenDropdown and activeZenDropdown.menu == self then
-            activeZenDropdown = nil
+        if activeDropdown and activeDropdown.menu == self then
+            activeDropdown = nil
         end
     end)
 
@@ -1310,7 +1310,7 @@ function addon:ZenDialogAddDropdown(dialog, yOffset, label, options, currentValu
             return
         end
 
-        HideActiveZenDropdown()
+        HideactiveDropdown()
 
         local menuWidth = math.max(120, button:GetWidth())
         local visibleCount = math.min(#options, DROPDOWN_MENU_MAX_VISIBLE)
@@ -1330,7 +1330,7 @@ function addon:ZenDialogAddDropdown(dialog, yOffset, label, options, currentValu
             end
         end)
 
-        activeZenDropdown = {
+        activeDropdown = {
             menu = menu,
             scroll = scroll,
         }
@@ -1375,10 +1375,10 @@ function addon:ZenDialogAddDropdown(dialog, yOffset, label, options, currentValu
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddSlider - slider with value display and optional global lock
+-- DialogAddSlider - slider with value display and optional global lock
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentValue, step, onChange, globalOption)
+function addon:DialogAddSlider(dialog, yOffset, label, minVal, maxVal, currentValue, step, onChange, globalOption)
     label = addon:L(label)
     local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
     local isInitiallyLocked = hasGlobalOption and currentValue == "_GLOBAL_"
@@ -1393,7 +1393,7 @@ function addon:ZenDialogAddSlider(dialog, yOffset, label, minVal, maxVal, curren
 
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(CONTROL_ROW_HEIGHT)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
     row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
@@ -1510,15 +1510,15 @@ function addon:ZenDialogAddSlider(dialog, yOffset, label, minVal, maxVal, curren
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddTextInput - single-line text input
+-- DialogAddTextInput - single-line text input
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddTextInput(dialog, yOffset, label, currentValue, onChange)
+function addon:DialogAddTextInput(dialog, yOffset, label, currentValue, onChange)
     label = addon:L(label)
 
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(CONTROL_ROW_HEIGHT)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
     row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
@@ -1573,7 +1573,7 @@ function addon:ZenDialogAddTextInput(dialog, yOffset, label, currentValue, onCha
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddEnableControl - checkbox + action button (e.g. Reload UI)
+-- DialogAddEnableControl - checkbox + action button (e.g. Reload UI)
 --
 -- options:
 --   buttonText       string    Localization key for button label (default: "reloadUI")
@@ -1584,7 +1584,7 @@ end
 --                              If nil, defaults to calling ReloadUI().
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddEnableControl(dialog, yOffset, label, checked, options)
+function addon:DialogAddEnableControl(dialog, yOffset, label, checked, options)
     label = addon:L(label)
     options = options or {}
     local buttonWidth = options.buttonWidth or 80
@@ -1592,7 +1592,7 @@ function addon:ZenDialogAddEnableControl(dialog, yOffset, label, checked, option
 
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(CONTROL_ROW_HEIGHT_HALF)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
     row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
@@ -1653,10 +1653,10 @@ function addon:ZenDialogAddEnableControl(dialog, yOffset, label, checked, option
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddColorPicker - color swatch with optional global lock
+-- DialogAddColorPicker - color swatch with optional global lock
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddColorPicker(dialog, yOffset, label, currentColor, onChange, globalOption)
+function addon:DialogAddColorPicker(dialog, yOffset, label, currentColor, onChange, globalOption)
     label = addon:L(label)
     local hasGlobalOption = type(globalOption) == "table" and globalOption.enabled == true
     local isLocked = hasGlobalOption and currentColor == "_GLOBAL_"
@@ -1679,7 +1679,7 @@ function addon:ZenDialogAddColorPicker(dialog, yOffset, label, currentColor, onC
 
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(CONTROL_ROW_HEIGHT_HALF)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
     row:SetPoint("RIGHT", dialog, "RIGHT", -padLeft, 0)
     row:SetPoint("TOP", dialog, "TOP", 0, yOffset)
@@ -1812,7 +1812,7 @@ function addon:ZenDialogAddColorPicker(dialog, yOffset, label, currentColor, onC
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddDescription - one or more paragraphs of descriptive text
+-- DialogAddDescription - one or more paragraphs of descriptive text
 --
 -- keys    string|table  A single localization key (string) or a table of
 --                       localization keys. Each key renders as a separate
@@ -1821,9 +1821,9 @@ end
 --                       "CENTER", or "RIGHT".
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddDescription(dialog, yOffset, keys, align)
+function addon:DialogAddDescription(dialog, yOffset, keys, align)
     align = align or "LEFT"
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     local contentWidth = dialog:GetWidth() - 2 * padLeft
 
     local text
@@ -1852,12 +1852,12 @@ function addon:ZenDialogAddDescription(dialog, yOffset, keys, align)
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddHeader - section header with divider
+-- DialogAddHeader - section header with divider
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddHeader(dialog, yOffset, text)
+function addon:DialogAddHeader(dialog, yOffset, text)
     text = addon:L(text)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     local header = dialog:CreateFontString(nil, "OVERLAY")
     header:SetFont(dialog._fontPath, HEADER_FONT_SIZE, "OUTLINE")
     header:SetTextColor(HEADER_COLOR[1], HEADER_COLOR[2], HEADER_COLOR[3])
@@ -1866,18 +1866,18 @@ function addon:ZenDialogAddHeader(dialog, yOffset, text)
 
     local dividerY = yOffset - HEADER_FONT_SIZE - 6
     local divider
-    divider, dividerY = self:ZenDialogAddDivider(dialog, dividerY)
+    divider, dividerY = self:DialogAddDivider(dialog, dividerY)
 
     return header, divider, dividerY - HEADER_SPACING_AFTER
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddSubHeader - smaller section header with divider
+-- DialogAddSubHeader - smaller section header with divider
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddSubHeader(dialog, yOffset, text)
+function addon:DialogAddSubHeader(dialog, yOffset, text)
     text = addon:L(text)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
     local header = dialog:CreateFontString(nil, "OVERLAY")
     header:SetFont(dialog._fontPath, SUBHEADER_FONT_SIZE, "OUTLINE")
     header:SetTextColor(HEADER_COLOR[1], HEADER_COLOR[2], HEADER_COLOR[3])
@@ -1886,16 +1886,16 @@ function addon:ZenDialogAddSubHeader(dialog, yOffset, text)
 
     local dividerY = yOffset - SUBHEADER_FONT_SIZE - 4
     local divider
-    divider, dividerY = self:ZenDialogAddDivider(dialog, dividerY)
+    divider, dividerY = self:DialogAddDivider(dialog, dividerY)
 
     return header, divider, dividerY - SUBHEADER_SPACING_AFTER
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddSectionTitle - centered section/module title
+-- DialogAddSectionTitle - centered section/module title
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddSectionTitle(dialog, yOffset, text)
+function addon:DialogAddSectionTitle(dialog, yOffset, text)
     text = addon:L(text)
     yOffset = yOffset - SECTION_TITLE_TOP_PADDING
 
@@ -1909,10 +1909,10 @@ function addon:ZenDialogAddSectionTitle(dialog, yOffset, text)
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddSpacer - invisible spacing (matches section title height)
+-- DialogAddSpacer - invisible spacing (matches section title height)
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddSpacer(dialog, yOffset)
+function addon:DialogAddSpacer(dialog, yOffset)
     local spacer = CreateFrame("Frame", nil, dialog)
     spacer:SetHeight(SECTION_TITLE_TOP_PADDING + SECTION_TITLE_FONT_SIZE + SECTION_TITLE_BOTTOM_PADDING)
     spacer:SetPoint("TOP", dialog, "TOP", 0, yOffset)
@@ -1921,12 +1921,12 @@ function addon:ZenDialogAddSpacer(dialog, yOffset)
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddButton - full-width button row
+-- DialogAddButton - full-width button row
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddButton(dialog, yOffset, label, onClick)
+function addon:DialogAddButton(dialog, yOffset, label, onClick)
     label = addon:L(label)
-    local padLeft = GetZenDialogPadding(dialog)
+    local padLeft = GetDialogPadding(dialog)
 
     local row = CreateFrame("Frame", nil, dialog)
     row:SetHeight(CONTROL_ROW_HEIGHT)
@@ -1947,7 +1947,7 @@ function addon:ZenDialogAddButton(dialog, yOffset, label, onClick)
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogAddTextureButton - atlas texture button
+-- DialogAddTextureButton - atlas texture button
 --
 --   dialog       parent dialog or column frame
 --   yOffset      current vertical offset
@@ -1964,7 +1964,7 @@ end
 --     offsetY      number    Vertical offset (default 0)
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogAddTextureButton(dialog, yOffset, options)
+function addon:DialogAddTextureButton(dialog, yOffset, options)
     options = options or {}
 
     local btnWidth = options.width or 32
@@ -1978,7 +1978,7 @@ function addon:ZenDialogAddTextureButton(dialog, yOffset, options)
 
     local row
     if not anchorParent then
-        local padLeft = GetZenDialogPadding(dialog)
+        local padLeft = GetDialogPadding(dialog)
         row = CreateFrame("Frame", nil, dialog)
         row:SetHeight(CONTROL_ROW_HEIGHT)
         row:SetPoint("LEFT", dialog, "LEFT", padLeft, 0)
@@ -2030,10 +2030,65 @@ function addon:ZenDialogAddTextureButton(dialog, yOffset, options)
 end
 
 -- ---------------------------------------------------------------------------
--- ZenDialogFinalize - resize dialog height to fit content
+-- DialogMarkPersistent — dynamically mark a dialog for reload persistence
 -- ---------------------------------------------------------------------------
 
-function addon:ZenDialogFinalize(dialog, yOffset)
+function addon:DialogMarkPersistent(dialog)
+    local callHook = self.callHook or function() end
+    callHook(self, "BeforeDialogMarkPersistent", dialog)
+
+    if not dialog then
+        callHook(self, "AfterDialogMarkPersistent", false)
+        return false
+    end
+
+    local name = dialog:GetName()
+    if not name then
+        callHook(self, "AfterDialogMarkPersistent", false)
+        return false
+    end
+
+    self.savedVars.data = self.savedVars.data or {}
+    self.savedVars.data.DialogPersist = self.savedVars.data.DialogPersist or {}
+    self.savedVars.data.DialogPersist[name] = true
+
+    callHook(self, "AfterDialogMarkPersistent", true)
+    return true
+end
+
+-- ---------------------------------------------------------------------------
+-- DialogMarkNotPersistent — remove a dialog from reload persistence
+-- ---------------------------------------------------------------------------
+
+function addon:DialogMarkNotPersistent(dialog)
+    local callHook = self.callHook or function() end
+    callHook(self, "BeforeDialogMarkNotPersistent", dialog)
+
+    if not dialog then
+        callHook(self, "AfterDialogMarkNotPersistent", false)
+        return false
+    end
+
+    local name = dialog:GetName()
+    if not name then
+        callHook(self, "AfterDialogMarkNotPersistent", false)
+        return false
+    end
+
+    if self.savedVars and self.savedVars.data
+        and self.savedVars.data.DialogPersist then
+        self.savedVars.data.DialogPersist[name] = nil
+    end
+
+    callHook(self, "AfterDialogMarkNotPersistent", true)
+    return true
+end
+
+-- ---------------------------------------------------------------------------
+-- DialogFinalize - resize dialog height to fit content
+-- ---------------------------------------------------------------------------
+
+function addon:DialogFinalize(dialog, yOffset)
     local totalHeight = math.abs(yOffset) + BORDER_WIDTH + PADDING
     dialog:SetHeight(totalHeight)
 end

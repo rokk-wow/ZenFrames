@@ -1,4 +1,4 @@
-﻿local addonName = ...
+local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
@@ -129,27 +129,31 @@ function addon:PopulateCastbarSubDialog(subDialog, configKey, moduleKey, yOffset
     local rightY = yOffset
 
     -- LEFT COLUMN: Sizing & appearance
-    local enabledRow
-    enabledRow, leftY = self:DialogAddEnableControl(subDialog._leftColumn or subDialog, leftY, self:L("emEnabled"), moduleCfg.enabled, configKey, moduleKey, function(value)
+    local onChange = function(value)
         ApplyCastbarSetting("enabled", value, false)
-    end)
+    end
+    local enabledRow
+    enabledRow, leftY = self:DialogAddEnableControl(subDialog._leftColumn or subDialog, leftY, "emEnabled", moduleCfg.enabled, {
+        onChange = onChange,
+        onButtonClick = self:EditModeEnableButtonClick(configKey, moduleKey, onChange),
+    })
     table.insert(subDialog._controls, enabledRow)
 
     local widthRow
-    widthRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, self:L("emWidth"), 1, 500, moduleCfg.width, 1, function(value)
+    widthRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, "emWidth", 1, 500, moduleCfg.width, 1, function(value)
         ApplyCastbarSetting("width", value, true)
     end)
     table.insert(subDialog._controls, widthRow)
 
     local heightRow
-    heightRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, self:L("emHeight"), 1, 100, moduleCfg.height, 1, function(value)
+    heightRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, "emHeight", 1, 100, moduleCfg.height, 1, function(value)
         ApplyCastbarSetting("height", value, true)
     end)
     table.insert(subDialog._controls, heightRow)
 
     local borderSizeGlobalValue = self.config.global and self.config.global.borderWidth or 1
     local borderSizeRow
-    borderSizeRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, self:L("emBorderSize"), 1, 10, moduleCfg.borderWidth, 1, function(value)
+    borderSizeRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, "emBorderSize", 1, 10, moduleCfg.borderWidth, 1, function(value)
         ApplyCastbarSetting("borderWidth", value, true)
     end, {
         enabled = true,
@@ -159,7 +163,7 @@ function addon:PopulateCastbarSubDialog(subDialog, configKey, moduleKey, yOffset
 
     local borderColorGlobalValue = self.config.global and self.config.global.borderColor or "000000FF"
     local borderColorRow
-    borderColorRow, leftY = self:DialogAddColorPicker(subDialog._leftColumn or subDialog, leftY, self:L("emBorderColor"), moduleCfg.borderColor, function(value)
+    borderColorRow, leftY = self:DialogAddColorPicker(subDialog._leftColumn or subDialog, leftY, "emBorderColor", moduleCfg.borderColor, function(value)
         ApplyCastbarSetting("borderColor", value, true)
     end, {
         enabled = true,
@@ -169,43 +173,43 @@ function addon:PopulateCastbarSubDialog(subDialog, configKey, moduleKey, yOffset
 
     -- RIGHT COLUMN: Text & icon visibility
     local showSpellNameRow
-    showSpellNameRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, self:L("emShowSpellName"), moduleCfg.showSpellName ~= false, function(value)
+    showSpellNameRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, "emShowSpellName", moduleCfg.showSpellName ~= false, function(value)
         ApplyCastbarSetting("showSpellName", value, true)
     end)
     table.insert(subDialog._controls, showSpellNameRow)
 
     local textSizeRow
-    textSizeRow, rightY = self:DialogAddSlider(subDialog._rightColumn or subDialog, rightY, self:L("emTextSize"), 8, 32, moduleCfg.textSize, 1, function(value)
+    textSizeRow, rightY = self:DialogAddSlider(subDialog._rightColumn or subDialog, rightY, "emTextSize", 8, 32, moduleCfg.textSize, 1, function(value)
         ApplyCastbarSetting("textSize", value, true)
     end)
     table.insert(subDialog._controls, textSizeRow)
 
     local showCastTimeRow
-    showCastTimeRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, self:L("emShowCastTime"), moduleCfg.showCastTime == true, function(value)
+    showCastTimeRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, "emShowCastTime", moduleCfg.showCastTime == true, function(value)
         ApplyCastbarSetting("showCastTime", value, true)
     end)
     table.insert(subDialog._controls, showCastTimeRow)
 
     local showIconRow
-    showIconRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, self:L("emShowIcon"), moduleCfg.showIcon == true, function(value)
+    showIconRow, rightY = self:DialogAddCheckbox(subDialog._rightColumn or subDialog, rightY, "emShowIcon", moduleCfg.showIcon == true, function(value)
         ApplyCastbarSetting("showIcon", value, true)
     end)
     table.insert(subDialog._controls, showIconRow)
 
     local iconPositionRow
-    iconPositionRow, rightY = self:DialogAddDropdown(subDialog._rightColumn or subDialog, rightY, self:L("emIconPosition"), {
-        { label = self:L("emLeft"), value = "LEFT" },
-        { label = self:L("emRight"), value = "RIGHT" },
+    iconPositionRow, rightY = self:DialogAddDropdown(subDialog._rightColumn or subDialog, rightY, "emIconPosition", {
+        { label = "emLeft", value = "LEFT" },
+        { label = "emRight", value = "RIGHT" },
     }, moduleCfg.iconPosition, function(value)
         ApplyCastbarSetting("iconPosition", value, true)
     end)
     table.insert(subDialog._controls, iconPositionRow)
 
     local textAlignmentRow
-    textAlignmentRow, rightY = self:DialogAddDropdown(subDialog._rightColumn or subDialog, rightY, self:L("emTextAlignment"), {
-        { label = self:L("emLeft"), value = "LEFT" },
-        { label = self:L("emRight"), value = "RIGHT" },
-        { label = self:L("emCenter"), value = "CENTER" },
+    textAlignmentRow, rightY = self:DialogAddDropdown(subDialog._rightColumn or subDialog, rightY, "emTextAlignment", {
+        { label = "emLeft", value = "LEFT" },
+        { label = "emRight", value = "RIGHT" },
+        { label = "emCenter", value = "CENTER" },
     }, moduleCfg.textAlignment, function(value)
         ApplyCastbarSetting("textAlignment", value, true)
     end)

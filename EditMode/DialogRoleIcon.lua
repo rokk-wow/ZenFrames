@@ -75,22 +75,26 @@ function addon:PopulateRoleIconSubDialog(subDialog, configKey, moduleKey, yOffse
 
     local currentY = yOffset
 
-    local enabledRow
-    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, self:L("emEnabled"), moduleCfg.enabled, configKey, moduleKey, function(value)
+    local onChange = function(value)
         self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
-    end)
+    end
+    local enabledRow
+    enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, "emEnabled", moduleCfg.enabled, {
+        onChange = onChange,
+        onButtonClick = self:EditModeEnableButtonClick(configKey, moduleKey, onChange),
+    })
     table.insert(subDialog._controls, enabledRow)
 
     local sizeValue = moduleCfg.iconSize or moduleCfg.size
     local sizeRow
-    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, self:L("emSize"), 10, 100, sizeValue, 1, function(value)
+    sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "emSize", 10, 100, sizeValue, 1, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
         self:RefreshRoleIconEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, sizeRow)
 
     local colorRow
-    colorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, self:L("emColor"), moduleCfg.color, function(value)
+    colorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, "emColor", moduleCfg.color, function(value)
         self:SetOverride({configKey, "modules", moduleKey, "color"}, value)
         self:RefreshRoleIconEditModeVisuals(configKey, moduleKey)
     end)

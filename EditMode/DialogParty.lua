@@ -3,12 +3,12 @@ local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
 local CLICK_OPTIONS = {
-    { label = addon:L("emSelectTarget"), value = "select" },
-    { label = addon:L("emContextMenu"), value = "contextMenu" },
-    { label = addon:L("emSetFocus"), value = "focus" },
-    { label = addon:L("emClearFocus"), value = "clearFocus" },
-    { label = addon:L("emInspect"), value = "inspect" },
-    { label = addon:L("emNone"), value = "none" },
+    { label = "emSelectTarget", value = "select" },
+    { label = "emContextMenu", value = "contextMenu" },
+    { label = "emSetFocus", value = "focus" },
+    { label = "emClearFocus", value = "clearFocus" },
+    { label = "emInspect", value = "inspect" },
+    { label = "emNone", value = "none" },
 }
 
 local function RefreshPartyVisuals(self, configKey)
@@ -96,29 +96,33 @@ function addon:PopulatePartySubDialog(subDialog, configKey, moduleKey, yOffset)
     local rightY = yOffset
 
     -- LEFT COLUMN: Sizing & appearance
-    local enabledRow
-    enabledRow, leftY = self:DialogAddEnableControl(subDialog._leftColumn or subDialog, leftY, self:L("emEnabled"), cfg.enabled, configKey, nil, function(value)
+    local onChange = function(value)
         self:SetOverride({configKey, "enabled"}, value)
         self:SetOverride({configKey, "hideBlizzard"}, value)
-    end)
+    end
+    local enabledRow
+    enabledRow, leftY = self:DialogAddEnableControl(subDialog._leftColumn or subDialog, leftY, "emEnabled", cfg.enabled, {
+        onChange = onChange,
+        onButtonClick = self:EditModeEnableButtonClick(configKey, nil, onChange),
+    })
     table.insert(subDialog._controls, enabledRow)
 
     local widthRow
-    widthRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, self:L("emWidth"), 1, 250, cfg.unitWidth, 1, function(value)
+    widthRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, "emWidth", 1, 250, cfg.unitWidth, 1, function(value)
         self:SetOverride({configKey, "unitWidth"}, value)
         RefreshPartyVisuals(self, configKey)
     end)
     table.insert(subDialog._controls, widthRow)
 
     local heightRow
-    heightRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, self:L("emHeight"), 1, 250, cfg.unitHeight, 1, function(value)
+    heightRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, "emHeight", 1, 250, cfg.unitHeight, 1, function(value)
         self:SetOverride({configKey, "unitHeight"}, value)
         RefreshPartyVisuals(self, configKey)
     end)
     table.insert(subDialog._controls, heightRow)
 
     local spacingRow
-    spacingRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, self:L("emSpacing"), 1, 100, cfg.spacingY, 1, function(value)
+    spacingRow, leftY = self:DialogAddSlider(subDialog._leftColumn or subDialog, leftY, "emSpacing", 1, 100, cfg.spacingY, 1, function(value)
         self:SetOverride({configKey, "spacingY"}, value)
         RefreshPartyVisuals(self, configKey)
     end)
@@ -126,7 +130,7 @@ function addon:PopulatePartySubDialog(subDialog, configKey, moduleKey, yOffset)
 
     -- RIGHT COLUMN: Click behavior & borders
     local bgColorRow
-    bgColorRow, rightY = self:DialogAddColorPicker(subDialog._rightColumn or subDialog, rightY, self:L("emBackgroundColor"), cfg.unitBackgroundColor, function(value)
+    bgColorRow, rightY = self:DialogAddColorPicker(subDialog._rightColumn or subDialog, rightY, "emBackgroundColor", cfg.unitBackgroundColor, function(value)
         self:SetOverride({configKey, "unitBackgroundColor"}, value)
         RefreshPartyVisuals(self, configKey)
     end)
@@ -134,7 +138,7 @@ function addon:PopulatePartySubDialog(subDialog, configKey, moduleKey, yOffset)
 
     local borderSizeGlobalValue = self.config.global and self.config.global.borderWidth or 2
     local borderSizeRow
-    borderSizeRow, rightY = self:DialogAddSlider(subDialog._rightColumn or subDialog, rightY, self:L("emBorderSize"), 1, 10, cfg.borderWidth, 1, function(value)
+    borderSizeRow, rightY = self:DialogAddSlider(subDialog._rightColumn or subDialog, rightY, "emBorderSize", 1, 10, cfg.borderWidth, 1, function(value)
         self:SetOverride({configKey, "borderWidth"}, value)
         RefreshPartyVisuals(self, configKey)
     end, {
@@ -145,7 +149,7 @@ function addon:PopulatePartySubDialog(subDialog, configKey, moduleKey, yOffset)
 
     local borderColorGlobalValue = self.config.global and self.config.global.borderColor or "000000FF"
     local borderColorRow
-    borderColorRow, rightY = self:DialogAddColorPicker(subDialog._rightColumn or subDialog, rightY, self:L("emBorderColor"), cfg.borderColor, function(value)
+    borderColorRow, rightY = self:DialogAddColorPicker(subDialog._rightColumn or subDialog, rightY, "emBorderColor", cfg.borderColor, function(value)
         self:SetOverride({configKey, "borderColor"}, value)
         RefreshPartyVisuals(self, configKey)
     end, {
@@ -155,13 +159,13 @@ function addon:PopulatePartySubDialog(subDialog, configKey, moduleKey, yOffset)
     table.insert(subDialog._controls, borderColorRow)
 
     local leftClickRow
-    leftClickRow, rightY = self:DialogAddDropdown(subDialog._rightColumn or subDialog, rightY, self:L("emLeftClick"), CLICK_OPTIONS, cfg.leftClick, function(value)
+    leftClickRow, rightY = self:DialogAddDropdown(subDialog._rightColumn or subDialog, rightY, "emLeftClick", CLICK_OPTIONS, cfg.leftClick, function(value)
         self:SetOverride({configKey, "leftClick"}, value)
     end)
     table.insert(subDialog._controls, leftClickRow)
 
     local rightClickRow
-    rightClickRow, rightY = self:DialogAddDropdown(subDialog._rightColumn or subDialog, rightY, self:L("emRightClick"), CLICK_OPTIONS, cfg.rightClick, function(value)
+    rightClickRow, rightY = self:DialogAddDropdown(subDialog._rightColumn or subDialog, rightY, "emRightClick", CLICK_OPTIONS, cfg.rightClick, function(value)
         self:SetOverride({configKey, "rightClick"}, value)
     end)
     table.insert(subDialog._controls, rightClickRow)

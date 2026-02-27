@@ -18,7 +18,7 @@ Localization.lua
 EditMode\Placeholder.lua
 
 Modules\Media.lua
-Modules\ZenDialog.lua
+Modules\Dialog.lua
 Modules\Tags.lua
 Modules\UnitFrame.lua
 Modules\Castbar.lua
@@ -37,7 +37,7 @@ Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
 
-EditMode\Dialog.lua
+EditMode\EditModeDialogs.lua
 EditMode\DialogUnitFrame.lua
 EditMode\DialogAuraFilter.lua
 EditMode\DialogArenaTargets.lua

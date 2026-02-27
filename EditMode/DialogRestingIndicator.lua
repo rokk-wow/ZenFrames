@@ -11,8 +11,12 @@ function addon:PopulateRestingIndicatorSubDialog(subDialog, configKey, moduleKey
     local moduleCfg = cfg.modules[moduleKey]
     subDialog._controls = subDialog._controls or {}
 
-    local enabledRow = self:DialogAddEnableControl(subDialog, yOffset, self:L("emEnabled"), moduleCfg.enabled, configKey, moduleKey, function(value)
+    local onChange = function(value)
         self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
-    end)
+    end
+    local enabledRow = self:DialogAddEnableControl(subDialog, yOffset, "emEnabled", moduleCfg.enabled, {
+        onChange = onChange,
+        onButtonClick = self:EditModeEnableButtonClick(configKey, moduleKey, onChange),
+    })
     table.insert(subDialog._controls, enabledRow)
 end

@@ -6,75 +6,39 @@ local addon = SAdCore:GetAddon(addonName)
 -- Help dialog (scrollable text tag reference)
 -- ---------------------------------------------------------------------------
 
-local HELP_DIALOG_WIDTH = 420
-local HELP_DIALOG_HEIGHT = 500
-local HELP_PADDING = 16
-local HELP_BORDER = 8
-
 local helpDialog
 
 local function GetOrCreateHelpDialog()
     if helpDialog then return helpDialog end
 
-    local fontPath = addon:FetchFont("DorisPP")
+    local style = addon.DialogStyle
 
-    local frame = CreateFrame("Frame", "ZenFramesTextTagHelpDialog", UIParent, "BackdropTemplate")
-    frame:SetSize(HELP_DIALOG_WIDTH, HELP_DIALOG_HEIGHT)
-    frame:SetPoint("CENTER", UIParent, "CENTER", 520, 0)
-    frame:SetFrameStrata("TOOLTIP")
-    frame:SetFrameLevel(500)
-    frame:SetClampedToScreen(true)
-    frame:SetMovable(true)
-    frame:EnableMouse(true)
-    frame:RegisterForDrag("LeftButton")
-    frame:SetScript("OnDragStart", frame.StartMoving)
-    frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
-
-    frame:SetBackdrop({
-        bgFile = "Interface\\Buttons\\WHITE8X8",
-        edgeFile = "Interface\\Buttons\\WHITE8X8",
-        edgeSize = HELP_BORDER,
-        insets = { left = HELP_BORDER, right = HELP_BORDER, top = HELP_BORDER, bottom = HELP_BORDER },
+    local dialog = addon:CreateDialog({
+        name = "ZenFramesTextTagHelpDialog",
+        title = "emTextTagReference",
+        width = 420,
+        height = 500,
+        frameStrata = "TOOLTIP",
+        frameLevel = 500,
+        dismissOnEscape = true,
     })
-    frame:SetBackdropColor(0, 0, 0, 0.92)
-    frame:SetBackdropBorderColor(0, 0, 0, 1)
 
-    local title = frame:CreateFontString(nil, "OVERLAY")
-    title:SetFont(fontPath, 18, "OUTLINE")
-    title:SetTextColor(0, 1, 0.596)
-    title:SetPoint("TOP", frame, "TOP", 0, -(HELP_BORDER + HELP_PADDING))
-    title:SetText(addon:L("emTextTagReference"))
+    -- Scrollable body for the long help content
+    local contentTop = dialog._contentTop
+    local padLeft = style.BORDER_WIDTH + style.PADDING
+    local scrollBottom = style.BORDER_WIDTH + style.PADDING
 
-    local closeBtn = CreateFrame("Button", nil, frame)
-    closeBtn:SetSize(20, 20)
-    closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -(HELP_BORDER + 8), -(HELP_BORDER + 8))
-    closeBtn:SetNormalAtlas("EventToastCloseButton")
-    closeBtn:SetHighlightAtlas("EventToastCloseButton")
-    closeBtn:GetHighlightTexture():SetAlpha(0.3)
-    closeBtn:SetScript("OnClick", function() frame:Hide() end)
-
-    local dividerY = -(HELP_BORDER + HELP_PADDING + 18 + 10)
-    local divider = frame:CreateTexture(nil, "ARTWORK")
-    divider:SetHeight(2)
-    divider:SetColorTexture(0, 0, 0, 1)
-    divider:SetPoint("LEFT", frame, "LEFT", HELP_BORDER + HELP_PADDING, 0)
-    divider:SetPoint("RIGHT", frame, "RIGHT", -(HELP_BORDER + HELP_PADDING), 0)
-    divider:SetPoint("TOP", frame, "TOP", 0, dividerY)
-
-    local scrollTop = dividerY - 8
-    local scrollBottom = HELP_BORDER + HELP_PADDING
-
-    local scroll = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", frame, "TOPLEFT", HELP_BORDER + HELP_PADDING, scrollTop)
-    scroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -(HELP_BORDER + HELP_PADDING + 22), scrollBottom)
+    local scroll = CreateFrame("ScrollFrame", nil, dialog, "UIPanelScrollFrameTemplate")
+    scroll:SetPoint("TOPLEFT", dialog, "TOPLEFT", padLeft, contentTop)
+    scroll:SetPoint("BOTTOMRIGHT", dialog, "BOTTOMRIGHT", -(padLeft + 22), scrollBottom)
 
     local content = CreateFrame("Frame", nil, scroll)
-    content:SetWidth(HELP_DIALOG_WIDTH - 2 * (HELP_BORDER + HELP_PADDING) - 22)
+    content:SetWidth(420 - 2 * padLeft - 22)
     content:SetHeight(1)
     scroll:SetScrollChild(content)
 
     local body = content:CreateFontString(nil, "OVERLAY")
-    body:SetFont(fontPath, 12, "OUTLINE")
+    body:SetFont(dialog._fontPath, 12, "OUTLINE")
     body:SetTextColor(1, 1, 1)
     body:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
     body:SetWidth(content:GetWidth())
@@ -83,29 +47,14 @@ local function GetOrCreateHelpDialog()
     body:SetSpacing(3)
     body:SetText(addon:L("emTextTagHelpContent"))
 
-    content:SetScript("OnShow", function(self)
-        local textHeight = body:GetStringHeight()
-        self:SetHeight(math.max(textHeight + 10, 1))
-    end)
-
-    frame:EnableKeyboard(true)
-    frame:SetScript("OnKeyDown", function(self, key)
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput(false)
-            self:Hide()
-        else
-            self:SetPropagateKeyboardInput(true)
-        end
-    end)
-    frame:SetScript("OnShow", function(self)
+    dialog:HookScript("OnShow", function()
         local textHeight = body:GetStringHeight()
         content:SetHeight(math.max(textHeight + 10, 1))
     end)
 
-    frame:Hide()
-    helpDialog = frame
-    addon._textTagHelpDialog = frame
-    return frame
+    helpDialog = dialog
+    addon._textTagHelpDialog = dialog
+    return dialog
 end
 
 -- ---------------------------------------------------------------------------
@@ -293,14 +242,18 @@ function addon:PopulateTextSubDialog(subDialog, configKey, moduleKey, yOffset)
 
     subDialog._controls = subDialog._controls or {}
 
-    local enabledRow
-    enabledRow, yOffset = self:DialogAddEnableControl(subDialog, yOffset, self:L("emEnabled"), textCfg.enabled, configKey, moduleKey, function(value)
+    local onChange = function(value)
         self:SetOverride({configKey, "modules", "text", textIndex, "enabled"}, value)
-    end)
+    end
+    local enabledRow
+    enabledRow, yOffset = self:DialogAddEnableControl(subDialog, yOffset, "emEnabled", textCfg.enabled, {
+        onChange = onChange,
+        onButtonClick = self:EditModeEnableButtonClick(configKey, moduleKey, onChange),
+    })
     table.insert(subDialog._controls, enabledRow)
 
     local textRow
-    textRow, yOffset = self:DialogAddTextInput(subDialog, yOffset, self:L("emFormat"), textCfg.format, function(value)
+    textRow, yOffset = self:DialogAddTextInput(subDialog, yOffset, "emFormat", textCfg.format, function(value)
         self:SetOverride({configKey, "modules", "text", textIndex, "format"}, value)
         RefreshTextFormat(configKey, textIndex, value)
     end)
@@ -323,40 +276,40 @@ function addon:PopulateTextSubDialog(subDialog, configKey, moduleKey, yOffset)
         if dialog:IsShown() then
             dialog:Hide()
         else
-            dialog:Show()
+            addon:ShowDialog(dialog, "standalone")
         end
     end)
     table.insert(subDialog._controls, helpBtn)
 
     local sizeRow
-    sizeRow, yOffset = self:DialogAddSlider(subDialog, yOffset, self:L("emSize"), 8, 32, textCfg.size, 1, function(value)
+    sizeRow, yOffset = self:DialogAddSlider(subDialog, yOffset, "emSize", 8, 32, textCfg.size, 1, function(value)
         self:SetOverride({configKey, "modules", "text", textIndex, "size"}, value)
         RefreshTextSize(configKey, textIndex, value)
     end)
     table.insert(subDialog._controls, sizeRow)
 
     local colorRow
-    colorRow, yOffset = self:DialogAddColorPicker(subDialog, yOffset, self:L("emColor"), textCfg.color, function(value)
+    colorRow, yOffset = self:DialogAddColorPicker(subDialog, yOffset, "emColor", textCfg.color, function(value)
         self:SetOverride({configKey, "modules", "text", textIndex, "color"}, value)
         RefreshTextColor(configKey, textIndex, value)
     end)
     table.insert(subDialog._controls, colorRow)
 
     local shadowRow
-    shadowRow, yOffset = self:DialogAddCheckbox(subDialog, yOffset, self:L("emShadow"), textCfg.shadow, function(value)
+    shadowRow, yOffset = self:DialogAddCheckbox(subDialog, yOffset, "emShadow", textCfg.shadow, function(value)
         self:SetOverride({configKey, "modules", "text", textIndex, "shadow"}, value)
         RefreshTextShadow(configKey, textIndex, value)
     end)
     table.insert(subDialog._controls, shadowRow)
 
     local outlineOptions = {
-        { label = self:L("emNone"), value = "" },
-        { label = self:L("emOutline"), value = "OUTLINE" },
-        { label = self:L("emThickOutline"), value = "THICKOUTLINE" },
-        { label = self:L("emMonochrome"), value = "MONOCHROME" },
+        { label = "emNone", value = "" },
+        { label = "emOutline", value = "OUTLINE" },
+        { label = "emThickOutline", value = "THICKOUTLINE" },
+        { label = "emMonochrome", value = "MONOCHROME" },
     }
     local outlineRow
-    outlineRow, yOffset = self:DialogAddDropdown(subDialog, yOffset, self:L("emOutline"), outlineOptions, textCfg.outline, function(value)
+    outlineRow, yOffset = self:DialogAddDropdown(subDialog, yOffset, "emOutline", outlineOptions, textCfg.outline, function(value)
         self:SetOverride({configKey, "modules", "text", textIndex, "outline"}, value)
         RefreshTextOutline(configKey, textIndex, value)
     end)

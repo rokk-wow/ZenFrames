@@ -1,4 +1,4 @@
-﻿local addonName = ...
+local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
@@ -151,7 +151,7 @@ addon.locale.enEN = {
 	resetButton = "Reset",
 	resetConfirmText = "Reset this frame to default? This will clear all customizations for this frame.",
 	resetAllConfirmText = "Reset all ZenFrames settings to default? This will clear all customizations and reload your UI.",
-	disableModuleConfirmText = "This will disable this module.\n\nYou can be re-enable later from the main settings panel.",
+	disableModuleConfirmText = "Re-enable later from the main settings panel.",
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Settings",
 	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
@@ -216,8 +216,8 @@ addon.locale.enEN = {
 
 
 
-	-- ZenDialog strings
-	zenDialogOk = "OK",
+	-- Dialog strings
+	DialogOk = "OK",
 
 	-- Edit mode UI strings
 	emGlobal = "Global",
@@ -246,6 +246,7 @@ addon.locale.enEN = {
 
 	-- Text tag help content
 	emTextTagHelpContent = "|cff00ff98Text Tag Reference|r\n\n|cffffffffTags are enclosed in square brackets and combined with literal text.|r\n\n|cff00ff98Syntax Examples|r\n|cffffd100  [name]|r |cffaaaaaa-> Full unit name|r\n|cffffd100  [perhp]%|r |cffaaaaaa-> 85%|r\n|cffffd100  [curhp:short] / [maxhp:short]|r |cffaaaaaa-> 245K / 300K|r\n|cffffd100  [raidcolor][name:medium]\\|r|r |cffaaaaaa-> Class-colored name|r\n\n|cffffffffOptional prefix/suffix (shown only if the tag returns a value):|r\n|cffffd100  [==$>name<$==]|r |cffaaaaaa-> ==Thrall==|r\n|cffffd100  [perhp<$%]|r |cffaaaaaa-> 85%|r\n\n|cff00ff98Name Tags|r\n|cffffd100  [name]|r |cffffffffFull name|r\n|cffffd100  [name:short]|r |cffffffffShort name|r\n|cffffd100  [name:medium]|r |cffffffffMedium name|r\n|cffffd100  [name:long]|r |cffffffffLong name|r\n|cffffd100  [name:abbrev]|r |cffffffffAbbreviated name|r\n|cffffd100  [name:trunc(12)]|r |cffffffffTruncated to 12 characters|r\n\n|cff00ff98Health Tags|r\n|cffffd100  [curhp]|r |cffffffffCurrent HP (raw number)|r\n|cffffd100  [maxhp]|r |cffffffffMax HP (raw number)|r\n|cffffd100  [perhp]|r |cffffffffHealth percent (e.g. 85)|r\n|cffffd100  [missinghp]|r |cffffffffMissing HP|r\n|cffffd100  [curhp:short]|r |cffffffffCurrent HP abbreviated (245K)|r\n|cffffd100  [maxhp:short]|r |cffffffffMax HP abbreviated (300K)|r\n|cffffd100  [hp:percent]|r |cffffffffHealth percent with % (85%)|r\n|cffffd100  [hp:cur-percent]|r |cffffffff245K - 85%|r\n|cffffd100  [hp:cur-max]|r |cffffffff245K / 300K|r\n|cffffd100  [hp:deficit]|r |cffffffffMissing HP as -245K|r\n\n|cff00ff98Power Tags|r\n|cffffd100  [curpp]|r |cffffffffCurrent power (raw)|r\n|cffffd100  [maxpp]|r |cffffffffMax power (raw)|r\n|cffffd100  [perpp]|r |cffffffffPower percent|r\n|cffffd100  [curpp:short]|r |cffffffffCurrent power abbreviated|r\n|cffffd100  [maxpp:short]|r |cffffffffMax power abbreviated|r\n|cffffd100  [pp:percent]|r |cffffffffPower percent with %|r\n|cffffd100  [pp:cur-percent]|r |cffffffffCurrent - percent%|r\n|cffffd100  [pp:cur-max]|r |cffffffffCurrent / Max|r\n\n|cff00ff98Info Tags|r\n|cffffd100  [level]|r |cffffffffUnit level|r\n|cffffd100  [smartlevel]|r |cffffffffLevel with elite/boss indicator|r\n|cffffd100  [class]|r |cffffffffClass name|r\n|cffffd100  [smartclass]|r |cffffffffClass (players) or creature type (NPCs)|r\n|cffffd100  [spec]|r |cffffffffSpec abbreviation (e.g. ARMS, RESTO)|r\n|cffffd100  [race]|r |cffffffffRace name|r\n|cffffd100  [creature]|r |cffffffffCreature family or type|r\n|cffffd100  [faction]|r |cffffffffFaction name|r\n|cffffd100  [group]|r |cffffffffRaid group number|r\n\n|cff00ff98Status Tags|r\n|cffffd100  [dead]|r |cffffffffDead or Ghost|r\n|cffffd100  [offline]|r |cffffffffOffline if disconnected|r\n|cffffd100  [status]|r |cffffffffDead / Ghost / Offline / zzz|r\n|cffffd100  [resting]|r |cffffffffzzz if resting|r\n|cffffd100  [pvp]|r |cffffffffPvP if flagged|r\n|cffffd100  [leader]|r |cffffffffL if group leader|r\n|cffffd100  [sex]|r |cffffffffMale / Female|r\n\n|cff00ff98Color Tags|r\n|cffffd100  [raidcolor]|r |cffffffffClass color hex (use before name, \\|r after)|r\n|cffffd100  [powercolor]|r |cffffffffPower type color hex|r\n|cffffd100  [threatcolor]|r |cffffffffThreat level color hex|r\n\n|cff00ff98Classification Tags|r\n|cffffd100  [classification]|r |cffffffffRare / Rare Elite / Elite / Boss|r\n|cffffd100  [shortclassification]|r |cffffffffR / R+ / + / B / -|r\n|cffffd100  [threat]|r |cffffffffAggro / ++ / --|r",
+
 }
 
 -- Spanish
@@ -460,8 +461,8 @@ addon.locale.esES = {
 	emShowFriendlyUnits = "Mostrar Unidades Aliadas",
 	emShowEnemyUnits = "Mostrar Unidades Enemigas",
 
-	-- ZenDialog strings
-	zenDialogOk = "Aceptar",
+	-- Dialog strings
+	DialogOk = "Aceptar",
 
 	-- Edit mode UI strings
 	emGlobal = "Global",
@@ -482,8 +483,8 @@ addon.locale.esES = {
 	-- Announcement dialog
 	announcementTitle = "ZenFrames v2.0.0",
 	announcementGreeting = "Saludos, gladiador.",
-	announcementBullet1 = "Para abrir el Modo de Edición, escribe: |cffffd100/zf",
-	announcementBullet2 = "Mantén ALT para ocultar los marcadores de edición",
+	announcementBullet1 = "* Para abrir el Modo de Edición, escribe: |cffffd100/zf",
+	announcementBullet2 = "* Mantén ALT para ocultar los marcadores de edición",
 	announcementApology = "Los cambios importantes en la configuración eran inevitables, mis disculpas.",
 	announcementContact = "Si necesitas ayuda (o encuentras errores):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Abrir Modo de Edición",
@@ -705,8 +706,8 @@ addon.locale.ptBR = {
 	emShowFriendlyUnits = "Mostrar Unidades Aliadas",
 	emShowEnemyUnits = "Mostrar Unidades Inimigas",
 
-	-- ZenDialog strings
-	zenDialogOk = "OK",
+	-- Dialog strings
+	DialogOk = "OK",
 
 	-- Edit mode UI strings
 	emGlobal = "Global",
@@ -727,8 +728,8 @@ addon.locale.ptBR = {
 	-- Announcement dialog
 	announcementTitle = "ZenFrames v2.0.0",
 	announcementGreeting = "Saudações, gladiador.",
-	announcementBullet1 = "Para abrir o Modo de Edição, digite: |cffffd100/zf",
-	announcementBullet2 = "Segure ALT para ocultar os marcadores de edição",
+	announcementBullet1 = "* Para abrir o Modo de Edição, digite: |cffffd100/zf",
+	announcementBullet2 = "* Segure ALT para ocultar os marcadores de edição",
 	announcementApology = "Mudanças importantes na configuração eram inevitáveis, minhas desculpas.",
 	announcementContact = "Se precisar de ajuda (ou encontrar bugs):\n|cffffd100reddit.com/u/rokk--|r",
 	announcementLaunchButton = "Abrir Modo de Edição",
@@ -949,8 +950,8 @@ addon.locale.frFR = {
 	emShowFriendlyUnits = "Afficher les Unités Alliées",
 	emShowEnemyUnits = "Afficher les Unités Ennemies",
 
-	-- ZenDialog strings
-	zenDialogOk = "OK",
+	-- Dialog strings
+	DialogOk = "OK",
 
 	-- Edit mode UI strings
 	emGlobal = "Global",
@@ -1193,8 +1194,8 @@ addon.locale.deDE = {
 	emShowFriendlyUnits = "Verbündete Einheiten anzeigen",
 	emShowEnemyUnits = "Feindliche Einheiten anzeigen",
 
-	-- ZenDialog strings
-	zenDialogOk = "OK",
+	-- Dialog strings
+	DialogOk = "OK",
 
 	-- Edit mode UI strings
 	emGlobal = "Global",
@@ -1437,8 +1438,8 @@ addon.locale.ruRU = {
 	emShowFriendlyUnits = "Показать дружественных",
 	emShowEnemyUnits = "Показать вражеских",
 
-	-- ZenDialog strings
-	zenDialogOk = "ОК",
+	-- Dialog strings
+	DialogOk = "ОК",
 
 	-- Edit mode UI strings
 	emGlobal = "Глобально",
