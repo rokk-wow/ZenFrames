@@ -1003,14 +1003,19 @@ function addon:DialogAddToggleRow(dialog, yOffset, label, checked, visible, onCh
     eye:SetPoint("LEFT", cb, "RIGHT", CONTROL_PADDING, 0)
 
     local eyeIcon = eye:CreateTexture(nil, "ARTWORK")
-    eyeIcon:SetAllPoints()
+    eyeIcon:SetSize(CONTROL_SIZE, CONTROL_SIZE)
+    eyeIcon:SetPoint("CENTER", eye, "CENTER", 0, 0)
     eye.icon = eyeIcon
 
     local function UpdateEyeIcon(isVisible)
         if isVisible then
             eyeIcon:SetAtlas("GM-icon-visible")
+            eyeIcon:SetVertexColor(1, 0.82, 0, 1)
+            eyeIcon:SetSize(CONTROL_SIZE + 2, CONTROL_SIZE + 2)
         else
             eyeIcon:SetAtlas("GM-icon-visibleDis")
+            eyeIcon:SetVertexColor(1, 1, 1, 1)
+            eyeIcon:SetSize(CONTROL_SIZE, CONTROL_SIZE)
         end
     end
 
@@ -2089,6 +2094,17 @@ end
 -- ---------------------------------------------------------------------------
 
 function addon:DialogFinalize(dialog, yOffset)
-    local totalHeight = math.abs(yOffset) + BORDER_WIDTH + PADDING
+    local bottomReserved = BORDER_WIDTH + PADDING
+    if dialog._footerButtons and #dialog._footerButtons > 0 then
+        bottomReserved = bottomReserved + BUTTON_HEIGHT + BUTTON_SPACING
+    end
+
+    local totalHeight = math.abs(yOffset) + bottomReserved
     dialog:SetHeight(totalHeight)
+
+    if dialog._footerButtons and #dialog._footerButtons > 0 then
+        dialog._contentBottom = -(totalHeight - BORDER_WIDTH - PADDING - BUTTON_HEIGHT - BUTTON_SPACING)
+    else
+        dialog._contentBottom = -(totalHeight - BORDER_WIDTH - PADDING)
+    end
 end

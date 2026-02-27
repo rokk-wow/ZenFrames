@@ -414,6 +414,10 @@ function addon:Initialize()
     self:RefreshConfig()
     self.unitFrames = {}
 
+    if self.InitializeRaidEnemyTracker then
+        self:InitializeRaidEnemyTracker()
+    end
+
     self:OverridePowerColors()
     self:OverrideReactionColors()
     self:HookDisableBlizzard()
@@ -425,9 +429,9 @@ function addon:Initialize()
         self:CreateAuraFilterDebug(self.config.auraFilterDebug)
     end
 
-    C_Timer.After(1, function()
-        self:ShowAnnouncement("v2.0.0")
-    end)
+    -- C_Timer.After(1, function()
+    --     self:ShowAnnouncement("v2.0.0")
+    -- end)
 end
 
 function addon:OverridePowerColors()
@@ -557,6 +561,10 @@ function addon:SpawnFrames()
                 end
                 addon:SpawnGroupFrames(configKey, units)
             end
+        end
+
+        if addon.SpawnRaidFrames then
+            addon:SpawnRaidFrames()
         end
 
         addon:RegisterHighlightEvent()

@@ -43,10 +43,6 @@ local function BuildAnnouncementDialog()
     return dialog
 end
 
--- ---------------------------------------------------------------------------
--- Public API
--- ---------------------------------------------------------------------------
-
 function addon:ShowAnnouncement(announcementId)
     if not self.savedVars then return false end
 

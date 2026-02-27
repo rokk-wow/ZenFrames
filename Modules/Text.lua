@@ -27,6 +27,19 @@ function addon:ResolveFontSize(size)
     return 14
 end
 
+local function IsRaidTextFrame(frame)
+    if not frame or not frame.isChild then
+        return false
+    end
+
+    local unit = frame.unit or (frame.GetAttribute and frame:GetAttribute("unit"))
+    if type(unit) ~= "string" then
+        return false
+    end
+
+    return unit:match("^raid%d+$") ~= nil or unit:match("^nameplate%d+$") ~= nil
+end
+
 function addon:AddText(frame, textConfigs)
     if not textConfigs then return end
 
@@ -41,6 +54,7 @@ function addon:AddText(frame, textConfigs)
     for i, cfg in ipairs(textConfigs) do
         if cfg.enabled then
             local fs = frame.TextOverlay:CreateFontString(nil, "OVERLAY")
+            local isRaidText = IsRaidTextFrame(frame)
 
             local fontPath = self:GetFontPath(cfg.font)
             local fontSize = self:ResolveFontSize(cfg.size)
@@ -61,9 +75,20 @@ function addon:AddText(frame, textConfigs)
             end
             fs:SetJustifyH(justify)
 
-            if justify == "LEFT" or justify == "RIGHT" then
-                local parentWidth = parent:GetWidth()
-                if parentWidth and parentWidth > 0 then
+            local parentWidth = parent:GetWidth()
+            if parentWidth and parentWidth > 0 then
+                if isRaidText then
+                    local maxWidth
+                    if justify == "LEFT" or justify == "RIGHT" then
+                        maxWidth = parentWidth * 0.48
+                    else
+                        maxWidth = parentWidth * 0.95
+                    end
+
+                    fs:SetWidth(maxWidth)
+                    fs:SetWordWrap(false)
+                    fs:SetMaxLines(1)
+                elseif justify == "LEFT" or justify == "RIGHT" then
                     fs:SetWidth(parentWidth * 0.5)
                     fs:SetWordWrap(false)
                 end

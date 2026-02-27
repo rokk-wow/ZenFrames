@@ -10,6 +10,7 @@ local CLASS_TOKENS = {
 }
 
 local savedUnits = {}
+local tempGroupContainers = {}
 
 local unitConfigMap = {
     player = "player",
@@ -36,6 +37,87 @@ local function GetDisplayNames()
         arena2 = addon:L("emDisplayArena") .. " 2",
         arena3 = addon:L("emDisplayArena") .. " 3",
     }
+end
+
+local function GetGroupPlaceholderName(configKey, unitToken)
+    local displayNames = GetDisplayNames()
+    if displayNames[unitToken] then
+        return displayNames[unitToken]
+    end
+
+    local index = unitToken and tonumber(tostring(unitToken):match("(%d+)$"))
+    if not index then
+        return unitToken
+    end
+
+    if configKey == "raid_blitz_friendly" or configKey == "raid_blitz_enemy" then
+        return "Blitz" .. index
+    end
+
+    if configKey == "raid_battleground_friendly" or configKey == "raid_battleground_enemy" then
+        return "BG" .. index
+    end
+
+    if configKey == "raid_pve_friendly"
+        or configKey == "raid_epicBattleground_friendly"
+        or configKey == "raid_epicBattleground_enemy" then
+        return "Raid" .. index
+    end
+
+    return unitToken
+end
+
+local function BuildPreviewUnits(configKey, maxUnits)
+    local units = {}
+    local isEnemyRaid = tostring(configKey):match("^raid_.+_enemy$") ~= nil
+
+    for i = 1, maxUnits do
+        if isEnemyRaid then
+            units[i] = "nameplate" .. i
+        else
+            units[i] = "raid" .. i
+        end
+    end
+
+    return units
+end
+
+local function EnsureEditModeRaidPreviewContainers()
+    if not addon.config or not addon.config.raid or not addon.config.raid.profiles then
+        return
+    end
+
+    addon.groupContainers = addon.groupContainers or {}
+
+    for profileName, profileCfg in pairs(addon.config.raid.profiles) do
+        local friendlyCfg = profileCfg and profileCfg.friendly
+        if friendlyCfg and friendlyCfg.maxUnits and friendlyCfg.maxUnits > 0 then
+            local friendlyKey = "raid_" .. profileName .. "_friendly"
+            if not addon.groupContainers[friendlyKey] then
+                local units = BuildPreviewUnits(friendlyKey, friendlyCfg.maxUnits)
+                local container = addon:SpawnGroupFrames(friendlyKey, units, friendlyCfg)
+                if container then
+                    container._zfEditModeTemp = true
+                    container:Hide()
+                    tempGroupContainers[friendlyKey] = container
+                end
+            end
+        end
+
+        local enemyCfg = profileCfg and profileCfg.enemy
+        if enemyCfg and enemyCfg.maxUnits and enemyCfg.maxUnits > 0 then
+            local enemyKey = "raid_" .. profileName .. "_enemy"
+            if not addon.groupContainers[enemyKey] then
+                local units = BuildPreviewUnits(enemyKey, enemyCfg.maxUnits)
+                local container = addon:SpawnGroupFrames(enemyKey, units, enemyCfg)
+                if container then
+                    container._zfEditModeTemp = true
+                    container:Hide()
+                    tempGroupContainers[enemyKey] = container
+                end
+            end
+        end
+    end
 end
 
 local function RandomClassToken()
@@ -507,6 +589,8 @@ end
 
 function addon:ShowEditModeFrames()
     if InCombatLockdown() then return end
+
+    EnsureEditModeRaidPreviewContainers()
     
     for unit, frame in pairs(self.unitFrames) do
         AssignPlayerUnit(frame)
@@ -543,7 +627,7 @@ function addon:ShowEditModeFrames()
                     end
 
                     ApplyClassColor(child, RandomClassToken())
-                    OverrideNameText(child, GetDisplayNames()[originalUnit] or originalUnit, configKey)
+                    OverrideNameText(child, GetGroupPlaceholderName(configKey, originalUnit), configKey)
                     ShowPlaceholders(child, configKey)
                 end
             end
@@ -596,5 +680,22 @@ function addon:HideEditModeFrames()
                 container._visibilityFrame:GetScript("OnEvent")(container._visibilityFrame, "PLAYER_ENTERING_WORLD")
             end
         end
+    end
+
+    for configKey, container in pairs(tempGroupContainers) do
+        if self.groupContainers and self.groupContainers[configKey] == container then
+            self.groupContainers[configKey] = nil
+        end
+
+        if container and container._visibilityFrame then
+            container._visibilityFrame:UnregisterAllEvents()
+        end
+
+        if container then
+            container:Hide()
+            container:SetParent(nil)
+        end
+
+        tempGroupContainers[configKey] = nil
     end
 end

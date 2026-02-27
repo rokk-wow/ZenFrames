@@ -215,7 +215,9 @@ function AuraFilterMixin:CreateIcons(cfg)
     local isHelpful = self.isHelpful
     local baseFilter = self.baseFilter
     local tooltipAnchor = cfg.tooltipAnchor or "ANCHOR_TOP"
-    local disableMouse = cfg.disableMouse or false
+    local clickThrough = cfg.clickThrough == true
+    local disableMouse = (cfg.disableMouse == true) or clickThrough
+    local disableTooltip = cfg.disableTooltip == true
 
     local vertAnchor = (self.growthY == "DOWN") and "TOP" or "BOTTOM"
     local horizAnchor = (self.growthX == "LEFT") and "RIGHT" or "LEFT"
@@ -255,6 +257,9 @@ function AuraFilterMixin:CreateIcons(cfg)
         icon.Count = icon:CreateFontString(nil, "OVERLAY")
         icon:EnableMouse(not disableMouse)
         icon:SetScript("OnEnter", function(self)
+            if disableTooltip then
+                return
+            end
             if self.auraInstanceID and self.auraUnit then
                 GameTooltip:SetOwner(self, tooltipAnchor)
                 if isHelpful then

@@ -125,7 +125,24 @@ end
 local function GetModuleConfig(configKey, moduleKey)
     if not configKey or not moduleKey then return nil end
 
-    local frameCfg = addon.config and addon.config[configKey]
+    local function ResolveConfig(configKeyToResolve)
+        local directCfg = addon.config and addon.config[configKeyToResolve]
+        if directCfg then
+            return directCfg
+        end
+
+        local profile, side = tostring(configKeyToResolve):match("^raid_(.+)_(friendly|enemy)$")
+        if profile and side and addon.config and addon.config.raid and addon.config.raid.profiles then
+            local profileCfg = addon.config.raid.profiles[profile]
+            if profileCfg then
+                return profileCfg[side]
+            end
+        end
+
+        return nil
+    end
+
+    local frameCfg = ResolveConfig(configKey)
     if not frameCfg or not frameCfg.modules then return nil end
 
     return frameCfg.modules[moduleKey]
@@ -244,7 +261,27 @@ local function UpdatePlaceholderPosition(overlay)
     local parent = overlay:GetParent()
     if not parent then return end
     
-    local cfg = addon.config[overlay._configKey]
+    local function ResolveConfigAndPath(configKeyToResolve)
+        local directCfg = addon.config and addon.config[configKeyToResolve]
+        if directCfg then
+            return directCfg, { configKeyToResolve }
+        end
+
+        local profile, side = tostring(configKeyToResolve):match("^raid_(.+)_(friendly|enemy)$")
+        if profile and side and addon.config and addon.config.raid and addon.config.raid.profiles then
+            local profileCfg = addon.config.raid.profiles[profile]
+            if profileCfg and profileCfg[side] then
+                return profileCfg[side], { "raid", "profiles", profile, side }
+            end
+        end
+
+        return nil, nil
+    end
+
+    local cfg, baseOverridePath = ResolveConfigAndPath(overlay._configKey)
+    if not cfg or not baseOverridePath then
+        return
+    end
     local isAuraFilter = false
     local auraFilterIndex = nil
     
@@ -321,15 +358,26 @@ local function UpdatePlaceholderPosition(overlay)
         local newOffsetX = math.floor((parentX - relativeX) + 0.5)
         local newOffsetY = math.floor((parentY - relativeY) + 0.5)
 
+        local function BuildOverridePath(...)
+            local path = {}
+            for _, segment in ipairs(baseOverridePath) do
+                path[#path + 1] = segment
+            end
+            for i = 1, select("#", ...) do
+                path[#path + 1] = select(i, ...)
+            end
+            return path
+        end
+
         if isAuraFilter then
-            addon:SetOverride({overlay._configKey, "modules", "auraFilters", auraFilterIndex, "offsetX"}, newOffsetX)
-            addon:SetOverride({overlay._configKey, "modules", "auraFilters", auraFilterIndex, "offsetY"}, newOffsetY)
+            addon:SetOverride(BuildOverridePath("modules", "auraFilters", auraFilterIndex, "offsetX"), newOffsetX)
+            addon:SetOverride(BuildOverridePath("modules", "auraFilters", auraFilterIndex, "offsetY"), newOffsetY)
         elseif overlay._moduleKey then
-            addon:SetOverride({overlay._configKey, "modules", overlay._moduleKey, "offsetX"}, newOffsetX)
-            addon:SetOverride({overlay._configKey, "modules", overlay._moduleKey, "offsetY"}, newOffsetY)
+            addon:SetOverride(BuildOverridePath("modules", overlay._moduleKey, "offsetX"), newOffsetX)
+            addon:SetOverride(BuildOverridePath("modules", overlay._moduleKey, "offsetY"), newOffsetY)
         else
-            addon:SetOverride({overlay._configKey, "offsetX"}, newOffsetX)
-            addon:SetOverride({overlay._configKey, "offsetY"}, newOffsetY)
+            addon:SetOverride(BuildOverridePath("offsetX"), newOffsetX)
+            addon:SetOverride(BuildOverridePath("offsetY"), newOffsetY)
         end
 
         addon:RefreshConfig()

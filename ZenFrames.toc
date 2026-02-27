@@ -27,6 +27,7 @@ Modules\Power.lua
 Modules\Text.lua
 Modules\Absorbs.lua
 Modules\AuraFilter.lua
+Modules\RaidEnemyTracker.lua
 Modules\CombatIndicator.lua
 Modules\RestingIndicator.lua
 Modules\RoleIcon.lua
