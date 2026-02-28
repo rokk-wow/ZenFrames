@@ -47,21 +47,6 @@ function addon:AddDispelIcon(frame, cfg)
     container:SetSize(size, size)
 
     local anchorFrame = frame
-    -- DEPRECATED: relativeToModule is deprecated. Use direct frame anchoring with calculated offsets instead.
-    -- This logic remains for backwards compatibility with existing custom configs.
-    if cfg.relativeToModule then
-        local ref = cfg.relativeToModule
-        if type(ref) == "table" then
-            for _, key in ipairs(ref) do
-                if frame[key] then
-                    anchorFrame = frame[key]
-                    break
-                end
-            end
-        else
-            anchorFrame = frame[ref] or frame
-        end
-    end
 
     container:SetPoint(
         cfg.anchor,

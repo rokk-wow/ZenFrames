@@ -86,6 +86,7 @@ local MODULE_RESET_REFRESH_METHODS = {
 local UNIT_FRAME_SUB_DIALOG_METHODS = {
     party = "PopulatePartySubDialog",
     arena = "PopulatePartySubDialog",
+    boss = "PopulatePartySubDialog",
 }
 
 local function IsAuraFilterModule(configKey, moduleKey)
@@ -133,6 +134,7 @@ local LARGE_SUB_DIALOG_MODULES = {
 local LARGE_SUB_DIALOG_CONFIGS = {
     party = true,
     arena = true,
+    boss = true,
     player = true,
     target = true,
     targetTarget = true,
@@ -609,9 +611,8 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
         if moduleKey then
             self:RefreshModule(configKey, moduleKey)
 
-            if configKey == "party" or configKey == "arena" then
-                local containerName = configKey == "party" and "zfPartyContainer" or "zfArenaContainer"
-                local container = _G[containerName]
+            if configKey == "party" or configKey == "arena" or configKey == "boss" then
+                local container = self.groupContainers and self.groupContainers[configKey]
 
                 if container and container.frames then
                     local frameCfg = self.config[configKey]
@@ -635,23 +636,7 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
                             local module = unitFrame[moduleName]
 
                             if module and anchorPoint and relativePoint then
-                                local moduleAnchorFrame = unitFrame
-
-                                if moduleCfg.relativeToModule then
-                                    local ref = moduleCfg.relativeToModule
-                                    if type(ref) == "table" then
-                                        for _, key in ipairs(ref) do
-                                            if unitFrame[key] then
-                                                moduleAnchorFrame = unitFrame[key]
-                                                break
-                                            end
-                                        end
-                                    else
-                                        moduleAnchorFrame = unitFrame[ref] or unitFrame
-                                    end
-                                end
-
-                                local moduleRelativeFrame = moduleCfg.relativeTo and _G[moduleCfg.relativeTo] or moduleAnchorFrame
+                                local moduleRelativeFrame = moduleCfg.relativeTo and _G[moduleCfg.relativeTo] or unitFrame
 
                                 if moduleRelativeFrame then
                                     module:ClearAllPoints()
@@ -680,7 +665,7 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
         else
             self:RefreshFrame(configKey)
 
-            if (configKey == "party" or configKey == "arena") and self.RefreshGroupContainerVisuals then
+            if (configKey == "party" or configKey == "arena" or configKey == "boss") and self.RefreshGroupContainerVisuals then
                 self:RefreshGroupContainerVisuals(configKey)
             end
         end
@@ -688,7 +673,7 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
         if self.editMode then
             local frameCfg = self.config and self.config[configKey]
             if frameCfg then
-                if configKey == "party" or configKey == "arena" then
+                if configKey == "party" or configKey == "arena" or configKey == "boss" then
                     local container = self.groupContainers and self.groupContainers[configKey]
                     if container and container.frames then
                         for _, unitFrame in ipairs(container.frames) do

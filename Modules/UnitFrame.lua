@@ -1270,6 +1270,101 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
         end)
     end
 
+    if configKey == "boss" and not explicitCfg then
+        container:Hide()
+
+        local bossPendingShow = false
+        local bossPendingHide = false
+
+        local function ShouldShowBossContainer()
+            local inInstance, instanceType = IsInInstance()
+            if inInstance and instanceType == "arena" and cfg.hideInArena then
+                return false
+            end
+
+            for i = 1, maxUnits do
+                if UnitExists("boss" .. i) then
+                    return true
+                end
+            end
+
+            return false
+        end
+
+        local function ShowBossContainer()
+            if InCombatLockdown() then
+                bossPendingShow = true
+                bossPendingHide = false
+                return
+            end
+            bossPendingShow = false
+            bossPendingHide = false
+            container:Show()
+        end
+
+        local function HideBossContainer()
+            if InCombatLockdown() then
+                bossPendingHide = true
+                bossPendingShow = false
+                return
+            end
+            bossPendingShow = false
+            bossPendingHide = false
+            container:Hide()
+        end
+
+        local function UpdateBossVisibility()
+            if ShouldShowBossContainer() then
+                ShowBossContainer()
+            else
+                HideBossContainer()
+            end
+        end
+
+        local visFrame = CreateFrame("Frame")
+        visFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+        visFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+        visFrame:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+        visFrame:RegisterEvent("UNIT_TARGETABLE_CHANGED")
+        visFrame:RegisterEvent("ENCOUNTER_END")
+        visFrame:RegisterEvent("BOSS_KILL")
+        visFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        visFrame:SetScript("OnEvent", function(_, event, ...)
+            if event == "PLAYER_REGEN_ENABLED" then
+                if bossPendingShow then
+                    ShowBossContainer()
+                elseif bossPendingHide then
+                    HideBossContainer()
+                end
+                return
+            end
+
+            if event == "UNIT_TARGETABLE_CHANGED" then
+                local unitToken = ...
+                if type(unitToken) == "string" and not unitToken:match("^boss%d+$") then
+                    return
+                end
+            end
+
+            UpdateBossVisibility()
+        end)
+
+        container._visibilityFrame = visFrame
+        container._visibilityEvents = {
+            "PLAYER_ENTERING_WORLD",
+            "ZONE_CHANGED_NEW_AREA",
+            "INSTANCE_ENCOUNTER_ENGAGE_UNIT",
+            "UNIT_TARGETABLE_CHANGED",
+            "ENCOUNTER_END",
+            "BOSS_KILL",
+            "PLAYER_REGEN_ENABLED",
+        }
+
+        C_Timer.After(0.5, function()
+            UpdateBossVisibility()
+        end)
+    end
+
     self.groupContainers = self.groupContainers or {}
     self.groupContainers[configKey] = container
 

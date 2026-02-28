@@ -39,6 +39,7 @@ local LEFT_COLUMN_FRAMES = {
         enabledPath = { "raid", "profiles", "pve", "friendly", "enabled" },
         visibilityKeys = { "raid_pve_friendly" },
     },
+    { configKey = "boss",   locKey = "bossEnabled", defaultVisible = false },
 }
 
 local RIGHT_COLUMN_FRAMES = {
@@ -144,11 +145,19 @@ end
 
 local PARTY_ARENA_VISIBILITY_GROUP = {
     party = true,
+}
+
+local ARENA_BOSS_VISIBILITY_GROUP = {
     arena = true,
+    boss = true,
 }
 
 local function IsPartyArenaVisibilityGroupKey(configKey)
     return PARTY_ARENA_VISIBILITY_GROUP[configKey] == true
+end
+
+local function IsArenaBossVisibilityGroupKey(configKey)
+    return ARENA_BOSS_VISIBILITY_GROUP[configKey] == true
 end
 
 local function ApplyRowVisibility(def, row, isVisible)
@@ -236,6 +245,18 @@ local function BuildDialog()
                     if arenaRow and arenaRow._def then
                         ApplyRowVisibility(arenaRow._def, arenaRow, false)
                     end
+                    local bossRow = rows.boss
+                    if bossRow and bossRow._def then
+                        ApplyRowVisibility(bossRow._def, bossRow, false)
+                    end
+                elseif IsArenaBossVisibilityGroupKey(def.configKey) then
+                    for _, otherDef in ipairs(LEFT_COLUMN_FRAMES) do
+                        if IsRaidVisibilityGroupKey(otherDef.configKey)
+                            or IsArenaBossVisibilityGroupKey(otherDef.configKey) then
+                            local otherRow = rows[otherDef.configKey]
+                            ApplyRowVisibility(otherDef, otherRow, otherDef.configKey == def.configKey)
+                        end
+                    end
                 elseif IsPartyArenaVisibilityGroupKey(def.configKey) then
                     for _, otherDef in ipairs(LEFT_COLUMN_FRAMES) do
                         if IsRaidVisibilityGroupKey(otherDef.configKey) then
@@ -269,6 +290,18 @@ local function BuildDialog()
                 local arenaRow = rows.arena
                 if arenaRow and arenaRow._def then
                     ApplyRowVisibility(arenaRow._def, arenaRow, false)
+                end
+                local bossRow = rows.boss
+                if bossRow and bossRow._def then
+                    ApplyRowVisibility(bossRow._def, bossRow, false)
+                end
+            elseif makeVisible and IsArenaBossVisibilityGroupKey(def.configKey) then
+                for _, otherDef in ipairs(LEFT_COLUMN_FRAMES) do
+                    if IsRaidVisibilityGroupKey(otherDef.configKey)
+                        or IsArenaBossVisibilityGroupKey(otherDef.configKey) then
+                        local otherRow = rows[otherDef.configKey]
+                        ApplyRowVisibility(otherDef, otherRow, otherDef.configKey == def.configKey)
+                    end
                 end
             elseif makeVisible and IsPartyArenaVisibilityGroupKey(def.configKey) then
                 for _, otherDef in ipairs(LEFT_COLUMN_FRAMES) do

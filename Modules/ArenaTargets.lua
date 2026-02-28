@@ -58,26 +58,6 @@ local function CreateIndicator(parent, width, height, borderWidth, borderColor)
     return indicator
 end
 
--- DEPRECATED: relativeToModule is deprecated. Use direct frame anchoring with calculated offsets instead.
--- This function remains for backwards compatibility with existing custom configs.
-local function ResolveAnchorFrame(frame, relativeToModule)
-    local anchorFrame = frame
-    if relativeToModule then
-        local ref = relativeToModule
-        if type(ref) == "table" then
-            for _, key in ipairs(ref) do
-                if frame[key] then
-                    anchorFrame = frame[key]
-                    break
-                end
-            end
-        else
-            anchorFrame = frame[ref] or frame
-        end
-    end
-    return anchorFrame
-end
-
 local function BuildArenaIndicators(frame, cfg, parentContainer)
     local mode = cfg.mode
     local indicatorWidth = cfg.indicatorWidth
@@ -270,7 +250,7 @@ function addon:AddArenaTargets(frame, cfg, frameBorderWidth)
         bg:SetColorTexture(r, g, b, a)
     end
 
-    local anchorFrame = ResolveAnchorFrame(frame, cfg.relativeToModule)
+    local anchorFrame = frame
 
     container:SetPoint(
         cfg.anchor,

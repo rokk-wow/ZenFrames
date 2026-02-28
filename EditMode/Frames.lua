@@ -36,6 +36,11 @@ local function GetDisplayNames()
         arena1 = addon:L("emDisplayArena") .. " 1",
         arena2 = addon:L("emDisplayArena") .. " 2",
         arena3 = addon:L("emDisplayArena") .. " 3",
+        boss1 = addon:L("emDisplayBoss") .. " 1",
+        boss2 = addon:L("emDisplayBoss") .. " 2",
+        boss3 = addon:L("emDisplayBoss") .. " 3",
+        boss4 = addon:L("emDisplayBoss") .. " 4",
+        boss5 = addon:L("emDisplayBoss") .. " 5",
     }
 end
 
@@ -283,7 +288,7 @@ local function ApplyTextPinOffset(pin, deltaX, deltaY)
     pin:ClearAllPoints()
     pin:SetPoint("CENTER", fs, "CENTER", 0, 0)
 
-    if configKey == "party" or configKey == "arena" then
+    if configKey == "party" or configKey == "arena" or configKey == "boss" then
         if addon.groupContainers and addon.groupContainers[configKey] then
             local container = addon.groupContainers[configKey]
             if container.frames then

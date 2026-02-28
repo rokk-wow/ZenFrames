@@ -385,8 +385,8 @@ local function UpdatePlaceholderPosition(overlay)
         parent:ClearAllPoints()
         parent:SetPoint(anchorPoint, relativeFrame, relativePoint, newOffsetX, newOffsetY)
         
-        -- If this is a group frame module (party/arena), update all instances
-        if overlay._moduleKey and not isAuraFilter and (overlay._configKey == "party" or overlay._configKey == "arena") then
+        -- If this is a group frame module (party/arena/boss), update all instances
+        if overlay._moduleKey and not isAuraFilter and (overlay._configKey == "party" or overlay._configKey == "arena" or overlay._configKey == "boss") then
             local unitFrame = parent:GetParent()
             if unitFrame then
                 local container = unitFrame:GetParent()
@@ -397,24 +397,7 @@ local function UpdatePlaceholderPosition(overlay)
                     for _, frame in ipairs(container.frames) do
                         local module = frame[moduleName]
                         if module and module ~= parent then
-                            -- Determine the anchor frame for this module instance
-                            local moduleAnchorFrame = frame
-                            -- DEPRECATED: relativeToModule is deprecated but supported for backwards compatibility
-                            if cfg.relativeToModule then
-                                local ref = cfg.relativeToModule
-                                if type(ref) == "table" then
-                                    for _, key in ipairs(ref) do
-                                        if frame[key] then
-                                            moduleAnchorFrame = frame[key]
-                                            break
-                                        end
-                                    end
-                                else
-                                    moduleAnchorFrame = frame[ref] or frame
-                                end
-                            end
-                            
-                            local moduleRelativeFrame = cfg.relativeTo and _G[cfg.relativeTo] or moduleAnchorFrame
+                            local moduleRelativeFrame = cfg.relativeTo and _G[cfg.relativeTo] or frame
                             
                             module:ClearAllPoints()
                             module:SetPoint(anchorPoint, moduleRelativeFrame, relativePoint, newOffsetX, newOffsetY)
@@ -424,8 +407,8 @@ local function UpdatePlaceholderPosition(overlay)
             end
         end
         
-        -- If this is a group frame auraFilter (party/arena), update all instances
-        if isAuraFilter and (overlay._configKey == "party" or overlay._configKey == "arena") then
+        -- If this is a group frame auraFilter (party/arena/boss), update all instances
+        if isAuraFilter and (overlay._configKey == "party" or overlay._configKey == "arena" or overlay._configKey == "boss") then
             local unitFrame = parent:GetParent()
             if unitFrame then
                 local container = unitFrame:GetParent()
@@ -434,24 +417,7 @@ local function UpdatePlaceholderPosition(overlay)
                     for _, frame in ipairs(container.frames) do
                         local filter = frame[overlay._moduleKey]
                         if filter and filter ~= parent then
-                            -- Determine the anchor frame for this filter instance
-                            local filterAnchorFrame = frame
-                            -- DEPRECATED: relativeToModule is deprecated but supported for backwards compatibility
-                            if cfg.relativeToModule then
-                                local ref = cfg.relativeToModule
-                                if type(ref) == "table" then
-                                    for _, key in ipairs(ref) do
-                                        if frame[key] then
-                                            filterAnchorFrame = frame[key]
-                                            break
-                                        end
-                                    end
-                                else
-                                    filterAnchorFrame = frame[ref] or frame
-                                end
-                            end
-                            
-                            local filterRelativeFrame = cfg.relativeTo and _G[cfg.relativeTo] or filterAnchorFrame
+                            local filterRelativeFrame = cfg.relativeTo and _G[cfg.relativeTo] or frame
                             
                             filter:ClearAllPoints()
                             filter:SetPoint(anchorPoint, filterRelativeFrame, relativePoint, newOffsetX, newOffsetY)

@@ -354,6 +354,7 @@ local unitConfigMap = {
 local groupConfigMap = {
     party = { "player", "party1", "party2", "party3", "party4" },
     arena = { "arena1", "arena2", "arena3" },
+    boss = { "boss1", "boss2", "boss3", "boss4", "boss5" },
 }
 
 function addon:Initialize()

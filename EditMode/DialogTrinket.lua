@@ -27,19 +27,6 @@ local function UpdateTrinketFrameVisual(self, unitFrame, trinketCfg)
     trinket:SetSize(size, size)
 
     local anchorFrame = unitFrame
-    if trinketCfg.relativeToModule then
-        local ref = trinketCfg.relativeToModule
-        if type(ref) == "table" then
-            for _, key in ipairs(ref) do
-                if unitFrame[key] then
-                    anchorFrame = unitFrame[key]
-                    break
-                end
-            end
-        else
-            anchorFrame = unitFrame[ref] or unitFrame
-        end
-    end
 
     local relativeFrame = trinketCfg.relativeTo and _G[trinketCfg.relativeTo] or anchorFrame
     if relativeFrame and trinketCfg.anchor and trinketCfg.relativePoint then

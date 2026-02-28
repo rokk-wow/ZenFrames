@@ -52,9 +52,16 @@ function addon:AddHealth(frame, cfg)
                 self:GetStatusBarTexture():SetVertexColor(color:GetRGB())
             end
         end
+    elseif cfg.color == "reaction" then
+        Health.colorReaction = true
     else
-        local r, g, b, a = addon:HexToRGB(cfg.color)
-        Health:SetStatusBarColor(r, g, b, a)
+        local hexColor = cfg.color
+        if type(hexColor) == "string" and (hexColor:match("^%x%x%x%x%x%x$") or hexColor:match("^%x%x%x%x%x%x%x%x$")) then
+            local r, g, b, a = addon:HexToRGB(hexColor)
+            Health:SetStatusBarColor(r, g, b, a)
+        else
+            Health.colorReaction = true
+        end
     end
 
     frame.Health = Health
