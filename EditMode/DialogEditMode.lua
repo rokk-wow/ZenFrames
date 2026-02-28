@@ -11,6 +11,7 @@ local EDIT_MODE_DIALOG_HEIGHT = addon.EDIT_MODE_DIALOG_HEIGHT
 local LEFT_COLUMN_FRAMES = {
     { configKey = "party",  locKey = "partyEnabled", defaultVisible = true },
     { configKey = "arena",  locKey = "arenaEnabled", defaultVisible = true },
+    { configKey = "boss",   locKey = "bossEnabled", defaultVisible = false },
     {
         configKey = "blitz",
         locKey = "blitzEnabled",
@@ -36,10 +37,9 @@ local LEFT_COLUMN_FRAMES = {
         configKey = "raid",
         locKey = "raidEnabled",
         defaultVisible = false,
-        enabledPath = { "raid", "profiles", "pve", "friendly", "enabled" },
-        visibilityKeys = { "raid_pve_friendly" },
+        enabledPath = { "raid", "profiles", "raid", "friendly", "enabled" },
+        visibilityKeys = { "raid_raid_friendly" },
     },
-    { configKey = "boss",   locKey = "bossEnabled", defaultVisible = false },
 }
 
 local RIGHT_COLUMN_FRAMES = {

@@ -63,7 +63,7 @@ local function GetGroupPlaceholderName(configKey, unitToken)
         return "BG" .. index
     end
 
-    if configKey == "raid_pve_friendly"
+    if configKey == "raid_raid_friendly"
         or configKey == "raid_epicBattleground_friendly"
         or configKey == "raid_epicBattleground_enemy" then
         return "Raid" .. index

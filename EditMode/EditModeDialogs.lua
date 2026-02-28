@@ -173,6 +173,24 @@ local function ToPascalCase(value)
 end
 
 local function GetConfigDisplayName(configKey)
+    local profile, side = tostring(configKey or ""):match("^raid_(.+)_(friendly|enemy)$")
+    if profile then
+        if profile == "raid" then
+            return "Raid"
+        end
+
+        local profileLabel = profile
+        if profile == "battleground" then
+            profileLabel = "BG"
+        elseif profile == "epicBattleground" then
+            profileLabel = "EpicBG"
+        else
+            profileLabel = ToPascalCase(profile)
+        end
+
+        return profileLabel .. " " .. ToPascalCase(side)
+    end
+
     return ToPascalCase(configKey)
 end
 

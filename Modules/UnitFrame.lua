@@ -484,17 +484,18 @@ function addon:GetRaidRoutingState()
         }
     end
 
-    local pve = routing.pve or {}
-    if groupSize >= (pve.minRaidSize or 6) then
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pve", "profile", pve.profile or "pve")
+    local raidRoute = routing.raid or routing.pve or {}
+    if groupSize >= (raidRoute.minRaidSize or 6) then
+        local defaultProfile = (raidCfg and raidCfg.profiles and raidCfg.profiles.raid and "raid") or "pve"
+        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "raid", "profile", raidRoute.profile or defaultProfile)
         return {
             showParty = false,
-            activeFriendlyProfile = pve.profile or "pve",
+            activeFriendlyProfile = raidRoute.profile or defaultProfile,
             activeEnemyProfile = nil,
         }
     end
 
-    RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pve", "below-min-raid-size", "groupSize", groupSize)
+    RaidDebugPrintOnce(self, "raidRouting", "raid routing", "raid", "below-min-raid-size", "groupSize", groupSize)
     return {
         showParty = false,
         activeFriendlyProfile = nil,
@@ -715,10 +716,6 @@ function addon:SpawnRaidFrames()
 
     RaidDebugPrintOnce(self, "raidSpawn", "raid spawn", "begin", "profiles", next(profiles) and "1" or "0")
 
-    if raidCfg.hideBlizzard then
-        oUF:DisableBlizzard("raid")
-    end
-
     for profileName, profileCfg in pairs(profiles) do
         local friendlyCfg = profileCfg and profileCfg.friendly
         if friendlyCfg and friendlyCfg.enabled and friendlyCfg.maxUnits and friendlyCfg.maxUnits > 0 then
@@ -759,6 +756,10 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
     local cfg = explicitCfg or self.config[configKey]
     local unitBorderWidth = cfg.borderWidth
     local unitBorderColor = cfg.borderColor
+
+    if configKey == "boss" and cfg.hideBlizzard then
+        oUF:DisableBlizzard("boss")
+    end
 
     local maxUnits = math.min(cfg.maxUnits, #units)
     local perRow = cfg.perRow
