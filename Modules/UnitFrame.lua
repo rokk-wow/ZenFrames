@@ -339,58 +339,11 @@ local function RaidDebugPrintOnce(self, key, ...)
     end
 end
 
--- /zfraid force <profile|off> — override raid profile routing for testing.
--- Valid profiles: raid, blitz, battleground, epicBattleground, off
-local VALID_FORCE_PROFILES = { raid = true, blitz = true, battleground = true, epicBattleground = true }
-
-addon:RegisterSlashCommand("zfraid", function(self, subcommand, value)
-    if subcommand == "force" then
-        if value == "off" or value == "none" or value == nil then
-            self._zfForceRaidProfile = nil
-            RaidDebugPrint("force profile", "OFF")
-            print("ZenFrames: raid profile override OFF — using normal routing")
-        elseif VALID_FORCE_PROFILES[value] then
-            self._zfForceRaidProfile = value
-            self:SpawnRaidFrames()
-            RaidDebugPrint("force profile", value)
-            print("ZenFrames: forcing raid profile →", value)
-        else
-            print("ZenFrames: unknown profile '" .. tostring(value) .. "'")
-            print("  Valid: raid, blitz, battleground, epicBattleground, off")
-            return
-        end
-        self:UpdateRaidFrameVisibility()
-    else
-        print("ZenFrames raid commands:")
-        print("  /zfraid force raid")
-        print("  /zfraid force blitz")
-        print("  /zfraid force battleground")
-        print("  /zfraid force epicBattleground")
-        print("  /zfraid force off")
-        if self._zfForceRaidProfile then
-            print("  Current override: " .. self._zfForceRaidProfile)
-        else
-            print("  No override active — using normal routing")
-        end
-    end
-end)
-
--- Raid profile routing: responsive design based on group size.
--- PVP thresholds: party → blitz → battleground → epic battleground
--- PVE: raid profile when in a raid group
+-- Raid profile routing: instance-based for PVP, group-size-based for PVE.
+-- PVP: uses instance max group size (fixed at entry) to select profile immediately.
+-- PVE: raid profile when in a raid group, party frames for small groups.
 function addon:GetRaidRoutingState()
     local raidCfg = self.config and self.config.raid
-
-    -- Force override for testing — bypasses all checks
-    if self._zfForceRaidProfile and VALID_FORCE_PROFILES[self._zfForceRaidProfile] then
-        local profile = self._zfForceRaidProfile
-        local isPvp = profile ~= "raid"
-        return {
-            showParty = false,
-            activeFriendlyProfile = profile,
-            activeEnemyProfile = isPvp and profile or nil,
-        }
-    end
 
     if not raidCfg or not raidCfg.enabled then
         return { showParty = false, activeFriendlyProfile = nil, activeEnemyProfile = nil }
@@ -400,35 +353,38 @@ function addon:GetRaidRoutingState()
         return { showParty = false, activeFriendlyProfile = nil, activeEnemyProfile = nil }
     end
 
-    local routing   = raidCfg.routing or {}
-    local threshold = routing.usePartyWhenGroupSizeAtOrBelow or 5
-    local groupSize = GetNumGroupMembers() or 0
-
-    -- Below threshold → party frames regardless of environment
-    if groupSize <= threshold then
-        return { showParty = true, activeFriendlyProfile = nil, activeEnemyProfile = nil }
-    end
-
     local inInstance, instanceType = IsInInstance()
 
-    -- PVP: responsive profiles based on group size thresholds
+    -- PVP instances: profile determined by instance max group size (known at entry)
     if inInstance and instanceType == "pvp" then
+        local routing = raidCfg.routing or {}
         local pvp  = routing.pvp or {}
         local epic = pvp.epicBattleground or {}
         local bg   = pvp.battleground or {}
         local blz  = pvp.blitz or {}
 
+        local instanceGroupSize = select(9, GetInstanceInfo()) or 0
+
         local profile
-        if groupSize >= (epic.minRaidSize or 26) then
+        if instanceGroupSize >= (epic.minRaidSize or 26) then
             profile = epic.profile or "epicBattleground"
-        elseif groupSize >= (bg.minRaidSize or 9) then
+        elseif instanceGroupSize >= (bg.minRaidSize or 9) then
             profile = bg.profile or "battleground"
         else
             profile = blz.profile or "blitz"
         end
 
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pvp", profile, "groupSize", groupSize)
+        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pvp", profile, "instanceMaxSize", instanceGroupSize)
         return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = profile }
+    end
+
+    local routing   = raidCfg.routing or {}
+    local threshold = routing.usePartyWhenGroupSizeAtOrBelow or 5
+    local groupSize = GetNumGroupMembers() or 0
+
+    -- Below threshold → party frames
+    if groupSize <= threshold then
+        return { showParty = true, activeFriendlyProfile = nil, activeEnemyProfile = nil }
     end
 
     -- PVE: raid profile when in a raid group
@@ -533,7 +489,7 @@ end
 
 function addon:UpdateRaidFrameVisibility()
     local raidCfg = self.config and self.config.raid
-    if not raidCfg or (not raidCfg.enabled and not self._zfForceRaidProfile) then
+    if not raidCfg or not raidCfg.enabled then
         return
     end
 
@@ -624,7 +580,7 @@ end
 
 function addon:SpawnRaidFrames()
     local raidCfg = self.config and self.config.raid
-    if not raidCfg or (not raidCfg.enabled and not self._zfForceRaidProfile) then
+    if not raidCfg or not raidCfg.enabled then
         return
     end
 

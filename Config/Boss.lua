@@ -76,7 +76,7 @@ function addon:GetDefaultConfig_Boss()
                 powerTexture = "_GLOBAL_",
                 height = 12,
                 adjustHealthbarHeight = true,
-                onlyHealer = true,
+                onlyHealer = false,
                 offsetX = 0,
                 offsetY = 0,
             },
