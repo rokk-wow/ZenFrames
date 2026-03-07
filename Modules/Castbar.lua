@@ -58,6 +58,13 @@ function addon:AddCastbar(frame, cfg)
         end
         Text:SetJustifyH(align)
         Text:SetShown(cfg.showSpellName == true)
+
+        local maxTextWidth = cfg.maxTextWidth
+        if maxTextWidth and maxTextWidth > 0 then
+            Text:SetWidth(maxTextWidth)
+            Text:SetWordWrap(false)
+        end
+
         Castbar.Text = Text
     end
 

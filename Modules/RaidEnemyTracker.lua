@@ -4,10 +4,6 @@ local addon = SAdCore:GetAddon(addonName)
 
 local trackerFrame
 
-local function RaidDebugPrint(...)
-    print("ZenFrames:", ...)
-end
-
 local function IsRelevantPvpRaid()
     local inInstance, instanceType = IsInInstance()
     if not inInstance or instanceType ~= "pvp" then
@@ -105,7 +101,6 @@ function addon:RefreshRaidEnemyOrdering()
         state._lastOrderedCount = #ordered
         local first = ordered[1] or "none"
         local second = ordered[2] or "none"
-        RaidDebugPrint("enemy units", #ordered, first, second)
     end
 
     if self.UpdateRaidFrameVisibility then

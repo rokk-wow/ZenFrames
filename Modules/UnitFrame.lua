@@ -320,25 +320,6 @@ local function BuildNameplateUnitTokens(maxUnits)
     return units
 end
 
-local function RaidDebugPrint(...)
-    print("ZenFrames:", ...)
-end
-
-local function RaidDebugPrintOnce(self, key, ...)
-    self._zfRaidDebugSignatures = self._zfRaidDebugSignatures or {}
-
-    local parts = {}
-    for i = 1, select("#", ...) do
-        parts[i] = tostring(select(i, ...))
-    end
-    local signature = table.concat(parts, "|")
-
-    if self._zfRaidDebugSignatures[key] ~= signature then
-        self._zfRaidDebugSignatures[key] = signature
-        RaidDebugPrint(...)
-    end
-end
-
 -- Raid profile routing: instance-based for PVP, group-size-based for PVE.
 -- PVP: uses instance max group size (fixed at entry) to select profile immediately.
 -- PVE: raid profile when in a raid group, party frames for small groups.
@@ -374,7 +355,6 @@ function addon:GetRaidRoutingState()
             profile = blz.profile or "blitz"
         end
 
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pvp", profile, "instanceMaxSize", instanceGroupSize)
         return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = profile }
     end
 
@@ -391,7 +371,6 @@ function addon:GetRaidRoutingState()
     if IsInRaid() then
         local raidRoute = routing.raid or {}
         local profile   = raidRoute.profile or "raid"
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pve", profile, "groupSize", groupSize)
         return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = nil }
     end
 
@@ -433,6 +412,7 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
     for i, child in ipairs(container.frames) do
         local unit = self.GetRaidEnemyUnitAt and self:GetRaidEnemyUnitAt(i) or nil
         local currentUnit = child and child:GetAttribute("unit")
+
         local slotOccupied = self.IsRaidEnemySlotOccupied and self:IsRaidEnemySlotOccupied(i) or false
 
         if slotOccupied then
@@ -445,10 +425,12 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
                         child:UpdateAllElements("RefreshUnit")
                     end
                 end
+                child:Show()
                 child:SetAlpha(1)
             else
                 -- Enemy is known but has no current unitID (out of range)
                 -- Keep the frame on its current unit (stale data) and fade it
+                child:Show()
                 child:SetAlpha(outOfRangeAlpha)
             end
         else
@@ -461,6 +443,7 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
                     child:UpdateAllElements("RefreshUnit")
                 end
             end
+            child:Hide()
             child:SetAlpha(1)
         end
     end
@@ -483,7 +466,6 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
 
     if self._zfRaidEnemyLastLogSignature ~= signature then
         self._zfRaidEnemyLastLogSignature = signature
-        RaidDebugPrint("raid enemy bind", activeEnemyProfile or "none", "roster", rosterCount, "active", resolved, first, second)
     end
 end
 
@@ -503,11 +485,6 @@ function addon:UpdateRaidFrameVisibility()
         self._zfRaidLastFriendlyProfile = activeProfile
         self._zfRaidLastEnemyProfile = activeEnemyProfile
         self._zfRaidLastShowParty = state.showParty
-        RaidDebugPrint(
-            "raid route",
-            state.showParty and "party" or (activeProfile or "none"),
-            activeEnemyProfile or "none"
-        )
     end
 
     if InCombatLockdown() then
@@ -587,8 +564,6 @@ function addon:SpawnRaidFrames()
     local profiles = raidCfg.profiles or {}
     self.groupContainers = self.groupContainers or {}
 
-    RaidDebugPrintOnce(self, "raidSpawn", "raid spawn", "begin", "profiles", next(profiles) and "1" or "0")
-
     for profileName, profileCfg in pairs(profiles) do
         local friendlyCfg = profileCfg and profileCfg.friendly
         if friendlyCfg and friendlyCfg.enabled and friendlyCfg.maxUnits and friendlyCfg.maxUnits > 0 then
@@ -598,11 +573,8 @@ function addon:SpawnRaidFrames()
                 local container = self:SpawnGroupFrames(containerKey, units, friendlyCfg)
                 if container then
                     container:Hide()
-                    RaidDebugPrint("raid spawn", containerKey, "friendly", "created", friendlyCfg.maxUnits)
                 end
             end
-        else
-            RaidDebugPrint("raid spawn", "friendly", profileName, "disabled-or-invalid")
         end
 
         local enemyCfg = profileCfg and profileCfg.enemy
@@ -613,11 +585,8 @@ function addon:SpawnRaidFrames()
                 local container = self:SpawnGroupFrames(containerKey, units, enemyCfg)
                 if container then
                     container:Hide()
-                    RaidDebugPrint("raid spawn", containerKey, "enemy", "created", enemyCfg.maxUnits)
                 end
             end
-        else
-            RaidDebugPrint("raid spawn", "enemy", profileName, "disabled-or-invalid")
         end
     end
 
