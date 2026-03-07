@@ -1,79 +1,74 @@
-# Copilot Instructions — ZenFrames (WoW Addon)
+# Dev Notes (Core Basics)
 
-These rules are mandatory. Violations produce broken code that fails silently at runtime.
+This file is intentionally short so AI can load it quickly each session.
 
----
+## Project Context
+- WoW Beta addon development (12.0.x era behavior).
+- Use `LibSAdCore` patterns first before inventing custom framework behavior.
+- For deep details, check source docs when needed (for example `Libs/LibSAdCore/README.md`).
 
-## CRITICAL: Secret Values — Hard Constraint
+## Critical API Reality (Beta)
+- See `.github/copilot-instructions.md` for the full secret value rules (auto-loaded by Copilot).
+- TL;DR: secret values throw Lua exceptions on ANY operation — no compares, no storage, no concatenation. Use spell ID lookups, Blizzard's built-in aura filter APIs, or existing project patterns.
 
-Modern WoW (12.0+) designates certain API return values as **secret/forbidden values**. A secret value **throws an immediate Lua exception** if you perform ANY operation on it:
+## Critical Information about fixing Bugs and Defects
+- If you are requested to fix a bug or defect first analyze the problem
+- If you are less than 95% confident in the resolution, you must gather more information
+  - Ad print statements and ask the user to run the tests and give results
+  - This gives you understanding of the actual problem and the ability to fix it
+  - The more complicated the resolution, the more code changes, the more it means it's probably wrong. This should lower your confidence.
+  - Never make code changes for bug fixes when you have low confidence in the resolution
 
-- ❌ Compare it (`if secretVal == something`)
-- ❌ Concatenate it (`"text" .. secretVal`)
-- ❌ Store it in a variable for later use (`local x = secretVal`)
-- ❌ Pass it to `print()`, `tostring()`, or string formatting
-- ❌ Use it as a table key or value
-- ❌ Pass it to any function that inspects its contents
-- ❌ Use it in conditional logic of any kind
+## Critical information about functions, variables and scope
+- We should always default to addon scoped functions and variables.
+  - Using local functions and variables requires specific ordering and loading of files that is unnecessary
+  - Addon scoped functions and variables do not give us much overhead and they allow us to freely access necessary items across files.
+- Only use local functions and variables in very specific situations when the circumstances call for it.
 
-### What values are secret?
+## FStack Triage (When User Shares Screenshots)
+- Find the mouse cursor first (the exact UI element in question).
+- Check the `SOURCE` line to identify which Blizzard/AddOn frame created it.
+- Confirm the exact frame container before editing (do not assume viewers/frames are interchangeable).
 
-- Aura/buff/debuff names and spell names from combat-related APIs
-- Spell IDs returned from certain combat/aura query functions
-- Aura durations, expiration times, and counts in many contexts
-- Targeting details and combat log payload values (source/dest names, GUIDs in combat contexts)
-- Generally: any value Blizzard marks as restricted in the 12.0+ protected API surface
-
-### What to do instead
-
-- **Use spellId-based filtering** — compare known spell IDs you define yourself, never extract and compare names
-- **Use Blizzard's built-in aura filter system** (`AuraUtil.ForEachAura` with filter strings, `UnitAura` index-based iteration with Blizzard's own filter callbacks)
-- **Use framework-provided helpers** — `LibSAdCore` and `oUF` elements already handle secret values correctly
-- **Check existing code patterns** in this project before writing new aura/combat logic — follow established conventions
-- **If you are unsure whether a value is secret**: treat it as secret. Do not guess. Ask the user or search for how existing code handles the same data.
-
-### What are the exceptions?
-
-- Secret values may only be used when the code is **explicitly intended to run outside of combat** (e.g., configuration UI, out-of-combat inspection, auction house addon, in-game bank functionality). This is rare. **Always ask the user to confirm** that the use case is non-combat before writing any code that reads, stores, or manipulates a secret value.
-
-### Why this matters
-
-Secret value errors are **insidious** — they only trigger when the specific code path executes (e.g., a specific buff appears, a specific combat event fires). They pass casual testing and break in production. This is the #1 source of hard-to-find bugs in this project.
-
----
-
-## Project Architecture
-
-- This is a WoW addon built on the **oUF** unit frame framework with **LibSAdCore** as a shared utility library.
-- Always check `LibSAdCore` patterns first before inventing custom solutions. See `Libs/LibSAdCore/README.md`.
-- All edit mode code belongs in `EditMode/`. No edit mode logic in other modules (see dev-notes for rare exception rules).
-- Configuration lives in `Config/` with per-content-type files (Arena, Raid, Party, etc.).
-
-## SAdCore Hook Convention (Mandatory)
-
-For every `addon.*` function:
-- First line: `callHook(self, "BeforeFunctionName", ...)`  
-- Before every return: `callHook(self, "AfterFunctionName", returnValue)`
+## SAdCore Coding Rules (Keep These)
+- For every `addon.*` function:
+  - First line: `callHook(self, "BeforeFunctionName", ...)`
+  - Before every return: `callHook(self, "AfterFunctionName", returnValue)`
 - Always return explicit values (`true`/`false`/actual value). Never return `nil`.
-- Local/private functions are exempt from this hook rule.
+- Local/private functions are not bound by the `addon.*` hook rule.
 
-## Code Style
+## Localization + Messaging
+- All user-facing info/error text must use localization via `self:L()`.
+- Keep release/user messaging concise and readable.
 
-- Self-documenting code with descriptive names
-- Minimal comments (major section headers or required file headers only)
-- Prefer affirmative logic
-- All user-facing text must use localization via `self:L()`
+## Edit Mode
+- All edit mode code belongs in the `EditMode/` folder.
+- No edit mode logic should live in other modules, settings, or ZenFrames.lua.
+- There may be rare exceptions we can discuss on a case by case basis.
+  - If we must make changes to code outside of the `EditMode/` folder, then we must do so in a specific way
+    - We must allow inversion of control into the function. For example:
+      - Good: We need to change display text hard coded into a method. We add a parameter into that method and allow the calling code to pass in the text. Now the original calling code can pass in the hard coded text and the Edit Mode code can pass in the text it needs to see. Now there is no code specific to edit mode but we've allowed edit mode to inject dependencies into the method.
+      - Bad: We go into the method and add an if statement that says `if "editMode" then text = "editmodetext" else text = "hardcoded text" end. This is bad because we've added static code that is only relevant to Edit Mode.
 
-## Bug Fixing Protocol
+## Code Style Essentials
+- Favor self-documenting code and descriptive names.
+- Keep comments minimal (only major section headers or required file headers).
+- Prefer affirmative logic when practical.
 
-- Analyze the problem before changing code
-- If confidence < 95%, add print statements and ask the user to test — do not guess
-- The more complex the proposed fix, the more likely it's wrong
-- Never make speculative multi-file changes for bug fixes
+## Preparing for a Release
+To prepare for a release:
+- Bump addon version in the `.toc` file:
+  - Increase patch version for bug fixes
+  - Increase minor version for normal changes that dont break backwards compatibility
+  - Increase major version for major/breaking changes.
+  - Check Announcement.lua and see if we need to update it with new patch notes
+    - Title might need to be updated, the localization string might contain the previous version - title = "announcementTitle",
+    - Patch notes should be brief and very high level. Players can find detailed patch notes on release site.
+    - check ZenFrames.lua to see if version in show announcement needs to be updated - self:ShowAnnouncement("v2.0.0")
+  - Check for unused localization strings and remove them
+  - Verifiy all new localization strings are in place and have translations for the existing languages already translated for other strings
 
-## FStack Triage
 
-When the user shares UI screenshots:
-- Find the mouse cursor to identify the element
-- Check the `SOURCE` line for the owning frame/addon
-- Confirm the exact frame container before editing
+
+
+readycheck

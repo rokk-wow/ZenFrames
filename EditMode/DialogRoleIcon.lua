@@ -2,8 +2,11 @@ local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
+local resolveConfig = addon._resolveConfigForKey
+local buildPath = addon._buildOverridePath
+
 local function GetRoleIconConfig(self, configKey, moduleKey)
-    local cfg = self.config[configKey]
+    local cfg = resolveConfig(configKey)
     if not cfg or not cfg.modules then return nil, nil end
 
     local moduleCfg = cfg.modules[moduleKey]
@@ -76,7 +79,7 @@ function addon:PopulateRoleIconSubDialog(subDialog, configKey, moduleKey, yOffse
     local currentY = yOffset
 
     local onChange = function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "enabled"), value)
     end
     local enabledRow
     enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, "emEnabled", moduleCfg.enabled, {
@@ -88,14 +91,14 @@ function addon:PopulateRoleIconSubDialog(subDialog, configKey, moduleKey, yOffse
     local sizeValue = moduleCfg.iconSize or moduleCfg.size
     local sizeRow
     sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "emSize", 10, 100, sizeValue, 1, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "iconSize"), value)
         self:RefreshRoleIconEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, sizeRow)
 
     local colorRow
     colorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, "emColor", moduleCfg.color, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "color"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "color"), value)
         self:RefreshRoleIconEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, colorRow)

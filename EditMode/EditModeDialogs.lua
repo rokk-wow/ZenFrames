@@ -94,7 +94,7 @@ local function IsAuraFilterModule(configKey, moduleKey)
         return false
     end
 
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.auraFilters then
         return false
     end
@@ -113,7 +113,7 @@ local function IsTextModule(configKey, moduleKey)
         return false
     end
 
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.text then
         return false
     end
@@ -145,7 +145,10 @@ local LARGE_SUB_DIALOG_CONFIGS = {
 
 local function ShouldUseLargeSubDialog(configKey, moduleKey)
     if not moduleKey then
-        return LARGE_SUB_DIALOG_CONFIGS[configKey] == true
+        if LARGE_SUB_DIALOG_CONFIGS[configKey] == true then
+            return true
+        end
+        return addon._isGroupContainerKey(configKey)
     end
 
     if LARGE_SUB_DIALOG_MODULES[moduleKey] == true then
@@ -173,8 +176,8 @@ local function ToPascalCase(value)
 end
 
 local function GetConfigDisplayName(configKey)
-    local profile, side = tostring(configKey or ""):match("^raid_(.+)_(friendly|enemy)$")
-    if profile then
+    local profile, side = tostring(configKey or ""):match("^raid_(.+)_(%a+)$")
+    if profile and (side == "friendly" or side == "enemy") then
         if profile == "raid" then
             return "Raid"
         end
@@ -196,6 +199,65 @@ end
 
 local function GetModuleDisplayName(moduleKey)
     return ToPascalCase(moduleKey)
+end
+
+-- ---------------------------------------------------------------------------
+-- Config resolution for raid profile keys (e.g. "raid_blitz_friendly")
+-- ---------------------------------------------------------------------------
+
+function addon._resolveConfigForKey(configKey)
+    if not configKey then return nil end
+    local directCfg = addon.config and addon.config[configKey]
+    if directCfg then return directCfg end
+
+    local profile, side = tostring(configKey):match("^raid_(.+)_(%a+)$")
+    if profile and (side == "friendly" or side == "enemy") and addon.config and addon.config.raid and addon.config.raid.profiles then
+        local profileCfg = addon.config.raid.profiles[profile]
+        if profileCfg then return profileCfg[side] end
+    end
+
+    return nil
+end
+
+function addon._resolveDefaultConfigForKey(configKey)
+    if not configKey then return nil end
+    local defaults = addon:GetDefaultConfig()
+    if not defaults then return nil end
+
+    local directCfg = defaults[configKey]
+    if directCfg then return directCfg end
+
+    local profile, side = tostring(configKey):match("^raid_(.+)_(%a+)$")
+    if profile and (side == "friendly" or side == "enemy") and defaults.raid and defaults.raid.profiles then
+        local profileCfg = defaults.raid.profiles[profile]
+        if profileCfg then return profileCfg[side] end
+    end
+
+    return nil
+end
+
+function addon._buildOverridePath(configKey, ...)
+    local path
+    local profile, side = tostring(configKey or ""):match("^raid_(.+)_(%a+)$")
+    if profile and (side == "friendly" or side == "enemy") then
+        path = {"raid", "profiles", profile, side}
+    else
+        path = {configKey}
+    end
+
+    for i = 1, select("#", ...) do
+        path[#path + 1] = select(i, ...)
+    end
+
+    return path
+end
+
+function addon._isGroupContainerKey(configKey)
+    if configKey == "party" or configKey == "arena" or configKey == "boss" then
+        return true
+    end
+    local side = tostring(configKey or ""):match("^raid_.+_(%a+)$")
+    return side == "friendly" or side == "enemy"
 end
 
 local function GetModuleFrameName(moduleKey)
@@ -527,6 +589,8 @@ function addon:ShowEditModeSubDialog(configKey, moduleKey)
         local unitFrameMethod = UNIT_FRAME_SUB_DIALOG_METHODS[configKey]
         if unitFrameMethod and self[unitFrameMethod] then
             self[unitFrameMethod](self, subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
+        elseif addon._isGroupContainerKey(configKey) and self.PopulatePartySubDialog then
+            self:PopulatePartySubDialog(subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
         elseif self.PopulateUnitFrameSubDialog then
             self:PopulateUnitFrameSubDialog(subDialog, configKey, moduleKey, contentY, GetModuleFrameName)
         end
@@ -557,7 +621,7 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
         confirmText = "resetButton",
         height = 250,
         onConfirm = function()
-        local cfg = self.config[configKey]
+        local cfg = addon._resolveConfigForKey(configKey)
         local targetCfg = cfg
 
         local isAuraFilter = false
@@ -594,33 +658,33 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
         local preserveHideBlizzard = targetCfg.hideBlizzard
 
         if isAuraFilter then
-            self:ClearOverrides({configKey, "modules", "auraFilters", auraFilterIndex})
+            self:ClearOverrides(addon._buildOverridePath(configKey, "modules", "auraFilters", auraFilterIndex))
             if preserveEnabled ~= nil then
-                self:SetOverride({configKey, "modules", "auraFilters", auraFilterIndex, "enabled"}, preserveEnabled)
+                self:SetOverride(addon._buildOverridePath(configKey, "modules", "auraFilters", auraFilterIndex, "enabled"), preserveEnabled)
             end
             if preserveHideBlizzard ~= nil then
-                self:SetOverride({configKey, "modules", "auraFilters", auraFilterIndex, "hideBlizzard"}, preserveHideBlizzard)
+                self:SetOverride(addon._buildOverridePath(configKey, "modules", "auraFilters", auraFilterIndex, "hideBlizzard"), preserveHideBlizzard)
             end
         elseif isTextModule then
-            self:ClearOverrides({configKey, "modules", "text", textIndex})
+            self:ClearOverrides(addon._buildOverridePath(configKey, "modules", "text", textIndex))
             if preserveEnabled ~= nil then
-                self:SetOverride({configKey, "modules", "text", textIndex, "enabled"}, preserveEnabled)
+                self:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "enabled"), preserveEnabled)
             end
         elseif moduleKey then
-            self:ClearOverrides({configKey, "modules", moduleKey})
+            self:ClearOverrides(addon._buildOverridePath(configKey, "modules", moduleKey))
             if preserveEnabled ~= nil then
-                self:SetOverride({configKey, "modules", moduleKey, "enabled"}, preserveEnabled)
+                self:SetOverride(addon._buildOverridePath(configKey, "modules", moduleKey, "enabled"), preserveEnabled)
             end
             if preserveHideBlizzard ~= nil then
-                self:SetOverride({configKey, "modules", moduleKey, "hideBlizzard"}, preserveHideBlizzard)
+                self:SetOverride(addon._buildOverridePath(configKey, "modules", moduleKey, "hideBlizzard"), preserveHideBlizzard)
             end
         else
-            self:ClearOverrides({configKey})
+            self:ClearOverrides(addon._buildOverridePath(configKey))
             if preserveEnabled ~= nil then
-                self:SetOverride({configKey, "enabled"}, preserveEnabled)
+                self:SetOverride(addon._buildOverridePath(configKey, "enabled"), preserveEnabled)
             end
             if preserveHideBlizzard ~= nil then
-                self:SetOverride({configKey, "hideBlizzard"}, preserveHideBlizzard)
+                self:SetOverride(addon._buildOverridePath(configKey, "hideBlizzard"), preserveHideBlizzard)
             end
         end
 
@@ -629,16 +693,16 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
         if moduleKey then
             self:RefreshModule(configKey, moduleKey)
 
-            if configKey == "party" or configKey == "arena" or configKey == "boss" then
+            if addon._isGroupContainerKey(configKey) then
                 local container = self.groupContainers and self.groupContainers[configKey]
 
                 if container and container.frames then
-                    local frameCfg = self.config[configKey]
-                    local defaultFrameCfg = self:GetDefaultConfig()[configKey]
+                    local frameCfg = addon._resolveConfigForKey(configKey)
+                    local defaultFrameCfg = addon._resolveDefaultConfigForKey(configKey)
 
-                    local moduleCfg = frameCfg.modules[moduleKey]
+                    local moduleCfg = frameCfg and frameCfg.modules and frameCfg.modules[moduleKey]
                     if not moduleCfg then
-                        if isAuraFilter and auraFilterIndex then
+                        if isAuraFilter and auraFilterIndex and defaultFrameCfg then
                             moduleCfg = defaultFrameCfg.modules.auraFilters[auraFilterIndex]
                         end
                     end
@@ -683,15 +747,15 @@ function addon:ShowResetConfirmDialog(configKey, moduleKey)
         else
             self:RefreshFrame(configKey)
 
-            if (configKey == "party" or configKey == "arena" or configKey == "boss") and self.RefreshGroupContainerVisuals then
+            if addon._isGroupContainerKey(configKey) and self.RefreshGroupContainerVisuals then
                 self:RefreshGroupContainerVisuals(configKey)
             end
         end
 
         if self.editMode then
-            local frameCfg = self.config and self.config[configKey]
+            local frameCfg = addon._resolveConfigForKey(configKey)
             if frameCfg then
-                if configKey == "party" or configKey == "arena" or configKey == "boss" then
+                if addon._isGroupContainerKey(configKey) then
                     local container = self.groupContainers and self.groupContainers[configKey]
                     if container and container.frames then
                         for _, unitFrame in ipairs(container.frames) do

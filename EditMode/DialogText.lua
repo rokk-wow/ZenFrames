@@ -91,7 +91,7 @@ local function ForEachFrameByConfig(configKey, callback)
 end
 
 local function RefreshTextSize(configKey, textIndex, newSize)
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.text then return end
 
     ForEachFrameByConfig(configKey, function(frame)
@@ -124,7 +124,7 @@ local function RefreshTextColor(configKey, textIndex, newColor)
 end
 
 local function RefreshTextOutline(configKey, textIndex, newOutline)
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.text then return end
 
     ForEachFrameByConfig(configKey, function(frame)
@@ -172,7 +172,7 @@ local function RefreshTextFormat(configKey, textIndex, newFormat)
 end
 
 local function GetTextConfig(self, configKey, moduleKey)
-    local cfg = self.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.text then return nil, nil, nil end
 
     for i, entry in ipairs(cfg.modules.text) do
@@ -243,7 +243,7 @@ function addon:PopulateTextSubDialog(subDialog, configKey, moduleKey, yOffset)
     subDialog._controls = subDialog._controls or {}
 
     local onChange = function(value)
-        self:SetOverride({configKey, "modules", "text", textIndex, "enabled"}, value)
+        self:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "enabled"), value)
     end
     local enabledRow
     enabledRow, yOffset = self:DialogAddEnableControl(subDialog, yOffset, "emEnabled", textCfg.enabled, {
@@ -254,7 +254,7 @@ function addon:PopulateTextSubDialog(subDialog, configKey, moduleKey, yOffset)
 
     local textRow
     textRow, yOffset = self:DialogAddTextInput(subDialog, yOffset, "emFormat", textCfg.format, function(value)
-        self:SetOverride({configKey, "modules", "text", textIndex, "format"}, value)
+        self:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "format"), value)
         RefreshTextFormat(configKey, textIndex, value)
     end)
     table.insert(subDialog._controls, textRow)
@@ -283,21 +283,21 @@ function addon:PopulateTextSubDialog(subDialog, configKey, moduleKey, yOffset)
 
     local sizeRow
     sizeRow, yOffset = self:DialogAddSlider(subDialog, yOffset, "emSize", 8, 32, textCfg.size, 1, function(value)
-        self:SetOverride({configKey, "modules", "text", textIndex, "size"}, value)
+        self:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "size"), value)
         RefreshTextSize(configKey, textIndex, value)
     end)
     table.insert(subDialog._controls, sizeRow)
 
     local colorRow
     colorRow, yOffset = self:DialogAddColorPicker(subDialog, yOffset, "emColor", textCfg.color, function(value)
-        self:SetOverride({configKey, "modules", "text", textIndex, "color"}, value)
+        self:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "color"), value)
         RefreshTextColor(configKey, textIndex, value)
     end)
     table.insert(subDialog._controls, colorRow)
 
     local shadowRow
     shadowRow, yOffset = self:DialogAddCheckbox(subDialog, yOffset, "emShadow", textCfg.shadow, function(value)
-        self:SetOverride({configKey, "modules", "text", textIndex, "shadow"}, value)
+        self:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "shadow"), value)
         RefreshTextShadow(configKey, textIndex, value)
     end)
     table.insert(subDialog._controls, shadowRow)
@@ -310,7 +310,7 @@ function addon:PopulateTextSubDialog(subDialog, configKey, moduleKey, yOffset)
     }
     local outlineRow
     outlineRow, yOffset = self:DialogAddDropdown(subDialog, yOffset, "emOutline", outlineOptions, textCfg.outline, function(value)
-        self:SetOverride({configKey, "modules", "text", textIndex, "outline"}, value)
+        self:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "outline"), value)
         RefreshTextOutline(configKey, textIndex, value)
     end)
     table.insert(subDialog._controls, outlineRow)

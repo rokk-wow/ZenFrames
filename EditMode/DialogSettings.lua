@@ -54,7 +54,7 @@ local function SetModuleEnabled(moduleLabel, enabled)
     
     -- Check if it's an aura filter by looking up the actual config
     addon:RefreshConfig()
-    local frameCfg = addon.config[configKey]
+    local frameCfg = addon._resolveConfigForKey(configKey)
     if not frameCfg or not frameCfg.modules then
         return
     end
@@ -67,9 +67,9 @@ local function SetModuleEnabled(moduleLabel, enabled)
             if type(filterCfg) == "table" and filterCfg.name then
                 if filterCfg.name == moduleKeyPascal then
                     if enabled then
-                        addon:SetOverride({configKey, "modules", "auraFilters", i, "enabled"}, true)
+                        addon:SetOverride(addon._buildOverridePath(configKey, "modules", "auraFilters", i, "enabled"), true)
                     else
-                        addon:ClearOverrides({configKey, "modules", "auraFilters", i, "enabled"})
+                        addon:ClearOverrides(addon._buildOverridePath(configKey, "modules", "auraFilters", i, "enabled"))
                     end
                     return
                 end
@@ -80,9 +80,26 @@ local function SetModuleEnabled(moduleLabel, enabled)
     -- Otherwise it's a regular module
     if frameCfg.modules[moduleKey] then
         if enabled then
-            addon:SetOverride({configKey, "modules", moduleKey, "enabled"}, true)
+            addon:SetOverride(addon._buildOverridePath(configKey, "modules", moduleKey, "enabled"), true)
         else
-            addon:ClearOverrides({configKey, "modules", moduleKey, "enabled"})
+            addon:ClearOverrides(addon._buildOverridePath(configKey, "modules", moduleKey, "enabled"))
+        end
+    end
+end
+
+local function CollectDisabledModules(disabled, configKey, frameCfg)
+    if type(frameCfg) ~= "table" or frameCfg.enabled == false or type(frameCfg.modules) ~= "table" then
+        return
+    end
+    for moduleKey, moduleCfg in pairs(frameCfg.modules) do
+        if moduleKey == "auraFilters" and type(moduleCfg) == "table" then
+            for _, filterCfg in ipairs(moduleCfg) do
+                if type(filterCfg) == "table" and filterCfg.enabled == false and filterCfg.name then
+                    disabled[#disabled + 1] = ToPascalCase(configKey) .. "." .. ToPascalCase(filterCfg.name)
+                end
+            end
+        elseif type(moduleCfg) == "table" and moduleCfg.enabled == false then
+            disabled[#disabled + 1] = ToPascalCase(configKey) .. "." .. ToPascalCase(moduleKey)
         end
     end
 end
@@ -91,17 +108,20 @@ local function GetDisabledModuleDisplayNames()
     local disabled = {}
 
     for configKey, frameCfg in pairs(addon.config or {}) do
-        -- Skip if this is the global config or if the frame itself is disabled
-        if configKey ~= "global" and type(frameCfg) == "table" and frameCfg.enabled ~= false and type(frameCfg.modules) == "table" then
-            for moduleKey, moduleCfg in pairs(frameCfg.modules) do
-                if moduleKey == "auraFilters" and type(moduleCfg) == "table" then
-                    for _, filterCfg in ipairs(moduleCfg) do
-                        if type(filterCfg) == "table" and filterCfg.enabled == false and filterCfg.name then
-                            disabled[#disabled + 1] = ToPascalCase(configKey) .. "." .. ToPascalCase(filterCfg.name)
-                        end
-                    end
-                elseif type(moduleCfg) == "table" and moduleCfg.enabled == false then
-                    disabled[#disabled + 1] = ToPascalCase(configKey) .. "." .. ToPascalCase(moduleKey)
+        if configKey ~= "global" and configKey ~= "raid" then
+            CollectDisabledModules(disabled, configKey, frameCfg)
+        end
+    end
+
+    local raidCfg = addon.config and addon.config.raid
+    if type(raidCfg) == "table" and type(raidCfg.profiles) == "table" then
+        for profileName, profile in pairs(raidCfg.profiles) do
+            if type(profile) == "table" then
+                if profile.friendly then
+                    CollectDisabledModules(disabled, "raid_" .. profileName .. "_friendly", profile.friendly)
+                end
+                if profile.enemy then
+                    CollectDisabledModules(disabled, "raid_" .. profileName .. "_enemy", profile.enemy)
                 end
             end
         end
@@ -400,7 +420,7 @@ local function PopulateSettingsContent(dialog)
             if addon.editMode then
                 local unitId = configKeyToUnit[configKey]
                 local frame = addon.unitFrames[unitId]
-                local cfg = addon.config and addon.config[configKey]
+                local cfg = addon._resolveConfigForKey(configKey)
                 if frame and cfg then
                     RefreshTextFonts(frame, cfg)
                     RefreshTextures(frame, cfg)
@@ -411,7 +431,7 @@ local function PopulateSettingsContent(dialog)
 
         if addon.groupContainers then
             for configKey, container in pairs(addon.groupContainers) do
-                local cfg = addon.config and addon.config[configKey]
+                local cfg = addon._resolveConfigForKey(configKey)
                 if type(cfg) == "table" then
                     local unitBorderWidth = cfg.borderWidth
                     local unitBorderColor = cfg.borderColor

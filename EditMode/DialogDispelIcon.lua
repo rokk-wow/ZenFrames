@@ -2,8 +2,11 @@ local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
+local resolveConfig = addon._resolveConfigForKey
+local buildPath = addon._buildOverridePath
+
 local function GetDispelIconConfig(self, configKey, moduleKey)
-    local cfg = self.config[configKey]
+    local cfg = resolveConfig(configKey)
     if not cfg or not cfg.modules then return nil, nil end
 
     local moduleCfg = cfg.modules[moduleKey]
@@ -140,7 +143,7 @@ function addon:PopulateDispelIconSubDialog(subDialog, configKey, moduleKey, yOff
     local currentY = yOffset
 
     local onChange = function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "enabled"), value)
     end
     local enabledRow
     enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, "emEnabled", moduleCfg.enabled, {
@@ -151,35 +154,35 @@ function addon:PopulateDispelIconSubDialog(subDialog, configKey, moduleKey, yOff
 
     local sizeRow
     sizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "emSize", 10, 100, moduleCfg.iconSize, 1, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "iconSize"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "iconSize"), value)
         self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, sizeRow)
 
     local showGlowRow
     showGlowRow, currentY = self:DialogAddCheckbox(subDialog, currentY, "emShowGlow", moduleCfg.showGlow == true, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "showGlow"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "showGlow"), value)
         self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, showGlowRow)
 
     local bgColorRow
     bgColorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, "emBackgroundColor", moduleCfg.backgroundColor, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "backgroundColor"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "backgroundColor"), value)
         self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, bgColorRow)
 
     local borderSizeRow
     borderSizeRow, currentY = self:DialogAddSlider(subDialog, currentY, "emBorderSize", 0, 10, moduleCfg.borderWidth, 1, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "borderWidth"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "borderWidth"), value)
         self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, borderSizeRow)
 
     local borderColorRow
     borderColorRow, currentY = self:DialogAddColorPicker(subDialog, currentY, "emBorderColor", moduleCfg.borderColor, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "borderColor"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "borderColor"), value)
         self:RefreshDispelIconEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, borderColorRow)

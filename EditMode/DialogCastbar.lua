@@ -2,8 +2,11 @@ local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
+local resolveConfig = addon._resolveConfigForKey
+local buildPath = addon._buildOverridePath
+
 local function GetCastbarConfig(self, configKey, moduleKey)
-    local cfg = self.config[configKey]
+    local cfg = resolveConfig(configKey)
     if not cfg or not cfg.modules then return nil, nil end
 
     local moduleCfg = cfg.modules[moduleKey]
@@ -114,7 +117,7 @@ function addon:PopulateCastbarSubDialog(subDialog, configKey, moduleKey, yOffset
     if not moduleCfg then return end
 
     local function ApplyCastbarSetting(propertyName, value, shouldRefresh)
-        self:SetOverride({configKey, "modules", moduleKey, propertyName}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, propertyName), value)
 
         if shouldRefresh then
             RefreshCastbarVisuals(self, configKey, moduleKey)

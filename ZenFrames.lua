@@ -405,6 +405,10 @@ function addon:Initialize()
         preferredIndex = 3,
     }
 
+    self:RegisterSlashCommand("zfreset", function()
+        StaticPopup_Show("ZENFRAMES_RESET_ALL_CONFIRM")
+    end)
+
     if self.savedVars and self.savedVars.version ~= "2.0.0" then
         wipe(self.savedVars)
         self.savedVars.version = "2.0.0"

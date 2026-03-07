@@ -3,7 +3,7 @@ local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
 local function GetAuraFilterConfig(self, configKey, moduleKey)
-    local cfg = self.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.auraFilters then return nil, nil, nil end
 
     for i, entry in ipairs(cfg.modules.auraFilters) do
@@ -139,7 +139,7 @@ end
 function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, yOffset)
     if not subDialog then return end
 
-    local cfg = self.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.auraFilters then return end
 
     local _, filterCfg, filterIndex = GetAuraFilterConfig(self, configKey, moduleKey)
@@ -148,7 +148,7 @@ function addon:PopulateAuraFilterSubDialog(subDialog, configKey, moduleKey, yOff
     subDialog._controls = subDialog._controls or {}
 
     local function ApplyFilterSetting(propertyName, value, shouldRefresh)
-        self:SetOverride({configKey, "modules", "auraFilters", filterIndex, propertyName}, value)
+        self:SetOverride(addon._buildOverridePath(configKey, "modules", "auraFilters", filterIndex, propertyName), value)
 
         if shouldRefresh then
             RefreshAuraFilterVisuals(self, configKey, moduleKey)

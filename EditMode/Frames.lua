@@ -153,7 +153,7 @@ end
 
 local function OverrideNameText(frame, displayName, configKey)
     if not frame.Texts or not displayName then return end
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     local textConfigs = cfg and cfg.modules and cfg.modules.text
     if not textConfigs then return end
 
@@ -172,7 +172,7 @@ end
 
 local function RestoreNameText(frame, configKey)
     if not frame.Texts then return end
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     local textConfigs = cfg and cfg.modules and cfg.modules.text
     if not textConfigs then return end
 
@@ -230,7 +230,7 @@ local ELEMENT_TO_MODULE_KEY = {
 }
 
 local function GetAuraFilterNames(configKey)
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.auraFilters then return end
     local names = {}
     for _, filter in ipairs(cfg.modules.auraFilters) do
@@ -282,7 +282,7 @@ local function ApplyTextPinOffset(pin, deltaX, deltaY)
     local fs = pin._fontString
     if not configKey or not textIndex or not fs then return end
 
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.text then return end
     local textCfg = cfg.modules.text[textIndex]
     if not textCfg then return end
@@ -290,8 +290,8 @@ local function ApplyTextPinOffset(pin, deltaX, deltaY)
     local newOffsetX = math.floor((textCfg.offsetX or 0) + deltaX + 0.5)
     local newOffsetY = math.floor((textCfg.offsetY or 0) + deltaY + 0.5)
 
-    addon:SetOverride({configKey, "modules", "text", textIndex, "offsetX"}, newOffsetX)
-    addon:SetOverride({configKey, "modules", "text", textIndex, "offsetY"}, newOffsetY)
+    addon:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "offsetX"), newOffsetX)
+    addon:SetOverride(addon._buildOverridePath(configKey, "modules", "text", textIndex, "offsetY"), newOffsetY)
 
     local unitFrame = (fs:GetParent() and fs:GetParent():GetParent()) or fs:GetParent()
     local anchorParent = textCfg.relativeTo and _G[textCfg.relativeTo] or unitFrame
@@ -302,7 +302,7 @@ local function ApplyTextPinOffset(pin, deltaX, deltaY)
     pin:ClearAllPoints()
     pin:SetPoint("CENTER", fs, "CENTER", 0, 0)
 
-    if configKey == "party" or configKey == "arena" or configKey == "boss" then
+    if addon._isGroupContainerKey(configKey) then
         if addon.groupContainers and addon.groupContainers[configKey] then
             local container = addon.groupContainers[configKey]
             if container.frames then
@@ -430,7 +430,7 @@ local function GetOrCreateTextPin(frame, index)
 end
 
 local function ShowTextPins(frame, configKey)
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.text then return end
     if not frame.Texts then return end
 
@@ -474,7 +474,7 @@ local function ShowDRTrackerPlaceholderIcons(frame, configKey)
     local drTracker = frame.DRTracker
     if not drTracker then return end
 
-    local cfg = addon.config[configKey]
+    local cfg = addon._resolveConfigForKey(configKey)
     if not cfg or not cfg.modules or not cfg.modules.drTracker then return end
     local drCfg = cfg.modules.drTracker
 

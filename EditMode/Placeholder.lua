@@ -131,8 +131,8 @@ local function GetModuleConfig(configKey, moduleKey)
             return directCfg
         end
 
-        local profile, side = tostring(configKeyToResolve):match("^raid_(.+)_(friendly|enemy)$")
-        if profile and side and addon.config and addon.config.raid and addon.config.raid.profiles then
+        local profile, side = tostring(configKeyToResolve):match("^raid_(.+)_(%a+)$")
+        if profile and (side == "friendly" or side == "enemy") and addon.config and addon.config.raid and addon.config.raid.profiles then
             local profileCfg = addon.config.raid.profiles[profile]
             if profileCfg then
                 return profileCfg[side]
@@ -267,8 +267,8 @@ local function UpdatePlaceholderPosition(overlay)
             return directCfg, { configKeyToResolve }
         end
 
-        local profile, side = tostring(configKeyToResolve):match("^raid_(.+)_(friendly|enemy)$")
-        if profile and side and addon.config and addon.config.raid and addon.config.raid.profiles then
+        local profile, side = tostring(configKeyToResolve):match("^raid_(.+)_(%a+)$")
+        if profile and (side == "friendly" or side == "enemy") and addon.config and addon.config.raid and addon.config.raid.profiles then
             local profileCfg = addon.config.raid.profiles[profile]
             if profileCfg and profileCfg[side] then
                 return profileCfg[side], { "raid", "profiles", profile, side }

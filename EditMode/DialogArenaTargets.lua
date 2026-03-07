@@ -2,8 +2,11 @@ local addonName = ...
 local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
+local resolveConfig = addon._resolveConfigForKey
+local buildPath = addon._buildOverridePath
+
 local function GetArenaTargetsConfig(self, configKey, moduleKey)
-    local cfg = self.config[configKey]
+    local cfg = resolveConfig(configKey)
     if not cfg or not cfg.modules then return nil, nil end
 
     local moduleCfg = cfg.modules[moduleKey]
@@ -135,7 +138,7 @@ function addon:PopulateArenaTargetsSubDialog(subDialog, configKey, moduleKey, yO
     local currentY = yOffset
 
     local onChange = function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "enabled"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "enabled"), value)
     end
     local enabledRow
     enabledRow, currentY = self:DialogAddEnableControl(subDialog, currentY, "emEnabled", moduleCfg.enabled, {
@@ -149,27 +152,27 @@ function addon:PopulateArenaTargetsSubDialog(subDialog, configKey, moduleKey, yO
         { label = "emShowFriendlyUnits", value = "friendly" },
         { label = "emShowEnemyUnits", value = "enemy" },
     }, moduleCfg.mode, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "mode"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "mode"), value)
     end)
     table.insert(subDialog._controls, modeRow)
 
     local indicatorWidthRow
     indicatorWidthRow, currentY = self:DialogAddSlider(subDialog, currentY, "emIndicatorWidth", 2, 100, moduleCfg.indicatorWidth, 1, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "indicatorWidth"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "indicatorWidth"), value)
         self:RefreshArenaTargetsEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, indicatorWidthRow)
 
     local indicatorHeightRow
     indicatorHeightRow, currentY = self:DialogAddSlider(subDialog, currentY, "emIndicatorHeight", 2, 100, moduleCfg.indicatorHeight, 1, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "indicatorHeight"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "indicatorHeight"), value)
         self:RefreshArenaTargetsEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, indicatorHeightRow)
 
     local indicatorSpacingRow
     indicatorSpacingRow, currentY = self:DialogAddSlider(subDialog, currentY, "emIndicatorSpacing", 0, 100, moduleCfg.spacing, 1, function(value)
-        self:SetOverride({configKey, "modules", moduleKey, "spacing"}, value)
+        self:SetOverride(buildPath(configKey, "modules", moduleKey, "spacing"), value)
         self:RefreshArenaTargetsEditModeVisuals(configKey, moduleKey)
     end)
     table.insert(subDialog._controls, indicatorSpacingRow)
