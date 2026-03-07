@@ -20,7 +20,7 @@ function addon:GetDefaultConfig_Battleground()
             perRow = 5,
             spacingX = 2,
             spacingY = 2,
-            growthX = "RIGHT",
+            growthX = "LEFT",
             growthY = "DOWN",
 
             groupLayout = {
@@ -87,7 +87,7 @@ function addon:GetDefaultConfig_Battleground()
                     defaultAlpha = 0.5,
                 },
                 dispelIcon = {
-                    enabled = dispelIcon,
+                    enabled = false,
                     iconSize = 22,
                     showGlow = false,
                     backgroundColor = "00000088",
@@ -230,7 +230,7 @@ function addon:GetDefaultConfig_Battleground()
                     defaultAlpha = 0.5,
                 },
                 dispelIcon = {
-                    enabled = dispelIcon,
+                    enabled = false,
                     iconSize = 22,
                     showGlow = false,
                     backgroundColor = "00000088",

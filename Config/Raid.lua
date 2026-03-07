@@ -87,7 +87,7 @@ function addon:GetDefaultConfig_Raid()
                     defaultAlpha = 0.5,
                 },
                 dispelIcon = {
-                    enabled = dispelIcon,
+                    enabled = false,
                     iconSize = 22,
                     showGlow = false,
                     backgroundColor = "00000088",

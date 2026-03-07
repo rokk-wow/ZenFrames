@@ -81,7 +81,7 @@ function addon:GetDefaultConfig_Boss()
                 offsetY = 0,
             },
             dispelIcon = {
-                enabled = dispelIcon,
+                enabled = false,
                 iconSize = 28,
                 showGlow = false,
                 backgroundColor = "00000088",

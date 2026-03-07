@@ -434,6 +434,10 @@ function addon:Initialize()
         self:InitializeWaypoints()
     end
 
+    if self.InitializeInfo then
+        self:InitializeInfo()
+    end
+
     C_Timer.After(1, function()
         self:ShowAnnouncement(self:GetCurrentAnnouncementId())
     end)

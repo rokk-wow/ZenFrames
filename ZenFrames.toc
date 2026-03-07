@@ -50,6 +50,7 @@ Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
 Modules\Waypoints.lua
+Modules\Info.lua
 
 EditMode\EditModeDialogs.lua
 EditMode\DialogUnitFrame.lua

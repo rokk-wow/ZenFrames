@@ -69,7 +69,7 @@ function addon:GetDefaultConfig_EpicBattleground()
                     defaultAlpha = 0.5,
                 },
                 dispelIcon = {
-                    enabled = dispelIcon,
+                    enabled = false,
                     iconSize = 16,
                     showGlow = false,
                     backgroundColor = "00000088",
@@ -158,7 +158,7 @@ function addon:GetDefaultConfig_EpicBattleground()
                     defaultAlpha = 0.5,
                 },
                 dispelIcon = {
-                    enabled = dispelIcon,
+                    enabled = false,
                     iconSize = 16,
                     showGlow = false,
                     backgroundColor = "00000088",

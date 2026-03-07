@@ -1184,6 +1184,8 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
             arenaUnitFrames["arena" .. i] = child
         end
 
+        local arenaOutOfRangeAlpha = cfg.outOfRangeOpacity or 0.5
+
         local visFrame = CreateFrame("Frame")
         visFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
         visFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -1198,7 +1200,7 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
                     if updateReason == "seen" then
                         frame:SetAlpha(1)
                     elseif updateReason == "unseen" or updateReason == "destroyed" then
-                        frame:SetAlpha(0.5)
+                        frame:SetAlpha(arenaOutOfRangeAlpha)
                     end
                 end
             elseif event == "PLAYER_REGEN_ENABLED" then

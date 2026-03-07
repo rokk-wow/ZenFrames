@@ -93,7 +93,7 @@ function addon:GetDefaultConfig_Party()
                 defaultAlpha = 0.5,
             },
             dispelIcon = {
-                enabled = dispelIcon,
+                enabled = false,
                 iconSize = 28,
                 showGlow = false,
                 backgroundColor = "00000088",
@@ -320,7 +320,6 @@ function addon:GetDefaultConfig_Party()
                     showPlaceholderIcon = true,
                 },
             },
-
             readyCheck = {
                 enabled = true,
                 size = 20,

@@ -7,5 +7,8 @@ function addon:GetDefaultConfig_Extras()
         waypoints = {
             enabled = true,
         },
+        info = {
+            enabled = true,
+        },
     }
 end

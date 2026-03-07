@@ -735,7 +735,7 @@ local function BuildSettingsDialog()
     settingsDialog._contentFrame = contentFrame
 
     local leftColumn = CreateFrame("Frame", nil, contentFrame)
-    leftColumn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", -(settingsDialog._borderWidth + settingsDialog._padding), 0)
+    leftColumn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, 0)
     leftColumn:SetWidth(columnWidth)
     leftColumn:SetHeight(1)
     leftColumn._fontPath = settingsDialog._fontPath

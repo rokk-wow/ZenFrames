@@ -29,6 +29,7 @@ function addon:GetDefaultConfig_Arena()
         unitBackgroundColor = "00000088",
         borderWidth = "_GLOBAL_",
         borderColor = "_GLOBAL_",
+        outOfRangeOpacity = "_GLOBAL_",
         highlightSelected = true,
 
         leftClick = "select",
@@ -93,7 +94,7 @@ function addon:GetDefaultConfig_Arena()
                 defaultAlpha = 0.5,
             },
             dispelIcon = {
-                enabled = dispelIcon,
+                enabled = false,
                 iconSize = 28,
                 showGlow = false,
                 backgroundColor = "00000088",
@@ -105,7 +106,7 @@ function addon:GetDefaultConfig_Arena()
                 offsetY = 3,
             },
             dispelHighlight = {
-                enabled = true,
+                enabled = false,
                 borderWidth = 4,
             },
             trinket = {
