@@ -13,7 +13,7 @@ local ANNOUNCEMENT_LOCALIZATION = {
         announcementTitle = "ZenFrames v2.1.0",
         announcementGreeting = "Greetings, gladiator.",
         announcementBullet1 = "- Blitz, Battleground, Epic Battleground and Raid frames added",
-        announcementContact = "|cffffd100https://discord.gg/JYKdcdMyQG|r",
+        announcementContact = "Find bugs? Want Features? Let me know |cffffd100https://discord.gg/JYKdcdMyQG|r",
         announcementLaunchButton = "Launch Edit Mode",
     },
     esES = {

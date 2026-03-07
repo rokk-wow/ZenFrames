@@ -324,41 +324,6 @@ local function RaidDebugPrint(...)
     print("ZenFrames:", ...)
 end
 
-local function IsRaidLikeGroupForBypass(raidCfg)
-    local inGroup = IsInGroup()
-    local inRaid = IsInRaid()
-    local groupSize = GetNumGroupMembers() or 0
-    local threshold = raidCfg and raidCfg.routing and raidCfg.routing.usePartyWhenGroupSizeAtOrBelow or 5
-
-    local inInstance, instanceType = IsInInstance()
-    local isScenarioInstance = inInstance and instanceType == "scenario"
-    local isScenarioGroup = IsInScenarioGroup and IsInScenarioGroup() or false
-    local hasRaidUnits = UnitExists("raid1") == true
-    local thresholdRaidUnitExists = UnitExists("raid" .. tostring(threshold + 1)) == true
-
-    if inRaid then
-        return true
-    end
-
-    if thresholdRaidUnitExists then
-        return true
-    end
-
-    if not isScenarioInstance and not isScenarioGroup then
-        return false
-    end
-
-    if inRaid or hasRaidUnits then
-        return true
-    end
-
-    if inGroup and groupSize > threshold then
-        return true
-    end
-
-    return false
-end
-
 local function RaidDebugPrintOnce(self, key, ...)
     self._zfRaidDebugSignatures = self._zfRaidDebugSignatures or {}
 
@@ -374,133 +339,108 @@ local function RaidDebugPrintOnce(self, key, ...)
     end
 end
 
+-- /zfraid force <profile|off> — override raid profile routing for testing.
+-- Valid profiles: raid, blitz, battleground, epicBattleground, off
+local VALID_FORCE_PROFILES = { raid = true, blitz = true, battleground = true, epicBattleground = true }
+
+addon:RegisterSlashCommand("zfraid", function(self, subcommand, value)
+    if subcommand == "force" then
+        if value == "off" or value == "none" or value == nil then
+            self._zfForceRaidProfile = nil
+            RaidDebugPrint("force profile", "OFF")
+            print("ZenFrames: raid profile override OFF — using normal routing")
+        elseif VALID_FORCE_PROFILES[value] then
+            self._zfForceRaidProfile = value
+            self:SpawnRaidFrames()
+            RaidDebugPrint("force profile", value)
+            print("ZenFrames: forcing raid profile →", value)
+        else
+            print("ZenFrames: unknown profile '" .. tostring(value) .. "'")
+            print("  Valid: raid, blitz, battleground, epicBattleground, off")
+            return
+        end
+        self:UpdateRaidFrameVisibility()
+    else
+        print("ZenFrames raid commands:")
+        print("  /zfraid force raid")
+        print("  /zfraid force blitz")
+        print("  /zfraid force battleground")
+        print("  /zfraid force epicBattleground")
+        print("  /zfraid force off")
+        if self._zfForceRaidProfile then
+            print("  Current override: " .. self._zfForceRaidProfile)
+        else
+            print("  No override active — using normal routing")
+        end
+    end
+end)
+
+-- Raid profile routing: responsive design based on group size.
+-- PVP thresholds: party → blitz → battleground → epic battleground
+-- PVE: raid profile when in a raid group
 function addon:GetRaidRoutingState()
     local raidCfg = self.config and self.config.raid
-    local raidLikeBypass = raidCfg and IsRaidLikeGroupForBypass(raidCfg)
-    local raidEnabled = raidCfg and (raidCfg.enabled == true or raidLikeBypass)
 
-    if not raidCfg or not raidEnabled then
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "disabled", "raidCfgEnabled", tostring(raidCfg and raidCfg.enabled))
+    -- Force override for testing — bypasses all checks
+    if self._zfForceRaidProfile and VALID_FORCE_PROFILES[self._zfForceRaidProfile] then
+        local profile = self._zfForceRaidProfile
+        local isPvp = profile ~= "raid"
         return {
             showParty = false,
-            activeFriendlyProfile = nil,
-            activeEnemyProfile = nil,
+            activeFriendlyProfile = profile,
+            activeEnemyProfile = isPvp and profile or nil,
         }
     end
 
-    local routing = raidCfg.routing or {}
+    if not raidCfg or not raidCfg.enabled then
+        return { showParty = false, activeFriendlyProfile = nil, activeEnemyProfile = nil }
+    end
+
+    if not IsInGroup() then
+        return { showParty = false, activeFriendlyProfile = nil, activeEnemyProfile = nil }
+    end
+
+    local routing   = raidCfg.routing or {}
     local threshold = routing.usePartyWhenGroupSizeAtOrBelow or 5
-    local inGroup = IsInGroup()
-    local inRaid = IsInRaid()
-    local groupSize = inGroup and GetNumGroupMembers() or 0
-    local inInstance, instanceType = IsInInstance()
-    local isScenarioRaidLike = inInstance and instanceType == "scenario" and groupSize > threshold
+    local groupSize = GetNumGroupMembers() or 0
 
-    RaidDebugPrintOnce(
-        self,
-        "raidRoutingContext",
-        "raid context",
-        "inGroup", inGroup and "1" or "0",
-        "inRaid", inRaid and "1" or "0",
-        "groupSize", groupSize,
-        "instanceType", instanceType or "none",
-        "threshold", threshold,
-        "scenarioRaidLike", isScenarioRaidLike and "1" or "0"
-    )
-
-    if not inGroup then
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "no-group")
-        return {
-            showParty = false,
-            activeFriendlyProfile = nil,
-            activeEnemyProfile = nil,
-        }
-    end
-
+    -- Below threshold → party frames regardless of environment
     if groupSize <= threshold then
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "party", "groupSize", groupSize)
-        return {
-            showParty = true,
-            activeFriendlyProfile = nil,
-            activeEnemyProfile = nil,
-        }
+        return { showParty = true, activeFriendlyProfile = nil, activeEnemyProfile = nil }
     end
 
-    if not inRaid and not isScenarioRaidLike then
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "group-not-raid", "groupSize", groupSize)
-        return {
-            showParty = false,
-            activeFriendlyProfile = nil,
-            activeEnemyProfile = nil,
-        }
-    end
+    local inInstance, instanceType = IsInInstance()
 
-    if not inRaid and isScenarioRaidLike then
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "scenario-raid-like", "groupSize", groupSize)
-    end
+    -- PVP: responsive profiles based on group size thresholds
+    if inInstance and instanceType == "pvp" then
+        local pvp  = routing.pvp or {}
+        local epic = pvp.epicBattleground or {}
+        local bg   = pvp.battleground or {}
+        local blz  = pvp.blitz or {}
 
-    local isPvpRaid = inInstance and instanceType == "pvp"
-
-    if isPvpRaid then
-        local pvp = routing.pvp or {}
-        local blitz = pvp.blitz
-        if blitz and groupSize >= (blitz.minRaidSize or 6) and groupSize <= (blitz.maxRaidSize or 8) then
-            local profile = blitz.profile
-            RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pvp", "blitz", "profile", profile or "nil")
-            return {
-                showParty = false,
-                activeFriendlyProfile = profile,
-                activeEnemyProfile = profile,
-            }
+        local profile
+        if groupSize >= (epic.minRaidSize or 26) then
+            profile = epic.profile or "epicBattleground"
+        elseif groupSize >= (bg.minRaidSize or 9) then
+            profile = bg.profile or "battleground"
+        else
+            profile = blz.profile or "blitz"
         end
 
-        local battleground = pvp.battleground
-        if battleground and groupSize >= (battleground.minRaidSize or 9) and groupSize <= (battleground.maxRaidSize or 25) then
-            local profile = battleground.profile
-            RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pvp", "battleground", "profile", profile or "nil")
-            return {
-                showParty = false,
-                activeFriendlyProfile = profile,
-                activeEnemyProfile = profile,
-            }
-        end
-
-        local epicBattleground = pvp.epicBattleground
-        if epicBattleground and groupSize >= (epicBattleground.minRaidSize or 26) then
-            local profile = epicBattleground.profile
-            RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pvp", "epic", "profile", profile or "nil")
-            return {
-                showParty = false,
-                activeFriendlyProfile = profile,
-                activeEnemyProfile = profile,
-            }
-        end
-
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pvp", "no-matching-profile", "groupSize", groupSize)
-        return {
-            showParty = false,
-            activeFriendlyProfile = nil,
-            activeEnemyProfile = nil,
-        }
+        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pvp", profile, "groupSize", groupSize)
+        return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = profile }
     end
 
-    local raidRoute = routing.raid or routing.pve or {}
-    if groupSize >= (raidRoute.minRaidSize or 6) then
-        local defaultProfile = (raidCfg and raidCfg.profiles and raidCfg.profiles.raid and "raid") or "pve"
-        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "raid", "profile", raidRoute.profile or defaultProfile)
-        return {
-            showParty = false,
-            activeFriendlyProfile = raidRoute.profile or defaultProfile,
-            activeEnemyProfile = nil,
-        }
+    -- PVE: raid profile when in a raid group
+    if IsInRaid() then
+        local raidRoute = routing.raid or {}
+        local profile   = raidRoute.profile or "raid"
+        RaidDebugPrintOnce(self, "raidRouting", "raid routing", "pve", profile, "groupSize", groupSize)
+        return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = nil }
     end
 
-    RaidDebugPrintOnce(self, "raidRouting", "raid routing", "raid", "below-min-raid-size", "groupSize", groupSize)
-    return {
-        showParty = false,
-        activeFriendlyProfile = nil,
-        activeEnemyProfile = nil,
-    }
+    -- Non-raid group above threshold (e.g. dungeon party) → party frames
+    return { showParty = true, activeFriendlyProfile = nil, activeEnemyProfile = nil }
 end
 
 function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
@@ -523,6 +463,7 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
 
     local fallbackUnits = BuildNameplateUnitTokens(enemyCfg.maxUnits or #container.frames)
     local rosterCount = self.GetRaidEnemyRosterCount and self:GetRaidEnemyRosterCount() or 0
+    local outOfRangeAlpha = enemyCfg.outOfRangeOpacity or 0.5
 
     if InCombatLockdown() then
         self._zfPendingRaidEnemyUnitSync = true
@@ -536,16 +477,26 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
     for i, child in ipairs(container.frames) do
         local unit = self.GetRaidEnemyUnitAt and self:GetRaidEnemyUnitAt(i) or nil
         local currentUnit = child and child:GetAttribute("unit")
+        local slotOccupied = self.IsRaidEnemySlotOccupied and self:IsRaidEnemySlotOccupied(i) or false
 
-        if i <= rosterCount then
-            if unit and child and currentUnit ~= unit then
-                child:SetAttribute("unit", unit)
-                child.unit = unit
-                if child.UpdateAllElements then
-                    child:UpdateAllElements("RefreshUnit")
+        if slotOccupied then
+            if unit then
+                -- Enemy has a live unitID — bind it and show at full alpha
+                if child and currentUnit ~= unit then
+                    child:SetAttribute("unit", unit)
+                    child.unit = unit
+                    if child.UpdateAllElements then
+                        child:UpdateAllElements("RefreshUnit")
+                    end
                 end
+                child:SetAlpha(1)
+            else
+                -- Enemy is known but has no current unitID (out of range)
+                -- Keep the frame on its current unit (stale data) and fade it
+                child:SetAlpha(outOfRangeAlpha)
             end
         else
+            -- Slot not occupied — reset to fallback (hidden via non-existent unit)
             local resetUnit = fallbackUnits[i]
             if child and resetUnit and currentUnit ~= resetUnit then
                 child:SetAttribute("unit", resetUnit)
@@ -554,15 +505,21 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
                     child:UpdateAllElements("RefreshUnit")
                 end
             end
+            child:SetAlpha(1)
         end
     end
 
-    local resolvedUnits = self.GetRaidEnemyUnits and self:GetRaidEnemyUnits(enemyCfg.maxUnits or #container.frames) or {}
-    local resolved = #resolvedUnits
+    local resolved = 0
+    for i = 1, rosterCount do
+        if self.GetRaidEnemyUnitAt and self:GetRaidEnemyUnitAt(i) then
+            resolved = resolved + 1
+        end
+    end
     local first = self.GetRaidEnemyUnitAt and (self:GetRaidEnemyUnitAt(1) or "none") or "none"
     local second = self.GetRaidEnemyUnitAt and (self:GetRaidEnemyUnitAt(2) or "none") or "none"
     local signature = table.concat({
         tostring(activeEnemyProfile or "none"),
+        tostring(rosterCount),
         tostring(resolved),
         tostring(first),
         tostring(second),
@@ -570,31 +527,13 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
 
     if self._zfRaidEnemyLastLogSignature ~= signature then
         self._zfRaidEnemyLastLogSignature = signature
-        RaidDebugPrint("raid enemy bind", activeEnemyProfile or "none", resolved, first, second)
+        RaidDebugPrint("raid enemy bind", activeEnemyProfile or "none", "roster", rosterCount, "active", resolved, first, second)
     end
 end
 
 function addon:UpdateRaidFrameVisibility()
     local raidCfg = self.config and self.config.raid
-    local raidLikeBypass = raidCfg and IsRaidLikeGroupForBypass(raidCfg)
-    local raidEnabled = raidCfg and (raidCfg.enabled == true or raidLikeBypass)
-    if not raidCfg or not raidEnabled then
-        local inInstance, instanceType = IsInInstance()
-        local scenarioGroup = IsInScenarioGroup and IsInScenarioGroup() or false
-        local hasRaid1 = UnitExists("raid1") and "1" or "0"
-        local hasRaid6 = UnitExists("raid6") and "1" or "0"
-        RaidDebugPrintOnce(
-            self,
-            "raidVisibility",
-            "raid visibility",
-            "skipped",
-            "raidCfgEnabled", tostring(raidCfg and raidCfg.enabled),
-            "raidLikeBypass", raidLikeBypass and "1" or "0",
-            "instanceType", instanceType or "none",
-            "scenarioGroup", scenarioGroup and "1" or "0",
-            "hasRaid1", hasRaid1,
-            "hasRaid6", hasRaid6
-        )
+    if not raidCfg or (not raidCfg.enabled and not self._zfForceRaidProfile) then
         return
     end
 
@@ -685,30 +624,8 @@ end
 
 function addon:SpawnRaidFrames()
     local raidCfg = self.config and self.config.raid
-    local raidLikeBypass = raidCfg and IsRaidLikeGroupForBypass(raidCfg)
-    local raidEnabled = raidCfg and (raidCfg.enabled == true or raidLikeBypass)
-    if not raidCfg or not raidEnabled then
-        local inInstance, instanceType = IsInInstance()
-        local scenarioGroup = IsInScenarioGroup and IsInScenarioGroup() or false
-        local hasRaid1 = UnitExists("raid1") and "1" or "0"
-        local hasRaid6 = UnitExists("raid6") and "1" or "0"
-        RaidDebugPrintOnce(
-            self,
-            "raidSpawn",
-            "raid spawn",
-            "skipped",
-            "raidCfgEnabled", tostring(raidCfg and raidCfg.enabled),
-            "raidLikeBypass", raidLikeBypass and "1" or "0",
-            "instanceType", instanceType or "none",
-            "scenarioGroup", scenarioGroup and "1" or "0",
-            "hasRaid1", hasRaid1,
-            "hasRaid6", hasRaid6
-        )
+    if not raidCfg or (not raidCfg.enabled and not self._zfForceRaidProfile) then
         return
-    end
-
-    if raidLikeBypass and raidCfg and raidCfg.enabled ~= true then
-        RaidDebugPrintOnce(self, "raidScenarioBypass", "raid spawn", "raid-like-bypass", "raidCfgEnabled", tostring(raidCfg.enabled))
     end
 
     local profiles = raidCfg.profiles or {}
@@ -770,12 +687,44 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
     local unitW = cfg.unitWidth
     local unitH = cfg.unitHeight
 
-    local cols = math.min(perRow, maxUnits)
-    local rows = math.ceil(maxUnits / cols)
+    local layout = cfg.groupLayout
+    local useGroupLayout = layout and layout.enabled
+    local groupCount, unitsPerGroup, enforcePerRow, groupCols, groupRows
+    local groupWidth, groupHeight, groupSpacingXVal, groupSpacingYVal, layoutOrientation
+
+    if useGroupLayout then
+        unitsPerGroup = layout.unitsPerGroup or 5
+        enforcePerRow = layout.enforcePerRow or 5
+        layoutOrientation = layout.orientation or "HORIZONTAL"
+        groupSpacingXVal = layout.groupSpacingX or 4
+        groupSpacingYVal = layout.groupSpacingY or 4
+        if layout.overrideGrowthX then growthX = layout.overrideGrowthX end
+        if layout.overrideGrowthY then growthY = layout.overrideGrowthY end
+    end
+
     local cellW = unitW
     local cellH = unitH
-    local containerW = cols * cellW + math.max(0, cols - 1) * spacingX + 2 * spacingX
-    local containerH = rows * cellH + math.max(0, rows - 1) * spacingY + 2 * spacingY
+    local cols, rows, containerW, containerH
+
+    if useGroupLayout then
+        groupCols = math.min(enforcePerRow, unitsPerGroup)
+        groupRows = math.ceil(unitsPerGroup / enforcePerRow)
+        groupWidth = groupCols * cellW + math.max(0, groupCols - 1) * spacingX
+        groupHeight = groupRows * cellH + math.max(0, groupRows - 1) * spacingY
+        groupCount = math.ceil(maxUnits / unitsPerGroup)
+        if layoutOrientation == "HORIZONTAL" then
+            containerW = groupCount * groupWidth + math.max(0, groupCount - 1) * groupSpacingXVal + 2 * spacingX
+            containerH = groupHeight + 2 * spacingY
+        else
+            containerW = groupWidth + 2 * spacingX
+            containerH = groupCount * groupHeight + math.max(0, groupCount - 1) * groupSpacingYVal + 2 * spacingY
+        end
+    else
+        cols = math.min(perRow, maxUnits)
+        rows = math.ceil(maxUnits / cols)
+        containerW = cols * cellW + math.max(0, cols - 1) * spacingX + 2 * spacingX
+        containerH = rows * cellH + math.max(0, rows - 1) * spacingY + 2 * spacingY
+    end
 
     local container = CreateFrame("Frame", cfg.frameName, UIParent)
     container:SetSize(containerW, containerH)
@@ -846,6 +795,10 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
                 self:AddRoleIcon(frame, cfg.modules.roleIcon)
             end
 
+            if cfg.modules.readyCheck and cfg.modules.readyCheck.enabled then
+                self:AddReadyCheck(frame, cfg.modules.readyCheck)
+            end
+
             if cfg.modules.trinket and cfg.modules.trinket.enabled then
                 self:AddTrinket(frame, cfg.modules.trinket)
             end
@@ -867,7 +820,10 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
             end
         end
 
-        if cfg.outOfRangeOpacity and cfg.outOfRangeOpacity < 1 then
+        -- oUF Range uses UnitInParty which doesn't work for enemies.
+        -- Enemy frame alpha is managed by UpdateRaidEnemyProfileUnits instead.
+        local isEnemyContainer = type(configKey) == "string" and configKey:match("_enemy$")
+        if not isEnemyContainer and cfg.outOfRangeOpacity and cfg.outOfRangeOpacity < 1 then
             frame.Range = {
                 insideAlpha = 1,
                 outsideAlpha = cfg.outOfRangeOpacity,
@@ -931,6 +887,17 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
 
         child:SetParent(container)
 
+        local isEnemyContainer = type(configKey) == "string" and configKey:match("_enemy$")
+        if configKey ~= "arena" and not isEnemyContainer then
+            child:RegisterEvent("GROUP_ROSTER_UPDATE", function(self, event)
+                local unitGUID = UnitGUID(self.unit)
+                if unitGUID and not issecretvalue(unitGUID) and unitGUID ~= self.unitGUID then
+                    self.unitGUID = unitGUID
+                    self:UpdateAllElements(event)
+                end
+            end, true)
+        end
+
         if configKey == "arena" then
             UnregisterUnitWatch(child)
             child:SetAttribute("state-unitexists", true)
@@ -973,11 +940,73 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
             end
         end
 
-        child:SetPoint(initialAnchor, container, initialAnchor,
-            (col * (cellW + spacingX) + spacingX) * xMult,
-            (row * (cellH + spacingY) + spacingY) * yMult)
+        if useGroupLayout then
+            local groupIndex = math.floor((i - 1) / unitsPerGroup)
+            local indexInGroup = (i - 1) % unitsPerGroup
+            local colInGroup = indexInGroup % enforcePerRow
+            local rowInGroup = math.floor(indexInGroup / enforcePerRow)
+            local offsetX, offsetY
+            if layoutOrientation == "HORIZONTAL" then
+                offsetX = spacingX + groupIndex * (groupWidth + groupSpacingXVal) + colInGroup * (cellW + spacingX)
+                offsetY = spacingY + rowInGroup * (cellH + spacingY)
+            else
+                offsetX = spacingX + colInGroup * (cellW + spacingX)
+                offsetY = spacingY + groupIndex * (groupHeight + groupSpacingYVal) + rowInGroup * (cellH + spacingY)
+            end
+            child:SetPoint(initialAnchor, container, initialAnchor, offsetX * xMult, offsetY * yMult)
+        else
+            child:SetPoint(initialAnchor, container, initialAnchor,
+                (col * (cellW + spacingX) + spacingX) * xMult,
+                (row * (cellH + spacingY) + spacingY) * yMult)
+        end
 
         container.frames[i] = child
+    end
+
+    if useGroupLayout then
+        container._groupBackgrounds = container._groupBackgrounds or {}
+        local grpBgColor = layout.containerBackgroundColor
+        local grpBorderWidth = layout.containerBorderWidth
+        local grpBorderColor = layout.containerBorderColor
+
+        if grpBgColor or (grpBorderWidth and grpBorderColor) then
+            for g = 0, groupCount - 1 do
+                local groupBg = container._groupBackgrounds[g + 1]
+                if not groupBg then
+                    groupBg = CreateFrame("Frame", nil, container)
+                    groupBg:SetFrameLevel(container:GetFrameLevel())
+                    container._groupBackgrounds[g + 1] = groupBg
+                end
+
+                local gOffsetX, gOffsetY
+                if layoutOrientation == "HORIZONTAL" then
+                    gOffsetX = spacingX + g * (groupWidth + groupSpacingXVal)
+                    gOffsetY = spacingY
+                else
+                    gOffsetX = spacingX
+                    gOffsetY = spacingY + g * (groupHeight + groupSpacingYVal)
+                end
+
+                groupBg:ClearAllPoints()
+                groupBg:SetPoint(initialAnchor, container, initialAnchor, gOffsetX * xMult, gOffsetY * yMult)
+                groupBg:SetSize(groupWidth, groupHeight)
+
+                if grpBgColor then
+                    self:AddBackground(groupBg, { backgroundColor = grpBgColor })
+                end
+                if grpBorderWidth and grpBorderColor then
+                    self:AddBorder(groupBg, { borderWidth = grpBorderWidth, borderColor = grpBorderColor })
+                end
+
+                groupBg:Show()
+            end
+        end
+
+        for i = (groupCount or 0) + 1, #(container._groupBackgrounds or {}) do
+            if container._groupBackgrounds[i] then
+                container._groupBackgrounds[i]:Hide()
+            end
+        end
     end
 
     local function RefreshGroupLabels()
@@ -1096,21 +1125,9 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
                 return cfg.hideInArena ~= true
             end
 
-            if not IsInGroup() then
-                return false
-            end
-
-            local threshold = 5
-            if addon.config and addon.config.raid and addon.config.raid.routing then
-                threshold = addon.config.raid.routing.usePartyWhenGroupSizeAtOrBelow or threshold
-            end
-
-            local groupSize = GetNumGroupMembers()
-            if groupSize <= threshold then
-                return true
-            end
-
-            return IsInGroup() and not IsInRaid()
+            -- Delegate to centralized routing for all non-arena decisions
+            local state = addon:GetRaidRoutingState()
+            return state.showParty
         end
 
         local function ShowPartyContainer()

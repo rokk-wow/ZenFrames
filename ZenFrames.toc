@@ -12,6 +12,16 @@
 Libs\LibSAdCore\LibSAdCore.lua
 Libs\oUF\oUF.xml
 
+Config\Global.lua
+Config\Units.lua
+Config\Party.lua
+Config\Arena.lua
+Config\Boss.lua
+Config\Raid.lua
+Config\Blitz.lua
+Config\Battleground.lua
+Config\EpicBattleground.lua
+Config\Extras.lua
 Config.lua
 Localization.lua
 
@@ -32,12 +42,14 @@ Modules\RaidEnemyTracker.lua
 Modules\CombatIndicator.lua
 Modules\RestingIndicator.lua
 Modules\RoleIcon.lua
+Modules\ReadyCheck.lua
 Modules\Trinket.lua
 Modules\ArenaTargets.lua
 Modules\DRTracker.lua
 Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
+Modules\Waypoints.lua
 
 EditMode\EditModeDialogs.lua
 EditMode\DialogUnitFrame.lua

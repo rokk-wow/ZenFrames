@@ -1,0 +1,10 @@
+{
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": ".github/copilot-instructions.md"
+        },
+        {
+            "text": "NEVER use secret/forbidden WoW API values (aura names, spell names, combat log names/GUIDs, durations from protected APIs). These throw Lua exceptions on ANY operation — no compares, no storage, no concatenation, no tostring. Use spell ID lookups you define yourself, Blizzard's built-in aura filter APIs, or existing project patterns in LibSAdCore/oUF."
+        }
+    ]
+}

@@ -430,6 +430,10 @@ function addon:Initialize()
         self:CreateAuraFilterDebug(self.config.auraFilterDebug)
     end
 
+    if self.InitializeWaypoints then
+        self:InitializeWaypoints()
+    end
+
     C_Timer.After(1, function()
         self:ShowAnnouncement(self:GetCurrentAnnouncementId())
     end)

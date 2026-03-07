@@ -17,6 +17,7 @@ local LEFT_COLUMN_FRAMES = {
         locKey = "blitzEnabled",
         defaultVisible = false,
         enabledPath = { "raid", "profiles", "blitz", "friendly", "enabled" },
+        enemyEnabledPath = { "raid", "profiles", "blitz", "enemy", "enabled" },
         visibilityKeys = { "raid_blitz_friendly", "raid_blitz_enemy" },
     },
     {
@@ -24,6 +25,7 @@ local LEFT_COLUMN_FRAMES = {
         locKey = "battlegroundEnabled",
         defaultVisible = false,
         enabledPath = { "raid", "profiles", "battleground", "friendly", "enabled" },
+        enemyEnabledPath = { "raid", "profiles", "battleground", "enemy", "enabled" },
         visibilityKeys = { "raid_battleground_friendly", "raid_battleground_enemy" },
     },
     {
@@ -31,6 +33,7 @@ local LEFT_COLUMN_FRAMES = {
         locKey = "epicBattlegroundEnabled",
         defaultVisible = false,
         enabledPath = { "raid", "profiles", "epicBattleground", "friendly", "enabled" },
+        enemyEnabledPath = { "raid", "profiles", "epicBattleground", "enemy", "enabled" },
         visibilityKeys = { "raid_epicBattleground_friendly", "raid_epicBattleground_enemy" },
     },
     {
@@ -125,6 +128,9 @@ local function SetRowEnabled(def, checked)
 
     if def.enabledPath then
         addon:SetOverride(def.enabledPath, checked)
+        if def.enemyEnabledPath then
+            addon:SetOverride(def.enemyEnabledPath, checked)
+        end
         return
     end
 

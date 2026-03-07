@@ -98,6 +98,13 @@ local function EnsureEditModeRaidPreviewContainers()
         local friendlyCfg = profileCfg and profileCfg.friendly
         if friendlyCfg and friendlyCfg.maxUnits and friendlyCfg.maxUnits > 0 then
             local friendlyKey = "raid_" .. profileName .. "_friendly"
+            local existingFriendly = tempGroupContainers[friendlyKey]
+            if existingFriendly then
+                existingFriendly:SetParent(UIParent)
+                addon.groupContainers[friendlyKey] = existingFriendly
+                existingFriendly:Hide()
+            end
+
             if not addon.groupContainers[friendlyKey] then
                 local units = BuildPreviewUnits(friendlyKey, friendlyCfg.maxUnits)
                 local container = addon:SpawnGroupFrames(friendlyKey, units, friendlyCfg)
@@ -112,6 +119,13 @@ local function EnsureEditModeRaidPreviewContainers()
         local enemyCfg = profileCfg and profileCfg.enemy
         if enemyCfg and enemyCfg.maxUnits and enemyCfg.maxUnits > 0 then
             local enemyKey = "raid_" .. profileName .. "_enemy"
+            local existingEnemy = tempGroupContainers[enemyKey]
+            if existingEnemy then
+                existingEnemy:SetParent(UIParent)
+                addon.groupContainers[enemyKey] = existingEnemy
+                existingEnemy:Hide()
+            end
+
             if not addon.groupContainers[enemyKey] then
                 local units = BuildPreviewUnits(enemyKey, enemyCfg.maxUnits)
                 local container = addon:SpawnGroupFrames(enemyKey, units, enemyCfg)
@@ -700,7 +714,5 @@ function addon:HideEditModeFrames()
             container:Hide()
             container:SetParent(nil)
         end
-
-        tempGroupContainers[configKey] = nil
     end
 end

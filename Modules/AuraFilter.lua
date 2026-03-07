@@ -496,6 +496,9 @@ function addon:CreateAuraFilter(cfg)
     local anchorFrame = cfg.anchorFrame or _G[cfg.relativeTo] or parent
     local frame = CreateFrame("Frame", cfg.frameName, parent)
 
+    frame:SetFrameStrata("HIGH")
+    frame:SetFrameLevel((parent and parent:GetFrameLevel() or 0) + 100)
+
     frame:SetPoint(
         cfg.anchor or "CENTER",
         anchorFrame,
