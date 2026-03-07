@@ -358,7 +358,7 @@ local groupConfigMap = {
 }
 
 function addon:Initialize()
-    self.author = "Rôkk-Wyrmrest Accord"
+    self.author = "Rokks-Sargeras"
 
     self:AddSettingsPanel("main", {
         controls = {

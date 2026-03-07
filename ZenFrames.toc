@@ -1,6 +1,6 @@
 ## Interface: 120000, 120001
 ## Title: ZenFrames
-## Author: Rôkk-Wyrmrest Accord
+## Author: Rokks-Sargeras
 ## Version: 2.1.0
 ## SavedVariables: ZenFramesSettings_Global
 ## SavedVariablesPerCharacter: ZenFramesSettings_Char

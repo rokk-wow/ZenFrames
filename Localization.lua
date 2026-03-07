@@ -164,7 +164,7 @@ addon.locale.enEN = {
 	disableModuleConfirmText = "Re-enable later from the main settings panel.",
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Settings",
-	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+	editModeAuthorCredit = "by Rokks-Sargeras",
 	customConfigRemoved = "Full edit mode has been implemented and Custom Config removed. If you need help, reach out to reddit.com/u/rokk--/.",
 
 	-- Edit mode control labels (shared across dialogs)
@@ -408,7 +408,7 @@ addon.locale.esES = {
 	disableModuleConfirmText = "Esto desactivará este módulo.\n\nPuedes reactivarlo más tarde desde el panel principal de ajustes.",
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Ajustes",
-	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+	editModeAuthorCredit = "by Rokks-Sargeras",
 	customConfigRemoved = "El modo de edición completo ha sido implementado y la Configuración Personalizada eliminada. Si necesitas ayuda, contacta en reddit.com/u/rokk--/.",
 
 	-- Edit mode control labels (shared across dialogs)
@@ -647,7 +647,7 @@ addon.locale.ptBR = {
 	disableModuleConfirmText = "Isso desativará este módulo.\n\nVocê pode reativá-lo depois no painel principal de configurações.",
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Configurações",
-	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+	editModeAuthorCredit = "by Rokks-Sargeras",
 	customConfigRemoved = "O modo de edição completo foi implementado e a Configuração Personalizada removida. Se precisar de ajuda, entre em contato em reddit.com/u/rokk--/.",
 
 	-- Edit mode control labels (shared across dialogs)
@@ -885,7 +885,7 @@ addon.locale.frFR = {
 	disableModuleConfirmText = "Cela désactivera ce module.\n\nVous pourrez le réactiver plus tard depuis le panneau principal des paramètres.",
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Paramètres",
-	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+	editModeAuthorCredit = "by Rokks-Sargeras",
 	customConfigRemoved = "Le mode édition complet a été implémenté et la Configuration Personnalisée supprimée. Si vous avez besoin d'aide, contactez reddit.com/u/rokk--/.",
 
 	-- Edit mode control labels (shared across dialogs)
@@ -1123,7 +1123,7 @@ addon.locale.deDE = {
 	disableModuleConfirmText = "Dies wird dieses Modul deaktivieren.\n\nDu kannst es später im Haupteinstellungsfenster wieder aktivieren.",
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Einstellungen",
-	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+	editModeAuthorCredit = "by Rokks-Sargeras",
 	customConfigRemoved = "Der vollständige Bearbeitungsmodus wurde implementiert und die benutzerdefinierte Konfiguration entfernt. Bei Fragen wende dich an reddit.com/u/rokk--/.",
 
 	-- Edit mode control labels (shared across dialogs)
@@ -1361,7 +1361,7 @@ addon.locale.ruRU = {
 	disableModuleConfirmText = "Это отключит данный модуль.\n\nВы сможете включить его позже в главной панели настроек.",
 	editModeDialogTitle = "ZenFrames",
 	settingsTitle = "Настройки",
-	editModeAuthorCredit = "by Rôkk-Wyrmrest Accord",
+	editModeAuthorCredit = "by Rokks-Sargeras",
 	customConfigRemoved = "Полный режим редактирования реализован, а пользовательская конфигурация удалена. Если вам нужна помощь, обращайтесь на reddit.com/u/rokk--/.",
 
 	-- Edit mode control labels (shared across dialogs)
