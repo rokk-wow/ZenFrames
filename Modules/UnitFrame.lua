@@ -1241,10 +1241,30 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
     end
 
     if configKey == "boss" and not explicitCfg then
-        container:Hide()
+        local bossIsVisible = false
 
-        local bossPendingShow = false
-        local bossPendingHide = false
+        local function HideBossContainer()
+            if bossIsVisible == false then return end
+            bossIsVisible = false
+            if not InCombatLockdown() then
+                container:Hide()
+            else
+                container:SetAlpha(0)
+            end
+        end
+
+        local function ShowBossContainer()
+            if bossIsVisible == true then return end
+            bossIsVisible = true
+            if not InCombatLockdown() then
+                container:SetAlpha(1)
+                container:Show()
+            else
+                container:SetAlpha(1)
+            end
+        end
+
+        HideBossContainer()
 
         local function ShouldShowBossContainer()
             local inInstance, instanceType = IsInInstance()
@@ -1261,33 +1281,20 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
             return false
         end
 
-        local function ShowBossContainer()
-            if InCombatLockdown() then
-                bossPendingShow = true
-                bossPendingHide = false
-                return
-            end
-            bossPendingShow = false
-            bossPendingHide = false
-            container:Show()
-        end
-
-        local function HideBossContainer()
-            if InCombatLockdown() then
-                bossPendingHide = true
-                bossPendingShow = false
-                return
-            end
-            bossPendingShow = false
-            bossPendingHide = false
-            container:Hide()
-        end
-
         local function UpdateBossVisibility()
             if ShouldShowBossContainer() then
                 ShowBossContainer()
             else
                 HideBossContainer()
+            end
+        end
+
+        local function SyncBossContainerState()
+            if bossIsVisible then
+                container:SetAlpha(1)
+                container:Show()
+            else
+                container:Hide()
             end
         end
 
@@ -1301,11 +1308,7 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
         visFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
         visFrame:SetScript("OnEvent", function(_, event, ...)
             if event == "PLAYER_REGEN_ENABLED" then
-                if bossPendingShow then
-                    ShowBossContainer()
-                elseif bossPendingHide then
-                    HideBossContainer()
-                end
+                SyncBossContainerState()
                 return
             end
 
