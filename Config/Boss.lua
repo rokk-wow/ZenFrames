@@ -8,10 +8,10 @@ function addon:GetDefaultConfig_Boss()
         hideBlizzard = false,
 
         frameName = "zfBossContainer",
-        anchor = "CENTER",
+        anchor = "LEFT",
         relativeTo = "UIParent",
         relativePoint = "CENTER",
-        offsetX = 430,
+        offsetX = 370,
         offsetY = 0,
         containerBackgroundColor = "00000000",
         containerBorderWidth = 0,

@@ -8,10 +8,10 @@ function addon:GetDefaultConfig_Arena()
         hideBlizzard = true,
 
         frameName = "zfArenaContainer",
-        anchor = "CENTER",
+        anchor = "LEFT",
         relativeTo = "UIParent",
         relativePoint = "CENTER",
-        offsetX = 430,
+        offsetX = 370,
         offsetY = 63,
         containerBackgroundColor = "00000000",
         containerBorderWidth = 0,

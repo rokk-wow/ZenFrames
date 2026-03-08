@@ -8,10 +8,10 @@ function addon:GetDefaultConfig_Party()
         hideBlizzard = true,
 
         frameName = "zfPartyContainer",
-        anchor = "CENTER",
+        anchor = "RIGHT",
         relativeTo = "UIParent",
         relativePoint = "CENTER",
-        offsetX = -430,
+        offsetX = -370,
         offsetY = 0,
         containerBackgroundColor = "00000000",
         containerBorderWidth = 0,

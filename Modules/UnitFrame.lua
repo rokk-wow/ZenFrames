@@ -399,52 +399,59 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
     local fallbackUnits = BuildNameplateUnitTokens(enemyCfg.maxUnits or #container.frames)
     local rosterCount = self.GetRaidEnemyRosterCount and self:GetRaidEnemyRosterCount() or 0
     local outOfRangeAlpha = enemyCfg.outOfRangeOpacity or 0.5
+    local inCombat = InCombatLockdown()
 
-    if InCombatLockdown() then
+    if inCombat then
         self._zfPendingRaidEnemyUnitSync = true
         self._zfRaidEnemyPendingProfile = activeEnemyProfile
-        return
+    else
+        self._zfPendingRaidEnemyUnitSync = false
+        self._zfRaidEnemyPendingProfile = nil
     end
-
-    self._zfPendingRaidEnemyUnitSync = false
-    self._zfRaidEnemyPendingProfile = nil
 
     for i, child in ipairs(container.frames) do
         local unit = self.GetRaidEnemyUnitAt and self:GetRaidEnemyUnitAt(i) or nil
         local currentUnit = child and child:GetAttribute("unit")
 
-        local slotOccupied = self.IsRaidEnemySlotOccupied and self:IsRaidEnemySlotOccupied(i) or false
+        local slotOccupied = self.IsRaidEnemySlotOccupied and self:IsRaidEnemySlotOccupied(i) or (unit ~= nil)
 
         if slotOccupied then
             if unit then
-                -- Enemy has a live unitID — bind it and show at full alpha
-                if child and currentUnit ~= unit then
+                if not inCombat and child and currentUnit ~= unit then
                     child:SetAttribute("unit", unit)
                     child.unit = unit
                     if child.UpdateAllElements then
                         child:UpdateAllElements("RefreshUnit")
                     end
                 end
-                child:Show()
                 child:SetAlpha(1)
             else
-                -- Enemy is known but has no current unitID (out of range)
-                -- Keep the frame on its current unit (stale data) and fade it
-                child:Show()
+                local meta = self.GetRaidEnemySlotMeta and self:GetRaidEnemySlotMeta(i)
+                if meta and meta.classToken and child.Health then
+                    local color = child.colors and child.colors.class and child.colors.class[meta.classToken]
+                    if color then
+                        child.Health:SetStatusBarColor(color:GetRGB())
+                        child.Health:SetValue(child.Health:GetMinMaxValues() and select(2, child.Health:GetMinMaxValues()) or 1)
+                    end
+                end
                 child:SetAlpha(outOfRangeAlpha)
             end
-        else
-            -- Slot not occupied — reset to fallback (hidden via non-existent unit)
-            local resetUnit = fallbackUnits[i]
-            if child and resetUnit and currentUnit ~= resetUnit then
-                child:SetAttribute("unit", resetUnit)
-                child.unit = resetUnit
-                if child.UpdateAllElements then
-                    child:UpdateAllElements("RefreshUnit")
-                end
+            if not inCombat then
+                child:Show()
             end
-            child:Hide()
-            child:SetAlpha(1)
+        else
+            child:SetAlpha(0)
+            if not inCombat then
+                local resetUnit = fallbackUnits[i]
+                if child and resetUnit and currentUnit ~= resetUnit then
+                    child:SetAttribute("unit", resetUnit)
+                    child.unit = resetUnit
+                    if child.UpdateAllElements then
+                        child:UpdateAllElements("RefreshUnit")
+                    end
+                end
+                child:Hide()
+            end
         end
     end
 
@@ -821,6 +828,24 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
                     self:UpdateAllElements(event)
                 end
             end, true)
+        end
+
+        if isEnemyContainer then
+            UnregisterUnitWatch(child)
+            child:SetAttribute("state-unitexists", true)
+            child:Show()
+
+            child._zfEnemyFrameIndex = i
+            child:HookScript("PreClick", function(self, button)
+                if InCombatLockdown() then return end
+                local index = self._zfEnemyFrameIndex
+                if not index then return end
+                local unit = addon:GetRaidEnemyUnitAt(index)
+                if unit and UnitExists(unit) then
+                    self:SetAttribute("unit", unit)
+                    self.unit = unit
+                end
+            end)
         end
 
         if configKey == "arena" then

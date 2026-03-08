@@ -399,6 +399,7 @@ function addon:DialogAddToggleRow(dialog, yOffset, label, checked, visible, onCh
     UpdateEyeIcon(visible)
 
     eye:SetScript("OnClick", function(self)
+        if not cb:GetChecked() then return end
         self._visible = not self._visible
         UpdateEyeIcon(self._visible)
         if onVisibilityChanged then

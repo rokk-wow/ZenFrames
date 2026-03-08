@@ -145,12 +145,24 @@ local function BuildAnnouncementDialog()
 
     local y = dialog._contentTop
     local bodyKeys = addon:GetAnnouncementBodyKeys()
-    local newY = y
+    local descFontString
+    local bottomY = y
     if #bodyKeys > 0 then
-        local _
-        _, newY = addon:DialogAddDescription(dialog, y, bodyKeys)
+        descFontString, bottomY = addon:DialogAddDescription(dialog, y, bodyKeys)
+        dialog._announcementDesc = descFontString
+        dialog._announcementDescOriginY = y
     end
-    addon:DialogFinalize(dialog, newY)
+    addon:DialogFinalize(dialog, bottomY)
+
+    if descFontString then
+        dialog:HookScript("OnShow", function(self)
+            local desc = self._announcementDesc
+            if not desc then return end
+            local textHeight = desc:GetStringHeight() or 0
+            local newBottom = self._announcementDescOriginY - textHeight - 10
+            addon:DialogFinalize(self, newBottom)
+        end)
+    end
 
     announcementDialog = dialog
     return dialog

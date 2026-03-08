@@ -409,6 +409,25 @@ function addon:Initialize()
         StaticPopup_Show("ZENFRAMES_RESET_ALL_CONFIRM")
     end)
 
+    self:RegisterSlashCommand("zftoggle", function(self, frameName)
+        if not frameName or frameName == "" then
+            local names = {}
+            for name in pairs(self.toggleableFrames) do
+                names[#names + 1] = name
+            end
+            table.sort(names)
+            self:Info(self:L("toggleUsage") .. table.concat(names, ", "))
+            return
+        end
+        local entry = self.toggleableFrames[frameName:lower()]
+        if not entry then
+            self:Info(self:L("toggleUnknownFrame") .. frameName)
+            return
+        end
+        local hidden = entry.isHidden()
+        entry.setVisibility(hidden)
+    end)
+
     if self.savedVars and self.savedVars.version ~= "2.0.0" then
         wipe(self.savedVars)
         self.savedVars.version = "2.0.0"
@@ -417,6 +436,7 @@ function addon:Initialize()
     end
 
     self:RefreshConfig()
+    self.toggleableFrames = {}
     self.unitFrames = {}
 
     if self.InitializeRaidEnemyTracker then
@@ -440,6 +460,54 @@ function addon:Initialize()
 
     if self.InitializeInfo then
         self:InitializeInfo()
+    end
+
+    if self.InitializeClock then
+        self:InitializeClock()
+    end
+
+    if self.InitializeChat then
+        self:InitializeChat()
+    end
+
+    if self.InitializeSpellAssistGlow then
+        self:InitializeSpellAssistGlow()
+    end
+
+    if self.InitializeBattlefieldMap then
+        self:InitializeBattlefieldMap()
+    end
+
+    if self.InitializeMinimap then
+        self:InitializeMinimap()
+    end
+
+    if self.InitializeQuestIcon then
+        self:InitializeQuestIcon()
+    end
+
+    if self.InitializeActionBars then
+        self:InitializeActionBars()
+    end
+
+    if self.InitializeFriendlyMarkers then
+        self:InitializeFriendlyMarkers()
+    end
+
+    if self.InitializeMicroMenu then
+        self:InitializeMicroMenu()
+    end
+
+    if self.InitializeBagsBar then
+        self:InitializeBagsBar()
+    end
+
+    if self.InitializeQuestFrame then
+        self:InitializeQuestFrame()
+    end
+
+    if self.InitializeStatusBar then
+        self:InitializeStatusBar()
     end
 
     C_Timer.After(1, function()

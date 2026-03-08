@@ -50,6 +50,18 @@ Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
 Modules\AuraFilterDebug.lua
 Modules\Waypoints.lua
+Modules\Clock.lua
+Modules\Chat.lua
+Modules\SpellAssistGlow.lua
+Modules\BattlefieldMap.lua
+Modules\Minimap.lua
+Modules\QuestIcon.lua
+Modules\ActionBars.lua
+Modules\FriendlyMarkers.lua
+Modules\MicroMenu.lua
+Modules\BagsBar.lua
+Modules\QuestFrame.lua
+Modules\StatusBar.lua
 Modules\Info.lua
 
 EditMode\EditModeDialogs.lua

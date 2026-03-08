@@ -33,12 +33,11 @@ function addon:GetDefaultConfig()
                 pvp = {
                     blitz = {
                         minRaidSize = 6,
-                        -- maxRaidSize = 8,
+                        maxRaidSize = 8,
                         profile = "blitz",
                     },
                     battleground = {
-                        minRaidSize =99,
-                        -- minRaidSize = 9,
+                        minRaidSize = 9,
                         -- maxRaidSize = 25,
                         profile = "battleground",
                     },
