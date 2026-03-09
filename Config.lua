@@ -38,12 +38,11 @@ function addon:GetDefaultConfig()
                     },
                     battleground = {
                         minRaidSize = 9,
-                        -- maxRaidSize = 25,
+                        maxRaidSize = 25,
                         profile = "battleground",
                     },
                     epicBattleground = {
-                        minRaidSize =99,
-                        -- minRaidSize = 26,
+                        minRaidSize = 26,
                         profile = "epicBattleground",
                     },
                 },

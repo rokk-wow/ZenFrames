@@ -439,10 +439,6 @@ function addon:Initialize()
     self.toggleableFrames = {}
     self.unitFrames = {}
 
-    if self.InitializeRaidEnemyTracker then
-        self:InitializeRaidEnemyTracker()
-    end
-
     self:OverridePowerColors()
     self:OverrideReactionColors()
     self:HookDisableBlizzard()

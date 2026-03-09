@@ -312,14 +312,6 @@ local function BuildRaidUnitTokens(maxUnits)
     return units
 end
 
-local function BuildNameplateUnitTokens(maxUnits)
-    local units = {}
-    for i = 1, maxUnits do
-        units[i] = "nameplate" .. i
-    end
-    return units
-end
-
 -- Raid profile routing: instance-based for PVP, group-size-based for PVE.
 -- PVP: uses instance max group size (fixed at entry) to select profile immediately.
 -- PVE: raid profile when in a raid group, party frames for small groups.
@@ -327,11 +319,11 @@ function addon:GetRaidRoutingState()
     local raidCfg = self.config and self.config.raid
 
     if not raidCfg or not raidCfg.enabled then
-        return { showParty = false, activeFriendlyProfile = nil, activeEnemyProfile = nil }
+        return { showParty = false, activeFriendlyProfile = nil }
     end
 
     if not IsInGroup() then
-        return { showParty = false, activeFriendlyProfile = nil, activeEnemyProfile = nil }
+        return { showParty = false, activeFriendlyProfile = nil }
     end
 
     local inInstance, instanceType = IsInInstance()
@@ -345,6 +337,12 @@ function addon:GetRaidRoutingState()
         local blz  = pvp.blitz or {}
 
         local instanceGroupSize = select(9, GetInstanceInfo()) or 0
+        if instanceGroupSize == 0 then
+            instanceGroupSize = select(5, GetInstanceInfo()) or 0
+        end
+        if instanceGroupSize == 0 then
+            instanceGroupSize = GetNumGroupMembers() or 0
+        end
 
         local profile
         if instanceGroupSize >= (epic.minRaidSize or 26) then
@@ -355,7 +353,7 @@ function addon:GetRaidRoutingState()
             profile = blz.profile or "blitz"
         end
 
-        return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = profile }
+        return { showParty = false, activeFriendlyProfile = profile }
     end
 
     local routing   = raidCfg.routing or {}
@@ -364,18 +362,18 @@ function addon:GetRaidRoutingState()
 
     -- Below threshold → party frames
     if groupSize <= threshold then
-        return { showParty = true, activeFriendlyProfile = nil, activeEnemyProfile = nil }
+        return { showParty = true, activeFriendlyProfile = nil }
     end
 
     -- PVE: raid profile when in a raid group
     if IsInRaid() then
         local raidRoute = routing.raid or {}
         local profile   = raidRoute.profile or "raid"
-        return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = nil }
+        return { showParty = false, activeFriendlyProfile = profile }
     end
 
     -- Non-raid group above threshold (e.g. dungeon party) → party frames
-    return { showParty = true, activeFriendlyProfile = nil, activeEnemyProfile = nil }
+    return { showParty = true, activeFriendlyProfile = nil }
 end
 
 function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)

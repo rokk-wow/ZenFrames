@@ -121,7 +121,7 @@ function addon:GetDefaultConfig_Extras()
         },
         microMenu = {
             enabled = true,
-            showInZones = { "arena", "battleground", "dungeon", "raid", "world" },
+            showInZones = { "world" },
         },
         bagsBar = {
             enabled = true,
