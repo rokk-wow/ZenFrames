@@ -443,6 +443,10 @@ function addon:Initialize()
     self:OverrideReactionColors()
     self:HookDisableBlizzard()
 
+    if self.InitializeRaidEnemyTracker then
+        self:InitializeRaidEnemyTracker()
+    end
+
     self:SpawnFrames()
     self:SpawnAuraFilters()
 
@@ -494,6 +498,14 @@ function addon:Initialize()
         self:InitializeMicroMenu()
     end
 
+    if self.InitializeDungeonFinderEye then
+        self:InitializeDungeonFinderEye()
+    end
+
+    if self.InitializeMinimapAddonIcons then
+        self:InitializeMinimapAddonIcons()
+    end
+
     if self.InitializeBagsBar then
         self:InitializeBagsBar()
     end
@@ -504,6 +516,10 @@ function addon:Initialize()
 
     if self.InitializeStatusBar then
         self:InitializeStatusBar()
+    end
+
+    if self.InitializeBattlegroundCallouts then
+        self:InitializeBattlegroundCallouts()
     end
 
     C_Timer.After(1, function()

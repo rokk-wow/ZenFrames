@@ -59,6 +59,16 @@ function addon:GetDefaultConfig_Extras()
             restoreAfterCutscene = true,
             showInZones = { "arena", "battleground", "dungeon", "raid", "world" },
         },
+        minimapAddonIcons = {
+            enabled = true,
+            size = 25,
+            anchorPoint = "LEFT",
+            attachTo = "AddonCompartmentFrame",
+            attachPoint = "RIGHT",
+            spacing = 10,
+            offsetX = 10,
+            offsetY = 0,
+        },
         questIcon = {
             enabled = true,
             atlas = "Crosshair_Quest_96",
@@ -121,7 +131,7 @@ function addon:GetDefaultConfig_Extras()
         },
         microMenu = {
             enabled = true,
-            showInZones = { "world" },
+            showInZones = {},
         },
         bagsBar = {
             enabled = true,
@@ -134,6 +144,27 @@ function addon:GetDefaultConfig_Extras()
         statusBar = {
             enabled = true,
             showInZones = {},
+        },
+        dungeonFinderEye = {
+            enabled = true,
+            size = 30,
+            anchorPoint = "RIGHT",
+            attachTo = "TimeManagerClockButton",
+            attachPoint = "LEFT",
+            offsetX = -10,
+            offsetY = 1,
+        },
+        battlegroundCallouts = {
+            enabled = true,
+            isPvP = true,
+            buttonSize = 30,
+            buttons = {
+                { label = "1", message = "1 incoming" },
+                { label = "2", message = "2 incoming" },
+                { label = "3", message = "3 incoming" },
+                { label = "+", message = "Lots incoming" },
+                { label = "C", message = "Clear" },
+            },
         },
     }
 end

@@ -312,6 +312,14 @@ local function BuildRaidUnitTokens(maxUnits)
     return units
 end
 
+local function BuildNameplateUnitTokens(maxUnits)
+    local units = {}
+    for i = 1, maxUnits do
+        units[i] = "nameplate" .. i
+    end
+    return units
+end
+
 -- Raid profile routing: instance-based for PVP, group-size-based for PVE.
 -- PVP: uses instance max group size (fixed at entry) to select profile immediately.
 -- PVE: raid profile when in a raid group, party frames for small groups.
@@ -353,7 +361,7 @@ function addon:GetRaidRoutingState()
             profile = blz.profile or "blitz"
         end
 
-        return { showParty = false, activeFriendlyProfile = profile }
+        return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = profile }
     end
 
     local routing   = raidCfg.routing or {}
@@ -413,11 +421,22 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
 
         local slotOccupied = self.IsRaidEnemySlotOccupied and self:IsRaidEnemySlotOccupied(i) or (unit ~= nil)
 
+        if i <= 3 then
+            local meta = self.GetRaidEnemySlotMeta and self:GetRaidEnemySlotMeta(i)
+            local metaName = meta and meta.name or "nil"
+            local metaClass = meta and meta.classToken or "nil"
+            local hasTexts = child.Texts and #child.Texts or 0
+            local type1 = child:GetAttribute("*type1") or "nil"
+            local macro1 = child:GetAttribute("*macrotext1") or "nil"
+        end
+
         if slotOccupied then
             if unit then
                 if not inCombat and child and currentUnit ~= unit then
                     child:SetAttribute("unit", unit)
                     child.unit = unit
+                    child:SetAttribute("*type1", child._zfOrigType1 or "target")
+                    child:SetAttribute("*macrotext1", child._zfOrigMacro1)
                     if child.UpdateAllElements then
                         child:UpdateAllElements("RefreshUnit")
                     end
@@ -425,11 +444,33 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
                 child:SetAlpha(1)
             else
                 local meta = self.GetRaidEnemySlotMeta and self:GetRaidEnemySlotMeta(i)
-                if meta and meta.classToken and child.Health then
-                    local color = child.colors and child.colors.class and child.colors.class[meta.classToken]
-                    if color then
-                        child.Health:SetStatusBarColor(color:GetRGB())
-                        child.Health:SetValue(child.Health:GetMinMaxValues() and select(2, child.Health:GetMinMaxValues()) or 1)
+                if meta then
+                    if meta.classToken and child.Health then
+                        local color = child.colors and child.colors.class and child.colors.class[meta.classToken]
+                        if color then
+                            child.Health:SetStatusBarColor(color:GetRGB())
+                            child.Health:SetValue(child.Health:GetMinMaxValues() and select(2, child.Health:GetMinMaxValues()) or 1)
+                        end
+                    end
+
+                    if meta.name and child.Texts then
+                        for _, fs in ipairs(child.Texts) do
+                            if fs and fs.GetText then
+                                local currentText = fs:GetText()
+                                if not currentText or currentText == "" then
+                                    fs:SetText(meta.name)
+                                end
+                            end
+                        end
+                    end
+
+                    if not inCombat and meta.name then
+                        if not child._zfOrigType1 then
+                            child._zfOrigType1 = child:GetAttribute("*type1")
+                            child._zfOrigMacro1 = child:GetAttribute("*macrotext1")
+                        end
+                        child:SetAttribute("*type1", "macro")
+                        child:SetAttribute("*macrotext1", "/target " .. meta.name)
                     end
                 end
                 child:SetAlpha(outOfRangeAlpha)

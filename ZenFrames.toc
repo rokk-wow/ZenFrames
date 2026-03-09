@@ -38,6 +38,7 @@ Modules\Power.lua
 Modules\Text.lua
 Modules\Absorbs.lua
 Modules\AuraFilter.lua
+Modules\RaidEnemyTracker.lua
 Modules\CombatIndicator.lua
 Modules\RestingIndicator.lua
 Modules\RoleIcon.lua
@@ -53,11 +54,14 @@ Modules\Clock.lua
 Modules\Chat.lua
 Modules\SpellAssistGlow.lua
 Modules\BattlefieldMap.lua
+Modules\BattlegroundCallouts.lua
 Modules\Minimap.lua
 Modules\QuestIcon.lua
 Modules\ActionBars.lua
 Modules\FriendlyMarkers.lua
 Modules\MicroMenu.lua
+Modules\DungeonFinderEye.lua
+Modules\MinimapIcons.lua
 Modules\BagsBar.lua
 Modules\QuestFrame.lua
 Modules\StatusBar.lua
