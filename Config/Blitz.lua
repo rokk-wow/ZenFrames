@@ -30,8 +30,6 @@ function addon:GetDefaultConfig_Blitz()
             borderColor = "_GLOBAL_",
             outOfRangeOpacity = "_GLOBAL_",
             highlightSelected = true,
-            showEmptySlots = true,
-            emptySlotColor = "00000080",
             leftClick = "select",
             rightClick = "contextMenu",
 
@@ -289,14 +287,6 @@ function addon:GetDefaultConfig_Blitz()
                         placeholderColor = "FFFFFF88",
                         showPlaceholderIcon = true,
                     },
-                },
-                objectiveCarrier = {
-                    enabled = true,
-                    size = 20,
-                    anchor = "TOP",
-                    relativePoint = "TOP",
-                    offsetX = 0,
-                    offsetY = -2,
                 },
                 readyCheck = {
                     enabled = true,
@@ -612,35 +602,6 @@ function addon:GetDefaultConfig_Blitz()
                     borderWidth = "_GLOBAL_",
                     borderColor = "_GLOBAL_",
                 },
-                objectiveCarrier = {
-                    enabled = true,
-                    size = 20,
-                    anchor = "TOP",
-                    relativePoint = "TOP",
-                    offsetX = 0,
-                    offsetY = -2,
-                },
-            },
-        },
-
-        battlefieldMap = {
-            enabled = true,
-            opacity = 1.0,
-            hideBorderFrame = true,
-            borderWidth = 2,
-            borderColor = "000000FF",
-            height = 300,
-        },
-
-        battlegroundCallouts = {
-            enabled = true,
-            buttonSize = 30,
-            buttons = {
-                { label = "1", message = "1 incoming" },
-                { label = "2", message = "2 incoming" },
-                { label = "3", message = "3 incoming" },
-                { label = "+", message = "Lots incoming" },
-                { label = "C", message = "Clear" },
             },
         },
     }

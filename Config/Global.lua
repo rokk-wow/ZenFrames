@@ -115,17 +115,5 @@ function addon:GetDefaultConfig_Global()
             [1468] = "PRES",
             [1473] = "AUG",
         },
-
-        objectiveCarrierIcons = {
-            flagAlliance       = { atlas = "AllianceEmblem" },
-            flagHorde          = { atlas = "HordeEmblem" },
-            flagNeutral        = { atlas = "nameplates-icon-flag-neutral" },
-            cartAlliance       = { atlas = "AllianceEmblem" },
-            cartHorde          = { atlas = "HordeEmblem" },
-            orbBlue            = { atlas = "housing-layout-room-orb-default", desaturate = true, color = "009cff" },
-            orbGreen           = { atlas = "housing-layout-room-orb-default", desaturate = true, color = "00ff00" },
-            orbOrange          = { atlas = "housing-layout-room-orb-default", desaturate = true, color = "ff9c00" },
-            orbPurple          = { atlas = "housing-layout-room-orb-default", desaturate = true, color = "ae00ff" },
-        },
     }
 end

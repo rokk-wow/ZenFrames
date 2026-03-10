@@ -71,7 +71,6 @@ local MODULE_SUB_DIALOG_METHODS = {
     drTracker = "PopulateDRTrackerSubDialog",
     restingIndicator = "PopulateRestingIndicatorSubDialog",
     roleIcon = "PopulateRoleIconSubDialog",
-    objectiveCarrier = "PopulateObjectiveCarrierSubDialog",
     trinket = "PopulateTrinketSubDialog",
 }
 
@@ -81,7 +80,6 @@ local MODULE_RESET_REFRESH_METHODS = {
     dispelIcon = "RefreshDispelIconEditModeVisuals",
     drTracker = "RefreshDRTrackerEditModeVisuals",
     roleIcon = "RefreshRoleIconEditModeVisuals",
-    objectiveCarrier = "RefreshObjectiveCarrierEditModeVisuals",
     trinket = "RefreshTrinketEditModeVisuals",
 }
 
