@@ -34,15 +34,6 @@ function addon:GetDefaultConfig_Extras()
             animationDuration = 1,
             viewerFrameName = "BuffIconCooldownViewer",
         },
-        battlefieldMap = {
-            enabled = true,
-            opacity = 1.0,
-            hideBorderFrame = true,
-            borderWidth = 2,
-            borderColor = "000000FF",
-            height = 300,
-            showInZones = { "battleground" },
-        },
         minimap = {
             enabled = true,
             size = 300,
@@ -66,8 +57,8 @@ function addon:GetDefaultConfig_Extras()
             attachTo = "AddonCompartmentFrame",
             attachPoint = "RIGHT",
             spacing = 10,
-            offsetX = 10,
-            offsetY = 0,
+            offsetX = 6,
+            offsetY = 1,
         },
         questIcon = {
             enabled = true,
@@ -153,18 +144,6 @@ function addon:GetDefaultConfig_Extras()
             attachPoint = "LEFT",
             offsetX = -10,
             offsetY = 1,
-        },
-        battlegroundCallouts = {
-            enabled = true,
-            isPvP = true,
-            buttonSize = 30,
-            buttons = {
-                { label = "1", message = "1 incoming" },
-                { label = "2", message = "2 incoming" },
-                { label = "3", message = "3 incoming" },
-                { label = "+", message = "Lots incoming" },
-                { label = "C", message = "Clear" },
-            },
         },
     }
 end

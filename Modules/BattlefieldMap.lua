@@ -3,8 +3,66 @@ local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
 -- ---------------------------------------------------------------------------
+-- Resolve Active Battleground Profile
+-- ---------------------------------------------------------------------------
+
+local activeBattlefieldMapCfg = nil
+
+local function GetActiveProfileConfig()
+    local inInstance, instanceType = IsInInstance()
+    if not inInstance or instanceType ~= "pvp" then return nil end
+
+    local raidCfg = addon.config and addon.config.raid
+    if not raidCfg then return nil end
+
+    local routing = raidCfg.routing or {}
+    local pvp = routing.pvp or {}
+    local epic = pvp.epicBattleground or {}
+    local bg = pvp.battleground or {}
+    local blz = pvp.blitz or {}
+
+    local instanceGroupSize = select(9, GetInstanceInfo()) or 0
+    if instanceGroupSize == 0 then
+        instanceGroupSize = select(5, GetInstanceInfo()) or 0
+    end
+    if instanceGroupSize == 0 then
+        instanceGroupSize = GetNumGroupMembers() or 0
+    end
+
+    local profileName
+    if instanceGroupSize >= (epic.minRaidSize or 26) then
+        profileName = epic.profile or "epicBattleground"
+    elseif instanceGroupSize >= (bg.minRaidSize or 9) then
+        profileName = bg.profile or "battleground"
+    else
+        profileName = blz.profile or "blitz"
+    end
+
+    local profiles = raidCfg.profiles
+    return profiles and profiles[profileName]
+end
+
+-- ---------------------------------------------------------------------------
 -- Customize Battlefield Map
 -- ---------------------------------------------------------------------------
+
+local function ApplyBorderCustomization(mapFrame, cfg)
+    if not cfg.hideBorderFrame then return end
+
+    if mapFrame.BorderFrame then
+        mapFrame.BorderFrame:Hide()
+        mapFrame.BorderFrame:SetAlpha(0)
+    end
+
+    if mapFrame.ScrollContainer and cfg.borderWidth > 0 then
+        if not mapFrame.ScrollContainer.ZenFrames_BorderFrame then
+            local borderFrame = CreateFrame("Frame", nil, mapFrame.ScrollContainer)
+            borderFrame:SetAllPoints(mapFrame.ScrollContainer)
+            mapFrame.ScrollContainer.ZenFrames_BorderFrame = borderFrame
+        end
+        addon:AddBorder(mapFrame.ScrollContainer.ZenFrames_BorderFrame, cfg)
+    end
+end
 
 local function CustomizeBattlefieldMap(cfg)
     local mapFrame = BattlefieldMapFrame
@@ -17,38 +75,8 @@ local function CustomizeBattlefieldMap(cfg)
         end
     end
 
-    if cfg.hideBorderFrame then
-        hooksecurefunc(mapFrame, "Show", function()
-            if mapFrame.BorderFrame then
-                mapFrame.BorderFrame:Hide()
-                mapFrame.BorderFrame:SetAlpha(0)
-            end
-
-            if mapFrame.ScrollContainer and cfg.borderWidth > 0 then
-                if not mapFrame.ScrollContainer.ZenFrames_BorderFrame then
-                    local borderFrame = CreateFrame("Frame", nil, mapFrame.ScrollContainer)
-                    borderFrame:SetAllPoints(mapFrame.ScrollContainer)
-                    mapFrame.ScrollContainer.ZenFrames_BorderFrame = borderFrame
-                end
-                addon:AddBorder(mapFrame.ScrollContainer.ZenFrames_BorderFrame, cfg)
-            end
-        end)
-
-        if mapFrame:IsShown() then
-            if mapFrame.BorderFrame then
-                mapFrame.BorderFrame:Hide()
-                mapFrame.BorderFrame:SetAlpha(0)
-            end
-
-            if mapFrame.ScrollContainer and cfg.borderWidth > 0 then
-                if not mapFrame.ScrollContainer.ZenFrames_BorderFrame then
-                    local borderFrame = CreateFrame("Frame", nil, mapFrame.ScrollContainer)
-                    borderFrame:SetAllPoints(mapFrame.ScrollContainer)
-                    mapFrame.ScrollContainer.ZenFrames_BorderFrame = borderFrame
-                end
-                addon:AddBorder(mapFrame.ScrollContainer.ZenFrames_BorderFrame, cfg)
-            end
-        end
+    if mapFrame:IsShown() then
+        ApplyBorderCustomization(mapFrame, cfg)
     end
 end
 
@@ -68,47 +96,47 @@ local function ScaleBattlefieldMap(cfg)
 end
 
 -- ---------------------------------------------------------------------------
--- Zone-based Visibility (via CVar - protected frame)
--- ---------------------------------------------------------------------------
-
-local function BuildZoneLookup(zoneList)
-    local lookup = {}
-    if type(zoneList) == "table" then
-        for _, zone in ipairs(zoneList) do
-            lookup[zone] = true
-        end
-    end
-    return lookup
-end
-
--- ---------------------------------------------------------------------------
 -- Initialization
 -- ---------------------------------------------------------------------------
 
 function addon:InitializeBattlefieldMap()
-    local cfg = self.config and self.config.extras and self.config.extras.battlefieldMap
-    if not cfg or not cfg.enabled then return end
-
-    local hasZoneFilter = cfg.showInZones and #cfg.showInZones < 5
-    local zoneLookup = hasZoneFilter and BuildZoneLookup(cfg.showInZones) or nil
-
-    local customized = false
+    local mapHooked = false
     local settingCVar = false
 
     local function ApplyCustomizations()
         if not BattlefieldMapFrame then return end
+
+        local profileCfg = GetActiveProfileConfig()
+        local cfg = profileCfg and profileCfg.battlefieldMap
+
+        if not cfg or not cfg.enabled then
+            activeBattlefieldMapCfg = nil
+            return
+        end
+
+        activeBattlefieldMapCfg = cfg
         CustomizeBattlefieldMap(cfg)
         ScaleBattlefieldMap(cfg)
-        customized = true
+
+        if not mapHooked then
+            mapHooked = true
+            hooksecurefunc(BattlefieldMapFrame, "Show", function()
+                if activeBattlefieldMapCfg then
+                    ApplyBorderCustomization(BattlefieldMapFrame, activeBattlefieldMapCfg)
+                end
+            end)
+        end
     end
 
     local function ApplyZoneFilter()
-        if not hasZoneFilter then return end
-        local currentZone = addon:GetCurrentZone()
-        local shouldShow = zoneLookup[currentZone] == true
+        local profileCfg = GetActiveProfileConfig()
+        local cfg = profileCfg and profileCfg.battlefieldMap
+        local shouldShow = cfg and cfg.enabled
+
         settingCVar = true
         SetCVar("showBattlefieldMinimap", shouldShow and "1" or "0")
         settingCVar = false
+
         if not shouldShow and BattlefieldMapFrame and BattlefieldMapFrame:IsShown() then
             BattlefieldMapFrame:Hide()
         end
@@ -125,7 +153,7 @@ function addon:InitializeBattlefieldMap()
 
         if event == "CVAR_UPDATE" then
             local cvarName, cvarValue = ...
-            if cvarName == "showBattlefieldMinimap" and cvarValue == "1" and not settingCVar and not customized then
+            if cvarName == "showBattlefieldMinimap" and cvarValue == "1" and not settingCVar then
                 C_Timer.After(0, ApplyCustomizations)
             end
         end

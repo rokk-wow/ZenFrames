@@ -361,7 +361,7 @@ function addon:GetRaidRoutingState()
             profile = blz.profile or "blitz"
         end
 
-        return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = profile }
+        return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = profile, instanceGroupSize = instanceGroupSize }
     end
 
     local routing   = raidCfg.routing or {}
@@ -515,6 +515,43 @@ function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
     end
 end
 
+function addon:ApplyInstanceGroupSizeCap(container, profileName, instanceGroupSize)
+    if not container or not container.frames then return end
+    if not instanceGroupSize or instanceGroupSize <= 0 then return end
+
+    local raidCfg = self.config and self.config.raid
+    local profileCfg = raidCfg and raidCfg.profiles and raidCfg.profiles[profileName]
+    local cfg = profileCfg and profileCfg.friendly
+    if not cfg then return end
+
+    local perSideSize = math.floor(instanceGroupSize / 2)
+    if perSideSize <= 0 then return end
+
+    local visibleUnits = math.min(perSideSize, cfg.maxUnits)
+
+    if container.emptySlotBackgrounds then
+        for i, slotBg in ipairs(container.emptySlotBackgrounds) do
+            if i > visibleUnits then
+                slotBg:Hide()
+            else
+                slotBg:Show()
+            end
+        end
+    end
+
+    local perRow = cfg.perRow or 3
+    local spacingX = cfg.spacingX or 2
+    local spacingY = cfg.spacingY or 2
+    local unitW = cfg.unitWidth or 88
+    local unitH = cfg.unitHeight or 50
+
+    local cols = math.min(perRow, visibleUnits)
+    local rows = math.ceil(visibleUnits / cols)
+    container:SetSize(
+        cols * unitW + math.max(0, cols - 1) * spacingX + 2 * spacingX,
+        rows * unitH + math.max(0, rows - 1) * spacingY + 2 * spacingY)
+end
+
 function addon:UpdateRaidFrameVisibility()
     local raidCfg = self.config and self.config.raid
     if not raidCfg or not raidCfg.enabled then
@@ -524,6 +561,7 @@ function addon:UpdateRaidFrameVisibility()
     local state = self:GetRaidRoutingState()
     local activeProfile = state.activeFriendlyProfile
     local activeEnemyProfile = state.activeEnemyProfile
+    local instanceGroupSize = state.instanceGroupSize
 
     if self._zfRaidLastFriendlyProfile ~= activeProfile
         or self._zfRaidLastEnemyProfile ~= activeEnemyProfile
@@ -552,6 +590,7 @@ function addon:UpdateRaidFrameVisibility()
                     if container.RefreshGroupLabels then
                         container:RefreshGroupLabels()
                     end
+                    self:ApplyInstanceGroupSizeCap(container, profile, instanceGroupSize)
                     container:Show()
                 else
                     container:Hide()
@@ -766,6 +805,10 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
                 self:AddRoleIcon(frame, cfg.modules.roleIcon)
             end
 
+            if cfg.modules.objectiveCarrier and cfg.modules.objectiveCarrier.enabled then
+                self:AddObjectiveCarrier(frame, cfg.modules.objectiveCarrier)
+            end
+
             if cfg.modules.readyCheck and cfg.modules.readyCheck.enabled then
                 self:AddReadyCheck(frame, cfg.modules.readyCheck)
             end
@@ -950,6 +993,20 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
         end
 
         container.frames[i] = child
+    end
+
+    if cfg.showEmptySlots then
+        container.emptySlotBackgrounds = {}
+        local esr, esg, esb, esa = self:HexToRGB(cfg.emptySlotColor or "00000080")
+        for i = 1, maxUnits do
+            local child = container.frames[i]
+            local slotBg = CreateFrame("Frame", nil, container, "BackdropTemplate")
+            slotBg:SetAllPoints(child)
+            slotBg:SetFrameLevel(container:GetFrameLevel())
+            slotBg:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8" })
+            slotBg:SetBackdropColor(esr, esg, esb, esa)
+            container.emptySlotBackgrounds[i] = slotBg
+        end
     end
 
     if useGroupLayout then

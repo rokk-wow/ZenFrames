@@ -32,12 +32,7 @@ local function IsRaidTextFrame(frame)
         return false
     end
 
-    local unit = frame.unit or (frame.GetAttribute and frame:GetAttribute("unit"))
-    if type(unit) ~= "string" then
-        return false
-    end
-
-    return unit:match("^raid%d+$") ~= nil or unit:match("^nameplate%d+$") ~= nil
+    return true
 end
 
 function addon:AddText(frame, textConfigs)
@@ -79,7 +74,9 @@ function addon:AddText(frame, textConfigs)
             if parentWidth and parentWidth > 0 then
                 if isRaidText then
                     local maxWidth
-                    if justify == "LEFT" or justify == "RIGHT" then
+                    if cfg.maxWidthPercent then
+                        maxWidth = parentWidth * cfg.maxWidthPercent
+                    elseif justify == "LEFT" or justify == "RIGHT" then
                         maxWidth = parentWidth * 0.48
                     else
                         maxWidth = parentWidth * 0.95

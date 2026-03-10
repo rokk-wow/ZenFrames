@@ -43,6 +43,7 @@ Modules\CombatIndicator.lua
 Modules\RestingIndicator.lua
 Modules\RoleIcon.lua
 Modules\ReadyCheck.lua
+Modules\ObjectiveCarrier.lua
 Modules\Trinket.lua
 Modules\ArenaTargets.lua
 Modules\DRTracker.lua
@@ -78,6 +79,7 @@ EditMode\DialogDRTracker.lua
 EditMode\DialogParty.lua
 EditMode\DialogRestingIndicator.lua
 EditMode\DialogRoleIcon.lua
+EditMode\DialogObjectiveCarrier.lua
 EditMode\DialogText.lua
 EditMode\DialogTrinket.lua
 EditMode\DialogSettings.lua
