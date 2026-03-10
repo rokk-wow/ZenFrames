@@ -160,6 +160,10 @@ function addon:SpawnUnitFrame(unit, configKey)
                 addon:AddArenaTargets(frame, cfg.modules.arenaTargets, cfg.borderWidth)
             end
 
+            if cfg.modules.objectiveIcon and cfg.modules.objectiveIcon.enabled then
+                addon:AddObjectiveIcon(frame, cfg.modules.objectiveIcon)
+            end
+
             if cfg.modules.auraFilters then
                 for _, filterCfg in ipairs(cfg.modules.auraFilters) do
                     if filterCfg.enabled then
@@ -776,6 +780,10 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
 
             if cfg.modules.arenaTargets and cfg.modules.arenaTargets.enabled then
                 self:AddArenaTargets(frame, cfg.modules.arenaTargets, unitBorderWidth)
+            end
+
+            if cfg.modules.objectiveIcon and cfg.modules.objectiveIcon.enabled then
+                self:AddObjectiveIcon(frame, cfg.modules.objectiveIcon)
             end
 
             if cfg.modules.auraFilters then

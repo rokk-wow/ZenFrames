@@ -216,6 +216,7 @@ local PLACEHOLDER_ELEMENTS = {
     "DispelIcon",
     "DRTracker",
     "ArenaTargets",
+    "ObjectiveIcon",
 }
 
 local ELEMENT_TO_MODULE_KEY = {
@@ -227,6 +228,7 @@ local ELEMENT_TO_MODULE_KEY = {
     DispelIcon = "dispelIcon",
     DRTracker = "drTracker",
     ArenaTargets = "arenaTargets",
+    ObjectiveIcon = "objectiveIcon",
 }
 
 local function GetAuraFilterNames(configKey)

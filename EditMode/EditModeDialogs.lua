@@ -69,6 +69,7 @@ local MODULE_SUB_DIALOG_METHODS = {
     combatIndicator = "PopulateCombatIndicatorSubDialog",
     dispelIcon = "PopulateDispelIconSubDialog",
     drTracker = "PopulateDRTrackerSubDialog",
+    objectiveIcon = "PopulateObjectiveIconSubDialog",
     restingIndicator = "PopulateRestingIndicatorSubDialog",
     roleIcon = "PopulateRoleIconSubDialog",
     trinket = "PopulateTrinketSubDialog",
@@ -79,6 +80,7 @@ local MODULE_RESET_REFRESH_METHODS = {
     castbar = "RefreshCastbarEditModeVisuals",
     dispelIcon = "RefreshDispelIconEditModeVisuals",
     drTracker = "RefreshDRTrackerEditModeVisuals",
+    objectiveIcon = "RefreshObjectiveIconEditModeVisuals",
     roleIcon = "RefreshRoleIconEditModeVisuals",
     trinket = "RefreshTrinketEditModeVisuals",
 }

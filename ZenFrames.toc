@@ -48,6 +48,7 @@ Modules\ArenaTargets.lua
 Modules\DRTracker.lua
 Modules\DispelHighlight.lua
 Modules\DispelIcon.lua
+Modules\ObjectiveIcon.lua
 Modules\AuraFilterDebug.lua
 Modules\Waypoints.lua
 Modules\Clock.lua
@@ -80,6 +81,7 @@ EditMode\DialogRestingIndicator.lua
 EditMode\DialogRoleIcon.lua
 EditMode\DialogText.lua
 EditMode\DialogTrinket.lua
+EditMode\DialogObjectiveIcon.lua
 EditMode\DialogSettings.lua
 EditMode\DialogEditMode.lua
 EditMode\EditMode.lua

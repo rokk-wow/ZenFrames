@@ -115,5 +115,16 @@ function addon:GetDefaultConfig_Global()
             [1468] = "PRES",
             [1473] = "AUG",
         },
+
+        objectiveIcons = {
+            allianceFlag = "AllianceEmblem",
+            hordeFlag = "HordeEmblem",
+            orb = "housing-layout-room-orb-default",
+            gemColor = "db0000",
+            orbBlueColor = "0068f5",
+            orbGreenColor = "20d04c",
+            orbOrangeColor = "f0a400",
+            orbPurpleColor = "dd0af0",
+        },
     }
 end
