@@ -6,7 +6,7 @@ function addon:GetDefaultConfig_Units()
     return {
         player = {
             enabled = true,
-            hideBlizzard = false,
+            hideBlizzard = true,
             frameName = "zfPlayerFrame",
             anchor = "TOPRIGHT",
             relativeTo = "UIParent",
@@ -228,7 +228,7 @@ function addon:GetDefaultConfig_Units()
         },
         target = {
             enabled = true,
-            hideBlizzard = false,
+            hideBlizzard = true,
             frameName = "zfTargetFrame",
             anchor = "TOPLEFT",
             relativeTo = "UIParent",
@@ -427,7 +427,7 @@ function addon:GetDefaultConfig_Units()
         },
         targetTarget = {
             enabled = true,
-            hideBlizzard = false,
+            hideBlizzard = true,
             frameName = "zfTargetTargetFrame",
             anchor = "TOPLEFT",
             relativeTo = "zfTargetFrame",
@@ -469,7 +469,7 @@ function addon:GetDefaultConfig_Units()
         },
         focus = {
             enabled = true,
-            hideBlizzard = false,
+            hideBlizzard = true,
             frameName = "zfFocusFrame",
             anchor = "TOPRIGHT",
             relativeTo = "zfPlayerFrame",
@@ -511,7 +511,7 @@ function addon:GetDefaultConfig_Units()
         },
         focusTarget = {
             enabled = true,
-            hideBlizzard = false,
+            hideBlizzard = true,
             frameName = "zfFocusTargetFrame",
             anchor = "TOPLEFT",
             relativeTo = "zfFocusFrame",
@@ -553,7 +553,7 @@ function addon:GetDefaultConfig_Units()
         },
         pet = {
             enabled = true,
-            hideBlizzard = false,
+            hideBlizzard = true,
             frameName = "zfPetFrame",
             anchor = "TOPLEFT",
             relativeTo = "zfPlayerFrame",
