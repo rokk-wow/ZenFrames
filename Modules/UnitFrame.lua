@@ -7,6 +7,29 @@ local highlightUpdaters = {}
 local arenaVisibilityEventFrame
 local raidVisibilityEventFrame
 
+addon.bgFriendlyTeamSizes = {
+    ["Warsong Gulch"] = 10,
+    ["Arathi Basin"] = 15,
+    ["Deephaul Ravine"] = 10,
+    ["Alterac Valley"] = 40,
+    ["Eye of the Storm"] = 15,
+    ["Isle of Conquest"] = 40,
+    ["The Battle for Gilneas"] = 10,
+    ["Battle for Wintergrasp"] = 40,
+    ["Ashran"] = 35,
+    ["Twin Peaks"] = 10,
+    ["Temple of Kotmogu"] = 10,
+    ["Seething Shore"] = 10,
+    ["Deepwind Gorge"] = 15,
+    ["Slayer's Rise"] = 40,
+}
+
+local pvpFriendlyProfiles = {
+    blitz = true,
+    battleground = true,
+    epicBattleground = true,
+}
+
 local unitToConfigKeyMap = {
     player = "player",
     target = "target",
@@ -409,6 +432,116 @@ function addon:GetRaidRoutingState()
     return { showParty = true, activeFriendlyProfile = nil }
 end
 
+function addon:GetFriendlyBattlegroundRaidSize()
+    local callHook = self.callHook or function() end
+    callHook(self, "BeforeGetFriendlyBattlegroundRaidSize")
+
+    local inInstance, instanceType = IsInInstance()
+    if not inInstance or instanceType ~= "pvp" then
+        callHook(self, "AfterGetFriendlyBattlegroundRaidSize", 0)
+        return 0
+    end
+
+    local instanceGroupSize = select(9, GetInstanceInfo()) or 0
+    if instanceGroupSize > 0 then
+        callHook(self, "AfterGetFriendlyBattlegroundRaidSize", instanceGroupSize)
+        return instanceGroupSize
+    end
+
+    local maxPlayers = select(5, GetInstanceInfo()) or 0
+    if maxPlayers > 0 then
+        local teamSize = math.floor(maxPlayers / 2)
+        if teamSize > 0 then
+            callHook(self, "AfterGetFriendlyBattlegroundRaidSize", teamSize)
+            return teamSize
+        end
+    end
+
+    local bgName = select(1, GetInstanceInfo())
+    if bgName and self.bgFriendlyTeamSizes[bgName] then
+        local size = self.bgFriendlyTeamSizes[bgName]
+        callHook(self, "AfterGetFriendlyBattlegroundRaidSize", size)
+        return size
+    end
+
+    local groupSize = GetNumGroupMembers() or 0
+    if groupSize > 0 then
+        callHook(self, "AfterGetFriendlyBattlegroundRaidSize", groupSize)
+        return groupSize
+    end
+
+    callHook(self, "AfterGetFriendlyBattlegroundRaidSize", 0)
+    return 0
+end
+
+function addon:CreateRaidSlotPlaceholders(container)
+    local callHook = self.callHook or function() end
+    callHook(self, "BeforeCreateRaidSlotPlaceholders", container)
+
+    if not container or not container.frames then
+        callHook(self, "AfterCreateRaidSlotPlaceholders", false)
+        return false
+    end
+
+    container._zfSlotPlaceholders = container._zfSlotPlaceholders or {}
+
+    for i, child in ipairs(container.frames) do
+        if child and not container._zfSlotPlaceholders[i] then
+            local placeholder = CreateFrame("Frame", nil, container)
+            placeholder:SetSize(child:GetWidth(), child:GetHeight())
+            placeholder:SetFrameLevel(math.max(0, child:GetFrameLevel() - 2))
+            placeholder:SetAllPoints(child)
+
+            local bg = placeholder:CreateTexture(nil, "BACKGROUND")
+            bg:SetAllPoints()
+            bg:SetColorTexture(0, 0, 0, 0.5)
+
+            placeholder:Hide()
+            container._zfSlotPlaceholders[i] = placeholder
+        end
+    end
+
+    callHook(self, "AfterCreateRaidSlotPlaceholders", true)
+    return true
+end
+
+function addon:UpdateRaidSlotPlaceholders()
+    local callHook = self.callHook or function() end
+    callHook(self, "BeforeUpdateRaidSlotPlaceholders")
+
+    if not self.groupContainers then
+        callHook(self, "AfterUpdateRaidSlotPlaceholders", false)
+        return false
+    end
+
+    local state = self:GetRaidRoutingState()
+    local activeProfile = state.activeFriendlyProfile
+    local friendlyRaidSize = 0
+
+    if activeProfile and pvpFriendlyProfiles[activeProfile] then
+        friendlyRaidSize = self:GetFriendlyBattlegroundRaidSize()
+    end
+
+    for containerKey, container in pairs(self.groupContainers) do
+        if type(containerKey) == "string" and containerKey:match("^raid_[%w]+_friendly$") then
+            local profile = containerKey:match("^raid_([%w]+)_friendly$")
+            if container._zfSlotPlaceholders then
+                local showPlaceholders = (profile == activeProfile) and pvpFriendlyProfiles[profile] and friendlyRaidSize > 0
+                for i, ph in pairs(container._zfSlotPlaceholders) do
+                    if showPlaceholders and i <= friendlyRaidSize then
+                        ph:Show()
+                    else
+                        ph:Hide()
+                    end
+                end
+            end
+        end
+    end
+
+    callHook(self, "AfterUpdateRaidSlotPlaceholders", true)
+    return true
+end
+
 function addon:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
     if not self.groupContainers then
         return
@@ -600,6 +733,7 @@ function addon:UpdateRaidFrameVisibility()
     end
 
     self:UpdateRaidEnemyProfileUnits(activeEnemyProfile)
+    self:UpdateRaidSlotPlaceholders()
 end
 
 function addon:EnsureRaidVisibilityEventFrame()
@@ -643,6 +777,9 @@ function addon:SpawnRaidFrames()
                 local units = BuildRaidUnitTokens(friendlyCfg.maxUnits)
                 local container = self:SpawnGroupFrames(containerKey, units, friendlyCfg)
                 if container then
+                    if pvpFriendlyProfiles[profileName] then
+                        self:CreateRaidSlotPlaceholders(container)
+                    end
                     container:Hide()
                 end
             end
