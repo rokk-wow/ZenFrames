@@ -5,7 +5,7 @@ local addon = SAdCore:GetAddon(addonName)
 function addon:GetDefaultConfig_Units()
     return {
         player = {
-            enabled = false,
+            enabled = true,
             hideBlizzard = false,
             frameName = "zfPlayerFrame",
             anchor = "TOPRIGHT",
@@ -227,7 +227,7 @@ function addon:GetDefaultConfig_Units()
             },
         },
         target = {
-            enabled = false,
+            enabled = true,
             hideBlizzard = false,
             frameName = "zfTargetFrame",
             anchor = "TOPLEFT",
@@ -426,7 +426,7 @@ function addon:GetDefaultConfig_Units()
             },
         },
         targetTarget = {
-            enabled = false,
+            enabled = true,
             hideBlizzard = false,
             frameName = "zfTargetTargetFrame",
             anchor = "TOPLEFT",
@@ -468,7 +468,7 @@ function addon:GetDefaultConfig_Units()
             },
         },
         focus = {
-            enabled = false,
+            enabled = true,
             hideBlizzard = false,
             frameName = "zfFocusFrame",
             anchor = "TOPRIGHT",
@@ -510,7 +510,7 @@ function addon:GetDefaultConfig_Units()
             },
         },
         focusTarget = {
-            enabled = false,
+            enabled = true,
             hideBlizzard = false,
             frameName = "zfFocusTargetFrame",
             anchor = "TOPLEFT",
@@ -552,7 +552,7 @@ function addon:GetDefaultConfig_Units()
             },
         },
         pet = {
-            enabled = false,
+            enabled = true,
             hideBlizzard = false,
             frameName = "zfPetFrame",
             anchor = "TOPLEFT",

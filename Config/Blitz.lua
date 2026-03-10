@@ -5,7 +5,7 @@ local addon = SAdCore:GetAddon(addonName)
 function addon:GetDefaultConfig_Blitz()
     return {
         friendly = {
-            enabled = false,
+            enabled = true,
             frameName = "zfRaidBlitzFriendlyContainer",
             anchor = "RIGHT",
             relativeTo = "UIParent",
@@ -298,7 +298,7 @@ function addon:GetDefaultConfig_Blitz()
         },
 
         enemy = {
-            enabled = false,
+            enabled = true,
             frameName = "zfRaidBlitzEnemyContainer",
             anchor = "LEFT",
             relativeTo = "UIParent",

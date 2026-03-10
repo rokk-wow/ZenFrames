@@ -684,11 +684,11 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
         groupHeight = groupRows * cellH + math.max(0, groupRows - 1) * spacingY
         groupCount = math.ceil(maxUnits / unitsPerGroup)
         if layoutOrientation == "HORIZONTAL" then
-            containerW = groupCount * groupWidth + math.max(0, groupCount - 1) * groupSpacingXVal + 2 * spacingX
-            containerH = groupHeight + 2 * spacingY
-        else
             containerW = groupWidth + 2 * spacingX
             containerH = groupCount * groupHeight + math.max(0, groupCount - 1) * groupSpacingYVal + 2 * spacingY
+        else
+            containerW = groupCount * groupWidth + math.max(0, groupCount - 1) * groupSpacingXVal + 2 * spacingX
+            containerH = groupHeight + 2 * spacingY
         end
     else
         cols = math.min(perRow, maxUnits)
@@ -936,11 +936,11 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
             local rowInGroup = math.floor(indexInGroup / enforcePerRow)
             local offsetX, offsetY
             if layoutOrientation == "HORIZONTAL" then
-                offsetX = spacingX + groupIndex * (groupWidth + groupSpacingXVal) + colInGroup * (cellW + spacingX)
-                offsetY = spacingY + rowInGroup * (cellH + spacingY)
-            else
                 offsetX = spacingX + colInGroup * (cellW + spacingX)
                 offsetY = spacingY + groupIndex * (groupHeight + groupSpacingYVal) + rowInGroup * (cellH + spacingY)
+            else
+                offsetX = spacingX + groupIndex * (groupWidth + groupSpacingXVal) + colInGroup * (cellW + spacingX)
+                offsetY = spacingY + rowInGroup * (cellH + spacingY)
             end
             child:SetPoint(initialAnchor, container, initialAnchor, offsetX * xMult, offsetY * yMult)
         else
@@ -969,11 +969,11 @@ function addon:SpawnGroupFrames(configKey, units, explicitCfg)
 
                 local gOffsetX, gOffsetY
                 if layoutOrientation == "HORIZONTAL" then
-                    gOffsetX = spacingX + g * (groupWidth + groupSpacingXVal)
-                    gOffsetY = spacingY
-                else
                     gOffsetX = spacingX
                     gOffsetY = spacingY + g * (groupHeight + groupSpacingYVal)
+                else
+                    gOffsetX = spacingX + g * (groupWidth + groupSpacingXVal)
+                    gOffsetY = spacingY
                 end
 
                 groupBg:ClearAllPoints()

@@ -4,7 +4,7 @@ local addon = SAdCore:GetAddon(addonName)
 
 function addon:GetDefaultConfig_Boss()
     return {
-        enabled = false,
+        enabled = true,
         hideBlizzard = false,
 
         frameName = "zfBossContainer",
