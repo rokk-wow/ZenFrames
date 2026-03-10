@@ -330,7 +330,7 @@ end
 function addon:GetRaidRoutingState()
     local raidCfg = self.config and self.config.raid
 
-    if not raidCfg or not raidCfg.enabled then
+    if not raidCfg then
         return { showParty = false, activeFriendlyProfile = nil }
     end
 
@@ -365,7 +365,20 @@ function addon:GetRaidRoutingState()
             profile = blz.profile or "blitz"
         end
 
-        return { showParty = false, activeFriendlyProfile = profile, activeEnemyProfile = profile }
+        local profiles = raidCfg.profiles or {}
+        local profileCfg = profiles[profile]
+        local friendlyEnabled = profileCfg and profileCfg.friendly and profileCfg.friendly.enabled
+        local enemyEnabled = profileCfg and profileCfg.enemy and profileCfg.enemy.enabled
+
+        if not friendlyEnabled and not enemyEnabled then
+            return { showParty = false, activeFriendlyProfile = nil, activeEnemyProfile = nil }
+        end
+
+        return {
+            showParty = false,
+            activeFriendlyProfile = friendlyEnabled and profile or nil,
+            activeEnemyProfile = enemyEnabled and profile or nil,
+        }
     end
 
     local routing   = raidCfg.routing or {}
@@ -381,6 +394,14 @@ function addon:GetRaidRoutingState()
     if IsInRaid() then
         local raidRoute = routing.raid or {}
         local profile   = raidRoute.profile or "raid"
+        local profiles = raidCfg.profiles or {}
+        local profileCfg = profiles[profile]
+        local friendlyEnabled = profileCfg and profileCfg.friendly and profileCfg.friendly.enabled
+
+        if not friendlyEnabled then
+            return { showParty = true, activeFriendlyProfile = nil }
+        end
+
         return { showParty = false, activeFriendlyProfile = profile }
     end
 
@@ -521,7 +542,7 @@ end
 
 function addon:UpdateRaidFrameVisibility()
     local raidCfg = self.config and self.config.raid
-    if not raidCfg or not raidCfg.enabled then
+    if not raidCfg then
         return
     end
 
@@ -607,7 +628,7 @@ end
 
 function addon:SpawnRaidFrames()
     local raidCfg = self.config and self.config.raid
-    if not raidCfg or not raidCfg.enabled then
+    if not raidCfg then
         return
     end
 

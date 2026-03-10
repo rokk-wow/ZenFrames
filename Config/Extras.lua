@@ -14,7 +14,7 @@ function addon:GetDefaultConfig_Extras()
             enabled = true,
             fontSize = 18,
             offsetX = 0,
-            offsetY = -30,
+            offsetY = -90,
             compartmentSpacing = 15,
             showInZones = { "arena", "battleground", "dungeon", "raid", "world" },
         },
@@ -154,16 +154,16 @@ function addon:GetDefaultConfig_Extras()
             offsetX = -10,
             offsetY = 1,
         },
-        battlegroundCallouts = {
+        callIncs = {
             enabled = true,
-            isPvP = true,
             buttonSize = 30,
             buttons = {
-                { label = "1", message = "1 incoming" },
-                { label = "2", message = "2 incoming" },
-                { label = "3", message = "3 incoming" },
-                { label = "+", message = "Lots incoming" },
-                { label = "C", message = "Clear" },
+                ["1"] = "$zone: 1 inc",
+                ["2"] = "$zone: 2 inc",
+                ["3"] = "$zone: 3 inc",
+                ["+"] = "$zone: Lots inc",
+                ["H"] = "$zone: HELP!",
+                ["C"] = "$zone: All clear",
             },
         },
     }

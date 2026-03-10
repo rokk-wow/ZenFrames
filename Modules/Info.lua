@@ -70,8 +70,12 @@ local function BuildInfoLines()
         lines[#lines + 1] = { label = "Memory", value = FormatMemory(zfEntry.memory) }
 
         local raidCfg = addon.config and addon.config.raid
-        if raidCfg then
-            lines[#lines + 1] = { label = "Raid Enabled", value = raidCfg.enabled and "Yes" or "No" }
+        if raidCfg and raidCfg.profiles then
+            for profileName, profileCfg in pairs(raidCfg.profiles) do
+                local fEnabled = profileCfg.friendly and profileCfg.friendly.enabled and "Yes" or "No"
+                local eEnabled = profileCfg.enemy and profileCfg.enemy.enabled and "Yes" or "No"
+                lines[#lines + 1] = { label = profileName, value = "F:" .. fEnabled .. " E:" .. eEnabled }
+            end
         end
 
         local containerCount = 0

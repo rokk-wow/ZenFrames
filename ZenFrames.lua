@@ -518,8 +518,8 @@ function addon:Initialize()
         self:InitializeStatusBar()
     end
 
-    if self.InitializeBattlegroundCallouts then
-        self:InitializeBattlegroundCallouts()
+    if self.InitializeCallIncs then
+        self:InitializeCallIncs()
     end
 
     C_Timer.After(1, function()

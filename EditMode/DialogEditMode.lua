@@ -115,17 +115,6 @@ local function GetRowEnabled(def)
 end
 
 local function SetRowEnabled(def, checked)
-    local isRaidProfileToggle = def and (
-        def.configKey == "raid"
-        or def.configKey == "blitz"
-        or def.configKey == "battleground"
-        or def.configKey == "epicBattleground"
-    )
-
-    if isRaidProfileToggle and checked then
-        addon:SetOverride({ "raid", "enabled" }, true)
-    end
-
     if def.enabledPath then
         addon:SetOverride(def.enabledPath, checked)
         if def.enemyEnabledPath then

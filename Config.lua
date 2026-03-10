@@ -20,8 +20,6 @@ function addon:GetDefaultConfig()
         boss = self:GetDefaultConfig_Boss(),
 
         raid = {
-            enabled = false,
-
             routing = {
                 usePartyWhenGroupSizeAtOrBelow = 5,
 

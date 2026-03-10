@@ -324,5 +324,16 @@ function addon:GetDefaultConfig_EpicBattleground()
                 },
             },
         },
+        callIncs = {
+            enabled = true,
+            buttonSize = 30,
+            buttons = {
+                ["1"] = "$zone: 1 inc",
+                ["2"] = "$zone: 2 inc",
+                ["3"] = "$zone: 3 inc",
+                ["+"] = "$zone: Lots inc",
+                ["C"] = "$zone: Clear",
+            },
+        },
     }
 end

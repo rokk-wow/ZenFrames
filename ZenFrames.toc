@@ -55,7 +55,7 @@ Modules\Clock.lua
 Modules\Chat.lua
 Modules\SpellAssistGlow.lua
 Modules\BattlefieldMap.lua
-Modules\BattlegroundCallouts.lua
+Modules\CallIncs.lua
 Modules\Minimap.lua
 Modules\QuestIcon.lua
 Modules\ActionBars.lua
