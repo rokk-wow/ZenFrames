@@ -13,14 +13,18 @@ local function ResolveButtonText(template)
     return template:gsub("%$zone", subZone)
 end
 
-local function SendCallInc(template)
-    local message = ResolveButtonText(template)
-    if not message or message == "" then return end
-
-    if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
-        SendChatMessage(message, "INSTANCE_CHAT")
-    elseif IsInGroup() then
-        SendChatMessage(message, "PARTY")
+local function UpdateCallIncMacroTexts()
+    if InCombatLockdown() then
+        addon.callIncsPendingMacroUpdate = true
+        return
+    end
+    addon.callIncsPendingMacroUpdate = false
+    for _, button in ipairs(callIncButtons) do
+        if button.callIncTemplate then
+            local message = ResolveButtonText(button.callIncTemplate)
+            local chatCommand = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "/i " or "/p "
+            button:SetAttribute("macrotext", chatCommand .. message)
+        end
     end
 end
 
@@ -48,6 +52,8 @@ local function GetActiveCallIncsCfg()
 end
 
 local function CreateCallIncButtons(cfg, parentFrame)
+    if InCombatLockdown() then return end
+
     local orderedKeys = {}
     for label in pairs(cfg.buttons) do
         orderedKeys[#orderedKeys + 1] = label
@@ -62,15 +68,20 @@ local function CreateCallIncButtons(cfg, parentFrame)
     for i, label in ipairs(orderedKeys) do
         local template = cfg.buttons[label]
         local frameName = "ZenFramesCallInc" .. i
-        local button = _G[frameName] or CreateFrame("Button", frameName, parentFrame, "UIPanelButtonTemplate")
+        local button = _G[frameName] or CreateFrame("Button", frameName, parentFrame, "SecureActionButtonTemplate, UIPanelButtonTemplate")
+
+        button:SetAttribute("type", "macro")
+        button.callIncTemplate = template
+
+        local message = ResolveButtonText(template)
+        local chatCommand = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "/i " or "/p "
+        button:SetAttribute("macrotext", chatCommand .. message)
 
         button:SetSize(buttonSize, buttonSize)
         button:SetPoint("CENTER", parentFrame, "TOP", startOffset + (buttonSize * (i - 1)), 0)
-        button:RegisterForClicks("LeftButtonUp")
+        button:RegisterForClicks("AnyDown")
         button:SetFrameStrata("DIALOG")
         button:SetText(label)
-
-        button:SetScript("OnClick", function() SendCallInc(template) end)
         button:Hide()
 
         callIncButtons[i] = button
@@ -78,6 +89,7 @@ local function CreateCallIncButtons(cfg, parentFrame)
 end
 
 local function RebuildCallIncButtons()
+    if InCombatLockdown() then return end
     for _, button in ipairs(callIncButtons) do
         button:Hide()
         button:SetParent(nil)
@@ -144,6 +156,7 @@ function addon:InitializeCallIncs()
     eventFrame:RegisterEvent("ZONE_CHANGED")
     eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     eventFrame:RegisterEvent("CVAR_UPDATE")
+    eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
     eventFrame:SetScript("OnEvent", function(_, event, ...)
         if event == "CVAR_UPDATE" then
             local cvarName = ...
@@ -157,8 +170,17 @@ function addon:InitializeCallIncs()
             return
         end
 
+        if event == "PLAYER_REGEN_ENABLED" and addon.callIncsPendingMacroUpdate then
+            UpdateCallIncMacroTexts()
+            return
+        end
+
         if event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
             RebuildCallIncButtons()
+        end
+
+        if event == "ZONE_CHANGED" then
+            UpdateCallIncMacroTexts()
         end
 
         Setup()

@@ -522,6 +522,10 @@ function addon:Initialize()
         self:InitializeCallIncs()
     end
 
+    if self.InitializeVendor then
+        self:InitializeVendor()
+    end
+
     C_Timer.After(1, function()
         self:ShowAnnouncement(self:GetCurrentAnnouncementId())
     end)

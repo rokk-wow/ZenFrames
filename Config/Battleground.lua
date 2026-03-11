@@ -69,6 +69,7 @@ function addon:GetDefaultConfig_Battleground()
                         format = "[name:short]",
                         outline = "OUTLINE",
                         shadow = true,
+                        maxWidth = 0.70,
                     },
                     {
                         name = "RaidBattlegroundHealthText",
@@ -95,7 +96,7 @@ function addon:GetDefaultConfig_Battleground()
                     anchor = "LEFT",
                     relativePoint = "LEFT",
                     offsetX = 2,
-                    offsetY = 0,
+                    offsetY = 7,
                     defaultIcon = "common-button-square-gray-up",
                     defaultAlpha = 0.5,
                 },
@@ -159,7 +160,7 @@ function addon:GetDefaultConfig_Battleground()
                 },
                 objectiveIcon = {
                     enabled = true,
-                    iconSize = 18,
+                    iconSize = 27,
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,
@@ -233,6 +234,7 @@ function addon:GetDefaultConfig_Battleground()
                         format = "[name:short]",
                         outline = "OUTLINE",
                         shadow = true,
+                        maxWidth = 0.70,
                     },
                     {
                         name = "RaidBattlegroundEnemyHealthText",
@@ -259,7 +261,7 @@ function addon:GetDefaultConfig_Battleground()
                     anchor = "LEFT",
                     relativePoint = "LEFT",
                     offsetX = 2,
-                    offsetY = 0,
+                    offsetY = 7,
                     defaultIcon = "common-button-square-gray-up",
                     defaultAlpha = 0.5,
                 },
@@ -316,7 +318,7 @@ function addon:GetDefaultConfig_Battleground()
                 },
                 objectiveIcon = {
                     enabled = true,
-                    iconSize = 18,
+                    iconSize = 27,
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,

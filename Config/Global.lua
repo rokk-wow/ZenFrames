@@ -126,5 +126,22 @@ function addon:GetDefaultConfig_Global()
             orbOrangeColor = "f0a400",
             orbPurpleColor = "dd0af0",
         },
+
+        bgTeamSizes = {
+            ["Warsong Gulch"] = 10,
+            ["Arathi Basin"] = 15,
+            ["Deephaul Ravine"] = 10,
+            ["Alterac Valley"] = 40,
+            ["Eye of the Storm"] = 15,
+            ["Isle of Conquest"] = 40,
+            ["The Battle for Gilneas"] = 10,
+            ["Battle for Wintergrasp"] = 40,
+            ["Ashran"] = 35,
+            ["Twin Peaks"] = 10,
+            ["Temple of Kotmogu"] = 10,
+            ["Seething Shore"] = 10,
+            ["Deepwind Gorge"] = 15,
+            ["Slayer's Rise"] = 40,
+        },
     }
 end

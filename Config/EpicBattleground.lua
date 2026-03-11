@@ -69,6 +69,7 @@ function addon:GetDefaultConfig_EpicBattleground()
                         format = "[name:short]",
                         outline = "OUTLINE",
                         shadow = true,
+                        maxWidth = 0.80,
                     },
                     {
                         name = "RaidEpicBattlegroundHealthText",
@@ -159,7 +160,7 @@ function addon:GetDefaultConfig_EpicBattleground()
                 },
                 objectiveIcon = {
                     enabled = true,
-                    iconSize = 16,
+                    iconSize = 24,
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,
@@ -233,6 +234,7 @@ function addon:GetDefaultConfig_EpicBattleground()
                         format = "[name:short]",
                         outline = "OUTLINE",
                         shadow = true,
+                        maxWidth = 0.80,
                     },
                     {
                         name = "RaidEpicBattlegroundEnemyHealthText",
@@ -316,7 +318,7 @@ function addon:GetDefaultConfig_EpicBattleground()
                 },
                 objectiveIcon = {
                     enabled = true,
-                    iconSize = 16,
+                    iconSize = 24,
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,

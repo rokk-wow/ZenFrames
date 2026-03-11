@@ -16,6 +16,7 @@ function addon:GetDefaultConfig_Extras()
             offsetX = 0,
             offsetY = -90,
             compartmentSpacing = 15,
+            showMailIcon = true,
             showInZones = { "arena", "battleground", "dungeon", "raid", "world" },
         },
         chat = {
@@ -90,6 +91,7 @@ function addon:GetDefaultConfig_Extras()
                 markerVerticalOffset = -20,
                 markerWidth = 0,
                 showHealthBars = false,
+                showCastBars = false,
                 customNameSize = 22,
                 highlightTarget = true,
                 highlightScale = 1.25,
@@ -165,6 +167,10 @@ function addon:GetDefaultConfig_Extras()
                 ["H"] = "$zone: HELP!",
                 ["C"] = "$zone: All clear",
             },
+        },
+        vendor = {
+            autoSellJunk = true,
+            autoRepair = true,
         },
     }
 end

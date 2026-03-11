@@ -27,11 +27,16 @@ Localization.lua
 
 EditMode\Placeholder.lua
 
+Core\UnitFrameCore.lua
+Core\UnitFrameSpawn.lua
+Core\GroupFrames.lua
+Core\RaidFrames.lua
+Core\ArenaVisibility.lua
+
 Modules\Media.lua
 Modules\Dialog.lua
 Modules\DialogControls.lua
 Modules\Tags.lua
-Modules\UnitFrame.lua
 Modules\Castbar.lua
 Modules\Health.lua
 Modules\Power.lua
@@ -66,6 +71,7 @@ Modules\MinimapIcons.lua
 Modules\BagsBar.lua
 Modules\QuestFrame.lua
 Modules\StatusBar.lua
+Modules\Vendor.lua
 Modules\Info.lua
 
 EditMode\EditModeDialogs.lua

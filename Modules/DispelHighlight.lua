@@ -45,6 +45,13 @@ function addon:AddDispelHighlight(frame, cfg)
     inner:SetFrameLevel(frame:GetFrameLevel() + 20)
     inner:Hide()
 
+    local countText = inner:CreateFontString(nil, "OVERLAY")
+    local fontPath = addon:GetFontPath()
+    countText:SetFont(fontPath, 12, "OUTLINE")
+    countText:SetPoint("BOTTOMLEFT", inner, "BOTTOMLEFT", 2, 2)
+    countText:SetJustifyH("LEFT")
+    inner.CountText = countText
+
     frame.DispelHighlight = inner
 end
 
@@ -56,6 +63,11 @@ local function Update(self, event, unit)
 
     unit = self.unit
     if not unit or not UnitExists(unit) then
+        element:Hide()
+        return
+    end
+
+    if unit:match("target$") or unit:match("pet$") then
         element:Hide()
         return
     end
@@ -84,8 +96,10 @@ local function Update(self, event, unit)
 
     if foundColor then
         element:SetBackdropBorderColor(foundColor:GetRGBA())
+        element.CountText:Hide()
         element:Show()
     else
+        element.CountText:Hide()
         element:Hide()
     end
 end

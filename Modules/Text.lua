@@ -79,7 +79,9 @@ function addon:AddText(frame, textConfigs)
             if parentWidth and parentWidth > 0 then
                 if isRaidText then
                     local maxWidth
-                    if justify == "LEFT" or justify == "RIGHT" then
+                    if cfg.maxWidth then
+                        maxWidth = parentWidth * cfg.maxWidth
+                    elseif justify == "LEFT" or justify == "RIGHT" then
                         maxWidth = parentWidth * 0.48
                     else
                         maxWidth = parentWidth * 0.95
@@ -106,6 +108,7 @@ function addon:AddText(frame, textConfigs)
 
             if cfg.format then
                 frame:Tag(fs, cfg.format)
+                fs._zfTagFormat = cfg.format
             end
 
             frame.Texts[i] = fs

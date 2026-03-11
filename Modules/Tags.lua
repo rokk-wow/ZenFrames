@@ -4,15 +4,18 @@ local SAdCore = LibStub("SAdCore-1")
 local addon = SAdCore:GetAddon(addonName)
 
 local function GetName(unit)
-    local ok, name = pcall(UnitName, unit)
-    if not ok then return nil end
-    local safe, _ = pcall(tostring, name)
-    if not safe then return nil end
-    return name
+    local name = UnitName(unit)
+    if name ~= nil and not (issecretvalue and issecretvalue(name)) then
+        return name
+    end
+    return addon._zfEnemyNameOverrides and addon._zfEnemyNameOverrides[unit] or nil
 end
 
 oUF.Tags.Methods['name:short'] = function(unit, realUnit)
-    return GetName(realUnit or unit)
+    local name = GetName(realUnit or unit)
+    if not name then return nil end
+    local shortName = strsplit("-", name)
+    return shortName
 end
 oUF.Tags.Events['name:short'] = 'UNIT_NAME_UPDATE'
 
@@ -37,44 +40,58 @@ end
 oUF.Tags.Events['name:trunc'] = 'UNIT_NAME_UPDATE'
 
 oUF.Tags.Methods['curhp:short'] = function(unit)
-    return AbbreviateNumbers(UnitHealth(unit))
+    local frame = _FRAME
+    local cur = frame and frame.Health and frame.Health:GetValue() or 0
+    return AbbreviateNumbers(cur)
 end
 oUF.Tags.Events['curhp:short'] = 'UNIT_HEALTH UNIT_MAXHEALTH'
 
 oUF.Tags.Methods['maxhp:short'] = function(unit)
-    return AbbreviateNumbers(UnitHealthMax(unit))
+    local frame = _FRAME
+    local max = frame and frame.Health and select(2, frame.Health:GetMinMaxValues()) or 0
+    return AbbreviateNumbers(max)
 end
 oUF.Tags.Events['maxhp:short'] = 'UNIT_MAXHEALTH'
 
 oUF.Tags.Methods['hp:percent'] = function(unit)
-    return string.format('%d%%', UnitHealthPercent(unit, true, CurveConstants.ScaleTo100))
+    local frame = _FRAME
+    local cur = frame and frame.Health and frame.Health:GetValue() or 0
+    local max = frame and frame.Health and select(2, frame.Health:GetMinMaxValues()) or 0
+    local pct = (max > 0) and (cur / max * 100) or 0
+    return string.format('%d%%', pct)
 end
 oUF.Tags.Events['hp:percent'] = 'UNIT_HEALTH UNIT_MAXHEALTH'
 
 oUF.Tags.Methods['hp:cur-percent'] = function(unit)
-    local cur = AbbreviateNumbers(UnitHealth(unit))
-    local pct = string.format('%d', UnitHealthPercent(unit, true, CurveConstants.ScaleTo100))
-    return cur .. ' - ' .. pct .. '%'
+    local frame = _FRAME
+    local cur = frame and frame.Health and frame.Health:GetValue() or 0
+    local max = frame and frame.Health and select(2, frame.Health:GetMinMaxValues()) or 0
+    local pct = (max > 0) and (cur / max * 100) or 0
+    return AbbreviateNumbers(cur) .. ' - ' .. string.format('%d', pct) .. '%'
 end
 oUF.Tags.Events['hp:cur-percent'] = 'UNIT_HEALTH UNIT_MAXHEALTH'
 
 oUF.Tags.Methods['hp:cur-max'] = function(unit)
-    local cur = AbbreviateNumbers(UnitHealth(unit))
-    local max = AbbreviateNumbers(UnitHealthMax(unit))
-    return cur .. ' / ' .. max
+    local frame = _FRAME
+    local cur = frame and frame.Health and frame.Health:GetValue() or 0
+    local max = frame and frame.Health and select(2, frame.Health:GetMinMaxValues()) or 0
+    return AbbreviateNumbers(cur) .. ' / ' .. AbbreviateNumbers(max)
 end
 oUF.Tags.Events['hp:cur-max'] = 'UNIT_HEALTH UNIT_MAXHEALTH'
 
 oUF.Tags.Methods['hp:deficit'] = function(unit)
-    local deficit = UnitHealthMissing(unit)
-    if deficit and deficit > 0 then
+    local frame = _FRAME
+    local cur = frame and frame.Health and frame.Health:GetValue() or 0
+    local max = frame and frame.Health and select(2, frame.Health:GetMinMaxValues()) or 0
+    local deficit = max - cur
+    if deficit > 0 then
         return '-' .. AbbreviateNumbers(deficit)
     end
 end
 oUF.Tags.Events['hp:deficit'] = 'UNIT_HEALTH UNIT_MAXHEALTH'
 
 oUF.Tags.Methods['curpp:short'] = function(unit)
-    local cur = UnitPower(unit)
+    local cur = addon:SecureCall(UnitPower, unit)
     if cur and cur > 0 then
         return AbbreviateNumbers(cur)
     end
@@ -82,25 +99,25 @@ end
 oUF.Tags.Events['curpp:short'] = 'UNIT_POWER_UPDATE UNIT_MAXPOWER'
 
 oUF.Tags.Methods['maxpp:short'] = function(unit)
-    return AbbreviateNumbers(UnitPowerMax(unit))
+    return AbbreviateNumbers(addon:SecureCall(UnitPowerMax, unit) or 0)
 end
 oUF.Tags.Events['maxpp:short'] = 'UNIT_MAXPOWER'
 
 oUF.Tags.Methods['pp:percent'] = function(unit)
-    return string.format('%d%%', UnitPowerPercent(unit, nil, true, CurveConstants.ScaleTo100))
+    return string.format('%d%%', addon:SecureCall(UnitPowerPercent, unit, nil, true, CurveConstants.ScaleTo100) or 0)
 end
 oUF.Tags.Events['pp:percent'] = 'UNIT_POWER_UPDATE UNIT_MAXPOWER'
 
 oUF.Tags.Methods['pp:cur-percent'] = function(unit)
-    local cur = AbbreviateNumbers(UnitPower(unit))
-    local pct = string.format('%d', UnitPowerPercent(unit, nil, true, CurveConstants.ScaleTo100))
+    local cur = AbbreviateNumbers(addon:SecureCall(UnitPower, unit) or 0)
+    local pct = string.format('%d', addon:SecureCall(UnitPowerPercent, unit, nil, true, CurveConstants.ScaleTo100) or 0)
     return cur .. ' - ' .. pct .. '%'
 end
 oUF.Tags.Events['pp:cur-percent'] = 'UNIT_POWER_UPDATE UNIT_MAXPOWER'
 
 oUF.Tags.Methods['pp:cur-max'] = function(unit)
-    local cur = AbbreviateNumbers(UnitPower(unit))
-    local max = AbbreviateNumbers(UnitPowerMax(unit))
+    local cur = AbbreviateNumbers(addon:SecureCall(UnitPower, unit) or 0)
+    local max = AbbreviateNumbers(addon:SecureCall(UnitPowerMax, unit) or 0)
     return cur .. ' / ' .. max
 end
 oUF.Tags.Events['pp:cur-max'] = 'UNIT_POWER_UPDATE UNIT_MAXPOWER'

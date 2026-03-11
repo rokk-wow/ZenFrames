@@ -26,6 +26,34 @@ local function CustomizeClock(cfg)
 end
 
 -- ---------------------------------------------------------------------------
+-- Mail Icon
+-- ---------------------------------------------------------------------------
+
+function addon:CreateMailIcon()
+    local clockButton = TimeManagerClockButton
+    if not clockButton then return end
+
+    local mailFrame = CreateFrame("Frame", "ZenFramesMailIcon", clockButton)
+    mailFrame:SetSize(18, 18)
+    mailFrame:SetPoint("TOP", clockButton, "BOTTOM", 0, -2)
+
+    local icon = mailFrame:CreateTexture(nil, "ARTWORK")
+    icon:SetAllPoints()
+    icon:SetAtlas("mailbox")
+    mailFrame.icon = icon
+
+    mailFrame:RegisterEvent("UPDATE_PENDING_MAIL")
+    mailFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    mailFrame:SetScript("OnEvent", function()
+        mailFrame:SetShown(HasNewMail())
+    end)
+
+    mailFrame:SetShown(HasNewMail())
+
+    return mailFrame
+end
+
+-- ---------------------------------------------------------------------------
 -- Zone-based visibility for Clock frames
 -- ---------------------------------------------------------------------------
 
@@ -76,6 +104,7 @@ end
 local function SetClockZoneVisibility(visible)
     SetClockFrameVisibility("TimeManagerClockButton", visible)
     SetClockFrameVisibility("AddonCompartmentFrame", visible)
+    SetClockFrameVisibility("ZenFramesMailIcon", visible)
 end
 
 -- ---------------------------------------------------------------------------
@@ -104,6 +133,10 @@ function addon:InitializeClock()
             CustomizeClock(cfg)
         end
     end)
+
+    if cfg.showMailIcon then
+        self:CreateMailIcon()
+    end
 
     addon.toggleableFrames["clock"] = {
         isHidden = function() return clockHiddenFrames["TimeManagerClockButton"] == true end,

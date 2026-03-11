@@ -8,8 +8,12 @@ This file is intentionally short so AI can load it quickly each session.
 - For deep details, check source docs when needed (for example `Libs/LibSAdCore/README.md`).
 
 ## Critical API Reality (Beta)
-- See `.github/copilot-instructions.md` for the full secret value rules (auto-loaded by Copilot).
-- TL;DR: secret values throw Lua exceptions on ANY operation — no compares, no storage, no concatenation. Use spell ID lookups, Blizzard's built-in aura filter APIs, or existing project patterns.
+- The current version of WoW has implemented new types of values called "secret" values.
+- Secret values throw Lua exceptions on ANY operation — no compares, no storage, no concatenation. Use spell ID lookups, Blizzard's built-in aura filter APIs, or existing project patterns.
+- Secret values are returned for many api calls especially during combat
+- pcall is not a solution. It only allows us to call the function. Even when using pcall if we attempt to manipulate, look at, move, compare, etc. the return value, an exception will be thrown.
+- SAdCore offers SecureCall which allows us to call api functions that might return secret values. If a value is secret, SecureCall returns nil to prevent exceptions.
+- SecureCall is generally not a solution. The vast majority of this addon is designed to work in combat so we must learn how to work with secret values. This includes using correct api calls, passing secret values directly to other Blizzard functions designed to handle secret values, and using existing project patterns for handling secret values.
 
 ## Critical Information about fixing Bugs and Defects
 - If you are requested to fix a bug or defect first analyze the problem
@@ -29,13 +33,6 @@ This file is intentionally short so AI can load it quickly each session.
 - Find the mouse cursor first (the exact UI element in question).
 - Check the `SOURCE` line to identify which Blizzard/AddOn frame created it.
 - Confirm the exact frame container before editing (do not assume viewers/frames are interchangeable).
-
-## SAdCore Coding Rules (Keep These)
-- For every `addon.*` function:
-  - First line: `callHook(self, "BeforeFunctionName", ...)`
-  - Before every return: `callHook(self, "AfterFunctionName", returnValue)`
-- Always return explicit values (`true`/`false`/actual value). Never return `nil`.
-- Local/private functions are not bound by the `addon.*` hook rule.
 
 ## Localization + Messaging
 - All user-facing info/error text must use localization via `self:L()`.
@@ -67,8 +64,3 @@ To prepare for a release:
     - check ZenFrames.lua to see if version in show announcement needs to be updated - self:ShowAnnouncement("v2.0.0")
   - Check for unused localization strings and remove them
   - Verifiy all new localization strings are in place and have translations for the existing languages already translated for other strings
-
-
-
-
-readycheck

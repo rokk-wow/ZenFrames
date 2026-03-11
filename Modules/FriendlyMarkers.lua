@@ -252,6 +252,9 @@ local function UpdateHealthbarVisibility(nameplate, unit, visible, friendlyCfg)
     if unitFrame.healthBar then
         unitFrame.healthBar:SetAlpha(visible and 1 or 0)
     end
+    if unitFrame.castBar then
+        unitFrame.castBar:SetAlpha(friendlyCfg.showCastBars and 1 or 0)
+    end
     if unitFrame.RaidTargetFrame then
         unitFrame.RaidTargetFrame:SetAlpha(visible and 1 or 0)
     end
@@ -289,6 +292,9 @@ local function ResetHealthbarVisibility(nameplate)
     if unitFrame then
         if unitFrame.healthBar then
             unitFrame.healthBar:SetAlpha(1)
+        end
+        if unitFrame.castBar then
+            unitFrame.castBar:SetAlpha(1)
         end
         if unitFrame.RaidTargetFrame then
             unitFrame.RaidTargetFrame:SetAlpha(1)

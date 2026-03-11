@@ -13,6 +13,17 @@ local currentBgName
 
 local DEEPHAUL_RAVINE = "Deephaul Ravine"
 
+local ARENA_UNITS = {}
+for i = 1, 5 do ARENA_UNITS[i] = "arena" .. i end
+
+local BG_CARRIER_MAP = {
+    ["Warsong Gulch"]     = { [1] = 1, [2] = 0 },
+    ["Twin Peaks"]        = { [1] = 1, [2] = 0 },
+    ["Eye of the Storm"]  = { [1] = 1, [2] = 0 },
+    ["Deephaul Ravine"]   = { [1] = 1, [2] = 0 },
+    ["Temple of Kotmogu"] = { [1] = 7, [2] = 8, [3] = 9, [4] = 10 },
+}
+
 local function GetObjectiveTextures()
     local global = addon.config and addon.config.global
     if not global or not global.objectiveIcons then
@@ -94,6 +105,7 @@ function addon:AddObjectiveIcon(frame, cfg)
         cfg.offsetY
     )
     container:SetFrameLevel(frame:GetFrameLevel() + 15)
+    container:SetIgnoreParentAlpha(true)
 
     local icon = container:CreateTexture(nil, "OVERLAY")
     icon:SetAllPoints(container)
@@ -123,12 +135,30 @@ local function UpdateObjectiveIcons()
     local textures = GetObjectiveTextures()
     if not textures then return end
 
+    local carrierMap = BG_CARRIER_MAP[currentBgName]
+
+    local activeCarriers = {}
+    if carrierMap then
+        for arenaIdx, classification in pairs(carrierMap) do
+            local arenaUnit = ARENA_UNITS[arenaIdx]
+            if UnitExists(arenaUnit) and UnitIsPlayer(arenaUnit) then
+                activeCarriers[arenaIdx] = classification
+            end
+        end
+    end
+
     for _, frame in ipairs(addon.objectiveIconFrames) do
         local container = frame.ObjectiveIcon
         if container then
             local unit = frame.unit
-            if unit and addon:SecureCall(UnitExists, unit) and addon:SecureCall(UnitIsPlayer, unit) then
-                local classification = addon:SecureCall(UnitPvpClassification, unit)
+            if unit and UnitExists(unit) then
+                local classification
+                for arenaIdx, cls in pairs(activeCarriers) do
+                    if UnitIsUnit(unit, ARENA_UNITS[arenaIdx]) then
+                        classification = cls
+                        break
+                    end
+                end
                 if classification then
                     local applied = ApplyClassificationTexture(container.Icon, classification, textures)
                     if applied then

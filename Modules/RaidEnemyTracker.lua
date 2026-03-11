@@ -148,6 +148,84 @@ local function RosterPID(rosterEntry)
 end
 
 -- ---------------------------------------------------------------------------
+-- Roster persistence across /reload
+-- ---------------------------------------------------------------------------
+
+local function SaveRosterToSavedVars()
+    if not addon.savedVarsChar then return end
+
+    local state = addon._raidEnemyTracker
+    if not state or state.rosterCount == 0 then
+        addon.savedVarsChar.raidEnemyRoster = nil
+        return
+    end
+
+    local saved = {
+        roster = {},
+        slotMeta = {},
+        rosterCount = state.rosterCount,
+        allyFaction = state.allyFaction,
+        enemyFaction = state.enemyFaction,
+    }
+
+    for i, entry in ipairs(state.roster) do
+        saved.roster[i] = {
+            name = entry.name,
+            classToken = entry.classToken,
+            raceName = entry.raceName,
+            englishRace = entry.englishRace,
+            faction = entry.faction,
+            honorLevel = entry.honorLevel,
+            guid = entry.guid,
+            talentSpec = entry.talentSpec,
+            role = entry.role,
+            gender = entry.gender,
+            realmName = entry.realmName,
+        }
+    end
+
+    for i, meta in pairs(state.slotMeta) do
+        saved.slotMeta[i] = {
+            classToken = meta.classToken,
+            raceName = meta.raceName,
+            gender = meta.gender,
+            honorLevel = meta.honorLevel,
+            name = meta.name,
+            talentSpec = meta.talentSpec,
+        }
+    end
+
+    addon.savedVarsChar.raidEnemyRoster = saved
+end
+
+local function RestoreRosterFromSavedVars()
+    if not addon.savedVarsChar then return false end
+
+    local saved = addon.savedVarsChar.raidEnemyRoster
+    if not saved or not saved.rosterCount or saved.rosterCount == 0 then return false end
+
+    local state = addon._raidEnemyTracker
+    if not state then return false end
+
+    state.rosterCount = saved.rosterCount
+    state.allyFaction = saved.allyFaction
+    state.enemyFaction = saved.enemyFaction
+
+    for i, entry in ipairs(saved.roster) do
+        state.roster[i] = entry
+        if entry.name then
+            state.rosterByName[entry.name] = i
+        end
+    end
+
+    for i, meta in pairs(saved.slotMeta) do
+        state.slotMeta[i] = meta
+    end
+
+    return true
+end
+
+-- ---------------------------------------------------------------------------
 -- Roster state management
 -- ---------------------------------------------------------------------------
 
@@ -502,9 +580,7 @@ local UNIT_PRIORITY = {
     focus = 2,
     mouseover = 3,
     nameplate = 4,
-    raidtarget = 5,
-    partytarget = 6,
-    other = 7,
+    other = 5,
 }
 
 local scanCycleCache = {}
@@ -674,12 +750,8 @@ local function IsEnemyPlayer(unitID)
 end
 
 local function ClearVolatileAssignments(state)
-    for slotIndex, priority in pairs(state.unitPriority) do
-        if priority >= UNIT_PRIORITY.nameplate then
-            state.unitAssignments[slotIndex] = nil
-            state.unitPriority[slotIndex] = nil
-        end
-    end
+    wipe(state.unitAssignments)
+    wipe(state.unitPriority)
 end
 
 local function ClearUnitFromSlots(state, unitID)
@@ -714,16 +786,34 @@ local function ScanEnemyUnits()
 
     local changed = false
 
+    if IsEnemyPlayer("target") then
+        local slotIndex = GetRosterSlotByUnitID(state, "target")
+        if slotIndex then
+            if AssignUnitToSlot(state, slotIndex, "target", "target") then
+                changed = true
+            end
+        end
+    end
+
+    if IsEnemyPlayer("focus") then
+        local slotIndex = GetRosterSlotByUnitID(state, "focus")
+        if slotIndex then
+            if AssignUnitToSlot(state, slotIndex, "focus", "focus") then
+                changed = true
+            end
+        end
+    end
+
     local numMembers = GetNumGroupMembers()
     if IsInRaid() then
         for i = 1, numMembers do
             local unit = raidTargetUnits[i]
             if unit and IsEnemyPlayer(unit) then
                 local slotIndex = GetRosterSlotByUnitID(state, unit)
-                if slotIndex then
-                    if AssignUnitToSlot(state, slotIndex, unit, "raidtarget") then
-                        changed = true
-                    end
+                if slotIndex and not state.unitAssignments[slotIndex] then
+                    state.slotSeen = state.slotSeen or {}
+                    state.slotSeen[slotIndex] = true
+                    changed = true
                 end
             end
         end
@@ -732,10 +822,10 @@ local function ScanEnemyUnits()
             local unit = partyTargetUnits[i]
             if unit and IsEnemyPlayer(unit) then
                 local slotIndex = GetRosterSlotByUnitID(state, unit)
-                if slotIndex then
-                    if AssignUnitToSlot(state, slotIndex, unit, "partytarget") then
-                        changed = true
-                    end
+                if slotIndex and not state.unitAssignments[slotIndex] then
+                    state.slotSeen = state.slotSeen or {}
+                    state.slotSeen[slotIndex] = true
+                    changed = true
                 end
             end
         end
@@ -794,6 +884,8 @@ local function HandleZoneEnter()
     addon:ResetRaidEnemyTrackerState()
 
     if IsRelevantPvpGroup() then
+        local restored = RestoreRosterFromSavedVars()
+
         local allyFaction, enemyFaction = GetPlayerFaction()
         local state = addon._raidEnemyTracker
         if state and allyFaction then
@@ -803,10 +895,17 @@ local function HandleZoneEnter()
         RequestBattlefieldScoreData()
         addon:StartScoreboardRetryIfNeeded()
         addon:StartEnemyUnitScan()
+
+        if restored then
+            addon:RefreshEnemyFrames()
+        end
     else
         addon:StopEnemyUnitScan()
         addon:StopScoreboardRetry()
         addon:RefreshEnemyFrames()
+        if addon.savedVarsChar then
+            addon.savedVarsChar.raidEnemyRoster = nil
+        end
     end
 end
 
@@ -893,6 +992,7 @@ function addon:InitializeRaidEnemyTracker()
     trackerFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
     trackerFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
     trackerFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    trackerFrame:RegisterEvent("PLAYER_LOGOUT")
 
     trackerFrame:SetScript("OnEvent", function(_, event, ...)
         if event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
@@ -901,6 +1001,8 @@ function addon:InitializeRaidEnemyTracker()
         elseif event == "GROUP_ROSTER_UPDATE" then
             if IsRelevantPvpGroup() then
                 RequestBattlefieldScoreData()
+                addon:StartScoreboardRetryIfNeeded()
+                addon:StartEnemyUnitScan()
             end
 
         elseif event == "UPDATE_BATTLEFIELD_SCORE" then
@@ -928,6 +1030,9 @@ function addon:InitializeRaidEnemyTracker()
 
         elseif event == "PLAYER_REGEN_ENABLED" then
             addon:RefreshEnemyFrames()
+
+        elseif event == "PLAYER_LOGOUT" then
+            SaveRosterToSavedVars()
         end
     end)
 
