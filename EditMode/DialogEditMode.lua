@@ -469,6 +469,9 @@ function addon:EditModeToggleFrameVisibility(configKey, visible, visibilityKeys)
                 if value._placeholder.SetMouseClickEnabled then
                     value._placeholder:SetMouseClickEnabled(isVisible)
                 end
+                if value.SetAlpha then
+                    value:SetAlpha(isVisible and 1 or 0)
+                end
             end
         end
     end

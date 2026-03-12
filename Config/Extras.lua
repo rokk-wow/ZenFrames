@@ -172,5 +172,12 @@ function addon:GetDefaultConfig_Extras()
             autoSellJunk = true,
             autoRepair = true,
         },
+        gearCheck = {
+            enabled = true,
+            warningAtlas = "icons_64x64_important",
+            warningSize = 64,
+            warningOffsetY = -150,
+            rules = {},
+        },
     }
 end

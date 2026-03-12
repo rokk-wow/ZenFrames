@@ -526,6 +526,10 @@ function addon:Initialize()
         self:InitializeVendor()
     end
 
+    if self.InitializeGearCheck then
+        self:InitializeGearCheck()
+    end
+
     C_Timer.After(1, function()
         self:ShowAnnouncement(self:GetCurrentAnnouncementId())
     end)
@@ -635,6 +639,13 @@ function addon:AddTextureBorder(frame, borderWidth, hexColor)
     frame.borderRight:SetPoint("TOPLEFT", frame, "TOPRIGHT", 0, borderWidth)
     frame.borderRight:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 0, -borderWidth)
     frame.borderRight:SetWidth(borderWidth)
+end
+
+function addon:SetTextureBorderShown(frame, shown)
+    if frame.borderTop then frame.borderTop:SetShown(shown) end
+    if frame.borderBottom then frame.borderBottom:SetShown(shown) end
+    if frame.borderLeft then frame.borderLeft:SetShown(shown) end
+    if frame.borderRight then frame.borderRight:SetShown(shown) end
 end
 
 function addon:SpawnFrames()

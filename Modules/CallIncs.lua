@@ -106,6 +106,8 @@ local function RebuildCallIncButtons()
 end
 
 local function UpdateCallIncVisibility()
+    if InCombatLockdown() then return end
+
     local mapFrame = BattlefieldMapFrame
     local mapVisible = mapFrame and mapFrame:IsVisible()
     local inBattleground = UnitInBattleground("player")
@@ -170,8 +172,11 @@ function addon:InitializeCallIncs()
             return
         end
 
-        if event == "PLAYER_REGEN_ENABLED" and addon.callIncsPendingMacroUpdate then
-            UpdateCallIncMacroTexts()
+        if event == "PLAYER_REGEN_ENABLED" then
+            if addon.callIncsPendingMacroUpdate then
+                UpdateCallIncMacroTexts()
+            end
+            UpdateCallIncVisibility()
             return
         end
 

@@ -33,24 +33,21 @@ function addon:CreateMailIcon()
     local clockButton = TimeManagerClockButton
     if not clockButton then return end
 
-    local mailFrame = CreateFrame("Frame", "ZenFramesMailIcon", clockButton)
-    mailFrame:SetSize(18, 18)
-    mailFrame:SetPoint("TOP", clockButton, "BOTTOM", 0, -2)
+    local blizzMailFrame = MinimapCluster and MinimapCluster.IndicatorFrame and MinimapCluster.IndicatorFrame.MailFrame
+    if not blizzMailFrame then return end
 
-    local icon = mailFrame:CreateTexture(nil, "ARTWORK")
-    icon:SetAllPoints()
-    icon:SetAtlas("mailbox")
-    mailFrame.icon = icon
+    blizzMailFrame:SetParent(clockButton)
+    blizzMailFrame:ClearAllPoints()
+    blizzMailFrame:SetPoint("TOP", clockButton, "BOTTOM", 0, -2)
+    blizzMailFrame:SetIgnoreParentAlpha(true)
+    blizzMailFrame:Show()
 
-    mailFrame:RegisterEvent("UPDATE_PENDING_MAIL")
-    mailFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-    mailFrame:SetScript("OnEvent", function()
-        mailFrame:SetShown(HasNewMail())
+    hooksecurefunc(blizzMailFrame, "SetPoint", function(self)
+        if self:GetParent() == clockButton then return end
+        self:SetParent(clockButton)
+        self:ClearAllPoints()
+        self:SetPoint("TOP", clockButton, "BOTTOM", 0, -2)
     end)
-
-    mailFrame:SetShown(HasNewMail())
-
-    return mailFrame
 end
 
 -- ---------------------------------------------------------------------------
@@ -104,7 +101,6 @@ end
 local function SetClockZoneVisibility(visible)
     SetClockFrameVisibility("TimeManagerClockButton", visible)
     SetClockFrameVisibility("AddonCompartmentFrame", visible)
-    SetClockFrameVisibility("ZenFramesMailIcon", visible)
 end
 
 -- ---------------------------------------------------------------------------

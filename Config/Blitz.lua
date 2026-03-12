@@ -297,6 +297,9 @@ function addon:GetDefaultConfig_Blitz()
                 objectiveIcon = {
                     enabled = true,
                     iconSize = 20,
+                    backgroundColor = "000000CC",
+                    borderWidth = 1,
+                    borderColor = "000000FF",
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,
@@ -613,6 +616,9 @@ function addon:GetDefaultConfig_Blitz()
                 objectiveIcon = {
                     enabled = true,
                     iconSize = 20,
+                    backgroundColor = "000000CC",
+                    borderWidth = 1,
+                    borderColor = "000000FF",
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,

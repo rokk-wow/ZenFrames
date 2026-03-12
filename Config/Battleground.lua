@@ -119,7 +119,7 @@ function addon:GetDefaultConfig_Battleground()
                 auraFilters = {
                     {
                         name = "RaidBattlegroundPlayerBuffs",
-                        enabled = true,
+                        enabled = false,
                         baseFilter = "HELPFUL",
                         subFilters = {"RAID_IN_COMBAT"},
                         excludeSubFilters = {"NOT_CANCELABLE"},
@@ -160,7 +160,10 @@ function addon:GetDefaultConfig_Battleground()
                 },
                 objectiveIcon = {
                     enabled = true,
-                    iconSize = 27,
+                    iconSize = 40,
+                    backgroundColor = "000000CC",
+                    borderWidth = 1,
+                    borderColor = "000000FF",
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,
@@ -284,7 +287,7 @@ function addon:GetDefaultConfig_Battleground()
                 auraFilters = {
                     {
                         name = "RaidBattlegroundEnemyBuffs",
-                        enabled = true,
+                        enabled = false,
                         baseFilter = "HELPFUL",
                         subFilters = {"RAID_IN_COMBAT"},
                         excludeSubFilters = {"NOT_CANCELABLE"},
@@ -318,7 +321,10 @@ function addon:GetDefaultConfig_Battleground()
                 },
                 objectiveIcon = {
                     enabled = true,
-                    iconSize = 27,
+                    iconSize = 40,
+                    backgroundColor = "000000CC",
+                    borderWidth = 1,
+                    borderColor = "000000FF",
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,

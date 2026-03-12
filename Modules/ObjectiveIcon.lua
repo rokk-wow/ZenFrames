@@ -13,17 +13,6 @@ local currentBgName
 
 local DEEPHAUL_RAVINE = "Deephaul Ravine"
 
-local ARENA_UNITS = {}
-for i = 1, 5 do ARENA_UNITS[i] = "arena" .. i end
-
-local BG_CARRIER_MAP = {
-    ["Warsong Gulch"]     = { [1] = 1, [2] = 0 },
-    ["Twin Peaks"]        = { [1] = 1, [2] = 0 },
-    ["Eye of the Storm"]  = { [1] = 1, [2] = 0 },
-    ["Deephaul Ravine"]   = { [1] = 1, [2] = 0 },
-    ["Temple of Kotmogu"] = { [1] = 7, [2] = 8, [3] = 9, [4] = 10 },
-}
-
 local function GetObjectiveTextures()
     local global = addon.config and addon.config.global
     if not global or not global.objectiveIcons then
@@ -50,7 +39,7 @@ local function ApplyClassificationTexture(icon, classification, textures)
         if IsDeephaulRavine() then
             icon:SetAtlas(textures.orb, false)
             ApplyColorFromHex(icon, textures.gemColor)
-            return true
+            return true, false
         end
 
         if classification == 0 then
@@ -62,12 +51,12 @@ local function ApplyClassificationTexture(icon, classification, textures)
             icon:SetDesaturated(false)
             icon:SetVertexColor(1, 1, 1, 1)
         end
-        return true
+        return true, true
     elseif classification == 2 then
         icon:SetAtlas(textures.allianceFlag, false)
         icon:SetDesaturated(true)
         icon:SetVertexColor(1, 1, 1, 0.8)
-        return true
+        return true, true
     elseif classification == 7 then
         icon:SetAtlas(textures.orb, false)
         ApplyColorFromHex(icon, textures.orbBlueColor)
@@ -94,8 +83,9 @@ function addon:AddObjectiveIcon(frame, cfg)
     callHook(self, "BeforeAddObjectiveIcon", frame, cfg)
 
     local size = cfg.iconSize or cfg.size or 20
+    local borderWidth = tonumber(cfg.borderWidth) or 1
 
-    local container = CreateFrame("Frame", nil, frame)
+    local container = CreateFrame("Frame", nil, UIParent)
     container:SetSize(size, size)
     container:SetPoint(
         cfg.anchor,
@@ -104,12 +94,23 @@ function addon:AddObjectiveIcon(frame, cfg)
         cfg.offsetX,
         cfg.offsetY
     )
-    container:SetFrameLevel(frame:GetFrameLevel() + 15)
+    container:SetFrameStrata("TOOLTIP")
+    container:SetFrameLevel(9999)
     container:SetIgnoreParentAlpha(true)
 
-    local icon = container:CreateTexture(nil, "OVERLAY")
-    icon:SetAllPoints(container)
+    local bg = container:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints(container)
+    local br, bg2, bb, ba = self:HexToRGB(cfg.backgroundColor or "000000CC")
+    bg:SetColorTexture(br, bg2, bb, ba)
+    container.Background = bg
+
+    local icon = container:CreateTexture(nil, "ARTWORK")
+    icon:SetPoint("TOPLEFT", container, "TOPLEFT", borderWidth, -borderWidth)
+    icon:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -borderWidth, borderWidth)
     container.Icon = icon
+
+    self:AddTextureBorder(container, borderWidth, cfg.borderColor or "000000FF")
+    container._borderWidth = borderWidth
 
     container:Hide()
 
@@ -135,33 +136,20 @@ local function UpdateObjectiveIcons()
     local textures = GetObjectiveTextures()
     if not textures then return end
 
-    local carrierMap = BG_CARRIER_MAP[currentBgName]
-
-    local activeCarriers = {}
-    if carrierMap then
-        for arenaIdx, classification in pairs(carrierMap) do
-            local arenaUnit = ARENA_UNITS[arenaIdx]
-            if UnitExists(arenaUnit) and UnitIsPlayer(arenaUnit) then
-                activeCarriers[arenaIdx] = classification
-            end
-        end
-    end
-
     for _, frame in ipairs(addon.objectiveIconFrames) do
         local container = frame.ObjectiveIcon
         if container then
             local unit = frame.unit
-            if unit and UnitExists(unit) then
-                local classification
-                for arenaIdx, cls in pairs(activeCarriers) do
-                    if UnitIsUnit(unit, ARENA_UNITS[arenaIdx]) then
-                        classification = cls
-                        break
-                    end
-                end
+            local frameVisible = frame:IsShown() and frame:GetAlpha() > 0
+            if frameVisible and unit and UnitExists(unit) then
+                local classification = UnitPvpClassification(unit)
                 if classification then
-                    local applied = ApplyClassificationTexture(container.Icon, classification, textures)
+                    local applied, isFlag = ApplyClassificationTexture(container.Icon, classification, textures)
                     if applied then
+                        if container.Background then
+                            container.Background:SetShown(not isFlag)
+                        end
+                        addon:SetTextureBorderShown(container, not isFlag)
                         container:Show()
                     else
                         container:Hide()

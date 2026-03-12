@@ -161,6 +161,9 @@ function addon:GetDefaultConfig_EpicBattleground()
                 objectiveIcon = {
                     enabled = true,
                     iconSize = 24,
+                    backgroundColor = "000000CC",
+                    borderWidth = 1,
+                    borderColor = "000000FF",
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,
@@ -319,6 +322,9 @@ function addon:GetDefaultConfig_EpicBattleground()
                 objectiveIcon = {
                     enabled = true,
                     iconSize = 24,
+                    backgroundColor = "000000CC",
+                    borderWidth = 1,
+                    borderColor = "000000FF",
                     anchor = "TOP",
                     relativePoint = "TOP",
                     offsetX = 0,

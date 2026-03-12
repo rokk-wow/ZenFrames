@@ -119,7 +119,7 @@ function addon:GetDefaultConfig_Global()
         objectiveIcons = {
             allianceFlag = "AllianceEmblem",
             hordeFlag = "HordeEmblem",
-            orb = "housing-layout-room-orb-default",
+            orb = "worldquest-Capstone-questmarker-epic-supertrack",
             gemColor = "db0000",
             orbBlueColor = "0068f5",
             orbGreenColor = "20d04c",
