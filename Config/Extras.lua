@@ -156,18 +156,6 @@ function addon:GetDefaultConfig_Extras()
             offsetX = -10,
             offsetY = 1,
         },
-        callIncs = {
-            enabled = true,
-            buttonSize = 30,
-            buttons = {
-                ["1"] = "$zone: 1 inc",
-                ["2"] = "$zone: 2 inc",
-                ["3"] = "$zone: 3 inc",
-                ["+"] = "$zone: Lots inc",
-                ["H"] = "$zone: HELP!",
-                ["C"] = "$zone: All clear",
-            },
-        },
         vendor = {
             autoSellJunk = true,
             autoRepair = true,
@@ -177,7 +165,14 @@ function addon:GetDefaultConfig_Extras()
             warningAtlas = "icons_64x64_important",
             warningSize = 64,
             warningOffsetY = -150,
-            rules = {},
+            rules = {
+                { zone = "world", warMode = true,  loadout = "Blitz",   gearSet = "PvP" },
+                { zone = "world", warMode = false, loadout = "Blitz",   gearSet = "M+" },
+                { zone = "battleground",           loadout = "Blitz",   gearSet = "PvP" },
+                { zone = "arena",                  loadout = "Crackle", gearSet = "PvP" },
+                { zone = "dungeon",                loadout = "M+",      gearSet = "M+" },
+                { zone = "raid",                   loadout = "M+",      gearSet = "M+" },
+            },
         },
     }
 end

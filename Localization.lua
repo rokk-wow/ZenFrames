@@ -264,9 +264,8 @@ addon.locale.enEN = {
 	vendorNotEnoughMoney = "Not enough gold to repair.",
 
 	-- Gear Check
-	gearCheckWrongGearSet = "Wrong gear set! Expected: %s",
-	gearCheckWrongLoadout = "Wrong loadout! Expected: %s",
-	gearCheckWrongBoth = "Wrong gear & loadout! Expected gear: %s, loadout: %s",
+	gearCheckWrongGearSet = "Wrong gear set. Expected: %s",
+	gearCheckWrongLoadout = "Wrong loadout. Expected: %s",
 
 }
 
@@ -518,9 +517,8 @@ addon.locale.esES = {
 	vendorNotEnoughMoney = "No hay suficiente oro para reparar.",
 
 	-- Gear Check
-	gearCheckWrongGearSet = "¡Equipo incorrecto! Esperado: %s",
-	gearCheckWrongLoadout = "¡Talentos incorrectos! Esperado: %s",
-	gearCheckWrongBoth = "¡Equipo y talentos incorrectos! Equipo esperado: %s, talentos: %s",
+	gearCheckWrongGearSet = "Equipo incorrecto. Esperado: %s",
+	gearCheckWrongLoadout = "Talentos incorrectos. Esperado: %s",
 
 }
 addon.locale.esMX = addon.locale.esES
@@ -773,9 +771,8 @@ addon.locale.ptBR = {
 	vendorNotEnoughMoney = "Ouro insuficiente para reparar.",
 
 	-- Gear Check
-	gearCheckWrongGearSet = "Equipamento errado! Esperado: %s",
-	gearCheckWrongLoadout = "Talentos errados! Esperado: %s",
-	gearCheckWrongBoth = "Equipamento e talentos errados! Equipamento esperado: %s, talentos: %s",
+	gearCheckWrongGearSet = "Equipamento errado. Esperado: %s",
+	gearCheckWrongLoadout = "Talentos errados. Esperado: %s",
 
 }
 
@@ -1027,9 +1024,8 @@ addon.locale.frFR = {
 	vendorNotEnoughMoney = "Pas assez d'or pour réparer.",
 
 	-- Gear Check
-	gearCheckWrongGearSet = "Mauvais équipement ! Attendu : %s",
-	gearCheckWrongLoadout = "Mauvais talents ! Attendu : %s",
-	gearCheckWrongBoth = "Mauvais équipement et talents ! Équipement attendu : %s, talents : %s",
+	gearCheckWrongGearSet = "Mauvais équipement. Attendu : %s",
+	gearCheckWrongLoadout = "Mauvais talents. Attendu : %s",
 
 }
 
@@ -1281,9 +1277,8 @@ addon.locale.deDE = {
 	vendorNotEnoughMoney = "Nicht genug Gold zum Reparieren.",
 
 	-- Gear Check
-	gearCheckWrongGearSet = "Falsche Ausrüstung! Erwartet: %s",
-	gearCheckWrongLoadout = "Falsches Talent-Loadout! Erwartet: %s",
-	gearCheckWrongBoth = "Falsche Ausrüstung & Loadout! Ausrüstung erwartet: %s, Loadout: %s",
+	gearCheckWrongGearSet = "Falsche Ausrüstung. Erwartet: %s",
+	gearCheckWrongLoadout = "Falsches Talent-Loadout. Erwartet: %s",
 
 }
 
@@ -1533,9 +1528,8 @@ addon.locale.ruRU = {
 	vendorNotEnoughMoney = "Недостаточно золота для ремонта.",
 
 	-- Gear Check
-	gearCheckWrongGearSet = "Неправильный комплект! Ожидается: %s",
-	gearCheckWrongLoadout = "Неправильные таланты! Ожидается: %s",
-	gearCheckWrongBoth = "Неправильный комплект и таланты! Комплект: %s, таланты: %s",
+	gearCheckWrongGearSet = "Неправильный комплект. Ожидается: %s",
+	gearCheckWrongLoadout = "Неправильные таланты. Ожидается: %s",
 
 	-- Text tag help content
 	emTextTagHelpContent = "|cff00ff98Справочник текстовых тегов|r\n\n|cffffffffТеги заключаются в квадратные скобки и комбинируются с обычным текстом.|r\n\n|cff00ff98Примеры синтаксиса|r\n|cffffd100  [name]|r |cffaaaaaa-> Полное имя юнита|r\n|cffffd100  [perhp]%|r |cffaaaaaa-> 85%|r\n|cffffd100  [curhp:short] / [maxhp:short]|r |cffaaaaaa-> 245K / 300K|r\n|cffffd100  [raidcolor][name:medium]\\|r|r |cffaaaaaa-> Имя в цвете класса|r\n\n|cffffffffНеобязательный префикс/суффикс (отображается, только если тег возвращает значение):|r\n|cffffd100  [==$>name<$==]|r |cffaaaaaa-> ==Тралл==|r\n|cffffd100  [perhp<$%]|r |cffaaaaaa-> 85%|r\n\n|cff00ff98Теги имени|r\n|cffffd100  [name]|r |cffffffffПолное имя|r\n|cffffd100  [name:short]|r |cffffffffКороткое имя|r\n|cffffd100  [name:medium]|r |cffffffffСреднее имя|r\n|cffffd100  [name:long]|r |cffffffffДлинное имя|r\n|cffffd100  [name:abbrev]|r |cffffffffСокращённое имя|r\n|cffffd100  [name:trunc(12)]|r |cffffffffОбрезано до 12 символов|r\n\n|cff00ff98Теги здоровья|r\n|cffffd100  [curhp]|r |cffffffffТекущее здоровье (число)|r\n|cffffd100  [maxhp]|r |cffffffffМаксимальное здоровье (число)|r\n|cffffd100  [perhp]|r |cffffffffПроцент здоровья (напр. 85)|r\n|cffffd100  [missinghp]|r |cffffffffНедостающее здоровье|r\n|cffffd100  [curhp:short]|r |cffffffffТекущее здоровье сокращённо (245K)|r\n|cffffd100  [maxhp:short]|r |cffffffffМаксимальное здоровье сокращённо (300K)|r\n|cffffd100  [hp:percent]|r |cffffffffПроцент здоровья с % (85%)|r\n|cffffd100  [hp:cur-percent]|r |cffffffff245K - 85%|r\n|cffffd100  [hp:cur-max]|r |cffffffff245K / 300K|r\n|cffffd100  [hp:deficit]|r |cffffffffНедостающее здоровье как -245K|r\n\n|cff00ff98Теги ресурса|r\n|cffffd100  [curpp]|r |cffffffffТекущий ресурс (число)|r\n|cffffd100  [maxpp]|r |cffffffffМаксимальный ресурс (число)|r\n|cffffd100  [perpp]|r |cffffffffПроцент ресурса|r\n|cffffd100  [curpp:short]|r |cffffffffТекущий ресурс сокращённо|r\n|cffffd100  [maxpp:short]|r |cffffffffМаксимальный ресурс сокращённо|r\n|cffffd100  [pp:percent]|r |cffffffffПроцент ресурса с %|r\n|cffffd100  [pp:cur-percent]|r |cffffffffТекущий - процент%|r\n|cffffd100  [pp:cur-max]|r |cffffffffТекущий / Максимум|r\n\n|cff00ff98Теги информации|r\n|cffffd100  [level]|r |cffffffffУровень юнита|r\n|cffffd100  [smartlevel]|r |cffffffffУровень с индикатором элиты/босса|r\n|cffffd100  [class]|r |cffffffffНазвание класса|r\n|cffffd100  [smartclass]|r |cffffffffКласс (игроки) или тип существа (НИП)|r\n|cffffd100  [spec]|r |cffffffffСокращение специализации (напр. ОРУЖ, ВОССТ)|r\n|cffffd100  [race]|r |cffffffffНазвание расы|r\n|cffffd100  [creature]|r |cffffffffСемейство или тип существа|r\n|cffffd100  [faction]|r |cffffffffНазвание фракции|r\n|cffffd100  [group]|r |cffffffffНомер рейдовой группы|r\n\n|cff00ff98Теги состояния|r\n|cffffd100  [dead]|r |cffffffffМёртв или Призрак|r\n|cffffd100  [offline]|r |cffffffffНе в сети|r\n|cffffd100  [status]|r |cffffffffМёртв / Призрак / Не в сети / zzz|r\n|cffffd100  [resting]|r |cffffffffzzz если отдыхает|r\n|cffffd100  [pvp]|r |cffffffffPvP если включено|r\n|cffffd100  [leader]|r |cffffffffЛ если лидер группы|r\n|cffffd100  [sex]|r |cffffffffМужской / Женский|r\n\n|cff00ff98Теги цвета|r\n|cffffd100  [raidcolor]|r |cffffffffHex цвета класса (перед именем, \\|r после)|r\n|cffffd100  [powercolor]|r |cffffffffHex цвета типа ресурса|r\n|cffffd100  [threatcolor]|r |cffffffffHex цвета уровня угрозы|r\n\n|cff00ff98Теги классификации|r\n|cffffd100  [classification]|r |cffffffffРедкий / Редкий элитный / Элитный / Босс|r\n|cffffd100  [shortclassification]|r |cffffffffР / Р+ / + / Б / -|r\n|cffffd100  [threat]|r |cffffffffАггро / ++ / --|r",

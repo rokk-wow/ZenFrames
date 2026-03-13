@@ -22,10 +22,16 @@ end
 function addon:GetActiveLoadoutName()
     local specIndex = GetSpecialization()
     if not specIndex then return nil end
+    local specID = GetSpecializationInfo(specIndex)
     local configID = C_ClassTalents.GetActiveConfigID()
-    if not configID then return nil end
-    local configInfo = C_Traits.GetConfigInfo(configID)
-    return configInfo and configInfo.name or nil
+
+    local savedFromSpec = specID and C_ClassTalents.GetLastSelectedSavedConfigID(specID)
+    local savedFromConfig = configID and C_ClassTalents.GetLastSelectedSavedConfigID(configID)
+
+    local savedConfigID = savedFromSpec or savedFromConfig
+    if not savedConfigID then return nil end
+    local savedInfo = C_Traits.GetConfigInfo(savedConfigID)
+    return savedInfo and savedInfo.name or nil
 end
 
 function addon:IsWarModeOn()
@@ -72,15 +78,16 @@ function addon:RunGearCheck()
     local wrongGear = rule.gearSet and rule.gearSet ~= "" and currentGearSet ~= rule.gearSet
     local wrongLoadout = rule.loadout and rule.loadout ~= "" and currentLoadout ~= rule.loadout
 
-    if wrongGear and wrongLoadout then
-        local msg = string.format(self:L("gearCheckWrongBoth"), rule.gearSet, rule.loadout)
-        self:ShowGearCheckWarning(cfg, msg)
-    elseif wrongGear then
-        local msg = string.format(self:L("gearCheckWrongGearSet"), rule.gearSet)
-        self:ShowGearCheckWarning(cfg, msg)
-    elseif wrongLoadout then
-        local msg = string.format(self:L("gearCheckWrongLoadout"), rule.loadout)
-        self:ShowGearCheckWarning(cfg, msg)
+    local messages = {}
+    if wrongGear then
+        messages[#messages + 1] = string.format(self:L("gearCheckWrongGearSet"), rule.gearSet)
+    end
+    if wrongLoadout then
+        messages[#messages + 1] = string.format(self:L("gearCheckWrongLoadout"), rule.loadout)
+    end
+
+    if #messages > 0 then
+        self:ShowGearCheckWarning(cfg, table.concat(messages, "\n"))
     else
         self:HideGearCheckWarning()
     end
@@ -132,8 +139,17 @@ function addon:InitializeGearCheck()
     eventFrame:RegisterEvent("EQUIPMENT_SWAP_FINISHED")
     eventFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
     eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
-    eventFrame:SetScript("OnEvent", function()
+    eventFrame:RegisterEvent("PLAYER_FLAGS_CHANGED")
+    eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    eventFrame:SetScript("OnEvent", function(_, event)
+        if event == "PLAYER_REGEN_DISABLED" then
+            addon:HideGearCheckWarning()
+            return
+        end
+        if InCombatLockdown() then return end
         C_Timer.After(0.5, function()
+            if InCombatLockdown() then return end
             addon:RunGearCheck()
         end)
     end)

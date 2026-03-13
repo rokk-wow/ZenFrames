@@ -43,11 +43,6 @@ local function GetActiveCallIncsCfg()
         end
     end
 
-    local extrasCfg = addon.config and addon.config.extras and addon.config.extras.callIncs
-    if extrasCfg and extrasCfg.enabled then
-        return extrasCfg
-    end
-
     return nil
 end
 
@@ -130,8 +125,6 @@ end
 -- ---------------------------------------------------------------------------
 
 function addon:InitializeCallIncs()
-    local extrasCfg = self.config and self.config.extras and self.config.extras.callIncs
-    if not extrasCfg or not extrasCfg.enabled then return end
 
     local initialized = false
 

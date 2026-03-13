@@ -109,18 +109,27 @@ function addon:InitializeBattlefieldMap()
         settingCVar = true
         SetCVar("showBattlefieldMinimap", shouldShow and "1" or "0")
         settingCVar = false
-        if not shouldShow and BattlefieldMapFrame and BattlefieldMapFrame:IsShown() then
-            BattlefieldMapFrame:Hide()
+        if shouldShow then
+            if BattlefieldMapFrame and not BattlefieldMapFrame:IsShown() then
+                BattlefieldMapFrame:Show()
+            end
+        else
+            if BattlefieldMapFrame and BattlefieldMapFrame:IsShown() then
+                BattlefieldMapFrame:Hide()
+            end
         end
     end
 
     local eventFrame = CreateFrame("Frame")
     eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     eventFrame:RegisterEvent("CVAR_UPDATE")
     eventFrame:SetScript("OnEvent", function(_, event, ...)
-        if event == "PLAYER_ENTERING_WORLD" then
+        if event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
             ApplyZoneFilter()
-            ApplyCustomizations()
+            if not customized then
+                ApplyCustomizations()
+            end
         end
 
         if event == "CVAR_UPDATE" then

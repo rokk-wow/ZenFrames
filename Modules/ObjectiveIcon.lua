@@ -140,8 +140,7 @@ local function UpdateObjectiveIcons()
         local container = frame.ObjectiveIcon
         if container then
             local unit = frame.unit
-            local frameVisible = frame:IsShown() and frame:GetAlpha() > 0
-            if frameVisible and unit and UnitExists(unit) then
+            if frame:IsShown() and unit and UnitExists(unit) then
                 local classification = UnitPvpClassification(unit)
                 if classification then
                     local applied, isFlag = ApplyClassificationTexture(container.Icon, classification, textures)
