@@ -117,15 +117,20 @@ function addon:GetDefaultConfig_Global()
         },
 
         objectiveIcons = {
-            allianceFlag = "AllianceEmblem",
-            hordeFlag = "HordeEmblem",
             orb = "worldquest-Capstone-questmarker-epic-supertrack",
+            hordeColor = "8c1616",
+            allianceColor = "162C57",
             gemColor = "db0000",
-            orbBlueColor = "0068f5",
+            orbBlueColor = "162C57",
             orbGreenColor = "20d04c",
-            orbOrangeColor = "f0a400",
-            orbPurpleColor = "dd0af0",
-        },
+            orbOrangeColor = "ff7200",
+            orbPurpleColor = "dd0af0",            carrierMap = {
+                ["Warsong Gulch"]     = { [1] = 1, [2] = 0 },
+                ["Twin Peaks"]        = { [1] = 1, [2] = 0 },
+                ["Eye of the Storm"]  = { [1] = 1, [2] = 0 },
+                ["Deephaul Ravine"]   = { [1] = 1, [2] = 0 },
+                ["Temple of Kotmogu"] = { [1] = 7, [2] = 10, [3] = 8, [4] = 9 },
+            },        },
 
         bgTeamSizes = {
             ["Warsong Gulch"] = 10,

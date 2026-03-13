@@ -21,9 +21,9 @@ local function UpdateCallIncMacroTexts()
     addon.callIncsPendingMacroUpdate = false
     for _, button in ipairs(callIncButtons) do
         if button.callIncTemplate then
-            local message = ResolveButtonText(button.callIncTemplate)
+            local resolved = ResolveButtonText(button.callIncTemplate)
             local chatCommand = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "/i " or "/p "
-            button:SetAttribute("macrotext", chatCommand .. message)
+            button:SetAttribute("macrotext", chatCommand .. resolved)
         end
     end
 end
@@ -49,19 +49,14 @@ end
 local function CreateCallIncButtons(cfg, parentFrame)
     if InCombatLockdown() then return end
 
-    local orderedKeys = {}
-    for label in pairs(cfg.buttons) do
-        orderedKeys[#orderedKeys + 1] = label
-    end
-    table.sort(orderedKeys)
-
-    local buttonCount = #orderedKeys
+    local buttonCount = #cfg.buttons
     local buttonSize = cfg.buttonSize
     local totalWidth = buttonSize * buttonCount
     local startOffset = -(totalWidth / 2) + (buttonSize / 2)
 
-    for i, label in ipairs(orderedKeys) do
-        local template = cfg.buttons[label]
+    for i, entry in ipairs(cfg.buttons) do
+        local label = entry.label
+        local template = entry.message
         local frameName = "ZenFramesCallInc" .. i
         local button = _G[frameName] or CreateFrame("Button", frameName, parentFrame, "SecureActionButtonTemplate, UIPanelButtonTemplate")
 

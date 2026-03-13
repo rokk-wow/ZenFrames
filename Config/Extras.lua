@@ -160,6 +160,7 @@ function addon:GetDefaultConfig_Extras()
             autoSellJunk = true,
             autoRepair = true,
         },
+        rebindTabInPvP = true,
         gearCheck = {
             enabled = true,
             warningAtlas = "icons_64x64_important",

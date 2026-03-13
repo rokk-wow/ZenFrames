@@ -13,6 +13,13 @@ local currentBgName
 
 local DEEPHAUL_RAVINE = "Deephaul Ravine"
 
+local lastLoggedCarriers = {}
+local lastLoggedBgName
+local lastLoggedArenaState = ""
+
+local ARENA_UNITS = {}
+for i = 1, 5 do ARENA_UNITS[i] = "arena" .. i end
+
 local function GetObjectiveTextures()
     local global = addon.config and addon.config.global
     if not global or not global.objectiveIcons then
@@ -36,27 +43,19 @@ local function ApplyClassificationTexture(icon, classification, textures)
     if not textures then return false end
 
     if classification == 0 or classification == 1 then
+        icon:SetAtlas(textures.orb, false)
         if IsDeephaulRavine() then
-            icon:SetAtlas(textures.orb, false)
             ApplyColorFromHex(icon, textures.gemColor)
-            return true, false
-        end
-
-        if classification == 0 then
-            icon:SetAtlas(textures.hordeFlag, false)
-            icon:SetDesaturated(false)
-            icon:SetVertexColor(1, 1, 1, 1)
+        elseif classification == 0 then
+            ApplyColorFromHex(icon, textures.hordeColor)
         else
-            icon:SetAtlas(textures.allianceFlag, false)
-            icon:SetDesaturated(false)
-            icon:SetVertexColor(1, 1, 1, 1)
+            ApplyColorFromHex(icon, textures.allianceColor)
         end
-        return true, true
+        return true, false
     elseif classification == 2 then
-        icon:SetAtlas(textures.allianceFlag, false)
-        icon:SetDesaturated(true)
-        icon:SetVertexColor(1, 1, 1, 0.8)
-        return true, true
+        icon:SetAtlas(textures.orb, false)
+        ApplyColorFromHex(icon, textures.allianceColor)
+        return true, false
     elseif classification == 7 then
         icon:SetAtlas(textures.orb, false)
         ApplyColorFromHex(icon, textures.orbBlueColor)
@@ -133,15 +132,97 @@ local function UpdateObjectiveIcons()
 
     currentBgName = select(1, GetInstanceInfo())
 
+    if currentBgName ~= lastLoggedBgName then
+        lastLoggedBgName = currentBgName
+        local hasMap = textures.carrierMap and textures.carrierMap[currentBgName] and true or false
+        print("|cff00ccffOBJ|r bg=" .. tostring(currentBgName) .. " map=" .. tostring(hasMap))
+    end
+
     local textures = GetObjectiveTextures()
     if not textures then return end
+
+    local carrierSlots = {}
+    local friendlyCarrierUnits = {}
+    local carrierMap = textures.carrierMap and textures.carrierMap[currentBgName]
+    local arenaDebugParts = {}
+    if carrierMap and addon.GetRosterSlotByArenaUnit then
+        for arenaIdx, classification in pairs(carrierMap) do
+            local arenaUnit = ARENA_UNITS[arenaIdx]
+            local exists = UnitExists(arenaUnit)
+            local isPlayer = exists and UnitIsPlayer(arenaUnit)
+            if exists and isPlayer then
+                local isFriend = UnitIsFriend("player", arenaUnit)
+                if isFriend then
+                    friendlyCarrierUnits[arenaUnit] = classification
+                    arenaDebugParts[arenaIdx] = arenaUnit .. " friendly"
+                else
+                    local slotIndex = addon:GetRosterSlotByArenaUnit(arenaUnit)
+                    arenaDebugParts[arenaIdx] = arenaUnit .. " enemy slot=" .. tostring(slotIndex)
+                    if slotIndex then
+                        carrierSlots[slotIndex] = classification
+                    end
+                end
+            else
+                arenaDebugParts[arenaIdx] = arenaUnit .. (exists and " not-player" or " absent")
+            end
+        end
+    end
+
+    local arenaStateStr = table.concat(arenaDebugParts, " ")
+    if arenaStateStr ~= lastLoggedArenaState then
+        lastLoggedArenaState = arenaStateStr
+        if arenaStateStr ~= "" then
+            print("|cff00ccffOBJ|r arena: " .. arenaStateStr)
+        end
+    end
+
+    local carrierChanged = false
+    for slot, cls in pairs(carrierSlots) do
+        if lastLoggedCarriers[slot] ~= cls then
+            carrierChanged = true
+            break
+        end
+    end
+    for slot in pairs(lastLoggedCarriers) do
+        if not carrierSlots[slot] then
+            carrierChanged = true
+            break
+        end
+    end
+    if carrierChanged then
+        local parts = {}
+        for slot, cls in pairs(carrierSlots) do
+            parts[#parts + 1] = "s" .. slot .. "=c" .. cls
+        end
+        if #parts == 0 then
+            print("|cff00ccffOBJ|r carriers: none")
+        else
+            print("|cff00ccffOBJ|r carriers: " .. table.concat(parts, " "))
+        end
+        wipe(lastLoggedCarriers)
+        for slot, cls in pairs(carrierSlots) do
+            lastLoggedCarriers[slot] = cls
+        end
+    end
 
     for _, frame in ipairs(addon.objectiveIconFrames) do
         local container = frame.ObjectiveIcon
         if container then
-            local unit = frame.unit
-            if frame:IsShown() and unit and UnitExists(unit) then
-                local classification = UnitPvpClassification(unit)
+            if frame:IsVisible() and frame.unit and UnitExists(frame.unit) then
+                local classification
+
+                local slotIndex = frame._zfEnemyFrameIndex
+                if slotIndex then
+                    classification = carrierSlots[slotIndex]
+                else
+                    for carrierUnit, cls in pairs(friendlyCarrierUnits) do
+                        if UnitIsUnit(frame.unit, carrierUnit) then
+                            classification = cls
+                            break
+                        end
+                    end
+                end
+
                 if classification then
                     local applied, isFlag = ApplyClassificationTexture(container.Icon, classification, textures)
                     if applied then
@@ -179,6 +260,9 @@ local function StopObjectiveScanner()
             container:Hide()
         end
     end
+    wipe(lastLoggedCarriers)
+    lastLoggedBgName = nil
+    lastLoggedArenaState = ""
 end
 
 local scannerFrame = CreateFrame("Frame")

@@ -50,3 +50,40 @@ function addon:InitializeVendor()
         end
     end)
 end
+
+function addon:InitializeTabRebind()
+    local cfg = self.config and self.config.extras
+    if not cfg or not cfg.rebindTabInPvP then return end
+
+    local savedKeys = {}
+
+    local eventFrame = CreateFrame("Frame")
+    eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    eventFrame:SetScript("OnEvent", function()
+        if InCombatLockdown() then return end
+
+        local zone = addon:GetCurrentZone()
+        local isPvP = (zone == "arena" or zone == "battleground")
+
+        if isPvP then
+            local key1, key2 = GetBindingKey("TARGETNEARESTENEMY")
+            if key1 or key2 then
+                wipe(savedKeys)
+                if key1 then savedKeys[#savedKeys + 1] = key1 end
+                if key2 then savedKeys[#savedKeys + 1] = key2 end
+                for _, key in ipairs(savedKeys) do
+                    SetBinding(key, "TARGETNEARESTENEMYPLAYER")
+                end
+                SaveBindings(GetCurrentBindingSet())
+            end
+        else
+            if #savedKeys > 0 then
+                for _, key in ipairs(savedKeys) do
+                    SetBinding(key, "TARGETNEARESTENEMY")
+                end
+                SaveBindings(GetCurrentBindingSet())
+                wipe(savedKeys)
+            end
+        end
+    end)
+end

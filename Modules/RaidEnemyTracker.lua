@@ -293,6 +293,12 @@ function addon:GetRaidEnemyRosterCount()
     return count
 end
 
+function addon:GetRosterSlotByArenaUnit(arenaUnit)
+    local state = self._raidEnemyTracker
+    if not state then return nil end
+    return self:GetRosterSlotByUnitID(state, arenaUnit)
+end
+
 function addon:IsRaidEnemySlotOccupied(index)
     local callHook = self.callHook or function() end
     callHook(self, "BeforeIsRaidEnemySlotOccupied", index)
@@ -607,7 +613,7 @@ local function AssignUnitToSlot(state, slotIndex, unitID, priorityKey)
     return true
 end
 
-local function GetRosterSlotByUnitID(state, unitID)
+function addon:GetRosterSlotByUnitID(state, unitID)
     if not state or state.rosterCount == 0 then return nil end
     if not unitID or not UnitExists(unitID) then return nil end
 
@@ -787,7 +793,7 @@ local function ScanEnemyUnits()
     local changed = false
 
     if IsEnemyPlayer("target") then
-        local slotIndex = GetRosterSlotByUnitID(state, "target")
+        local slotIndex = addon:GetRosterSlotByUnitID(state, "target")
         if slotIndex then
             if AssignUnitToSlot(state, slotIndex, "target", "target") then
                 changed = true
@@ -796,7 +802,7 @@ local function ScanEnemyUnits()
     end
 
     if IsEnemyPlayer("focus") then
-        local slotIndex = GetRosterSlotByUnitID(state, "focus")
+        local slotIndex = addon:GetRosterSlotByUnitID(state, "focus")
         if slotIndex then
             if AssignUnitToSlot(state, slotIndex, "focus", "focus") then
                 changed = true
@@ -809,7 +815,7 @@ local function ScanEnemyUnits()
         for i = 1, numMembers do
             local unit = raidTargetUnits[i]
             if unit and IsEnemyPlayer(unit) then
-                local slotIndex = GetRosterSlotByUnitID(state, unit)
+                local slotIndex = addon:GetRosterSlotByUnitID(state, unit)
                 if slotIndex and not state.unitAssignments[slotIndex] then
                     state.slotSeen = state.slotSeen or {}
                     state.slotSeen[slotIndex] = true
@@ -821,7 +827,7 @@ local function ScanEnemyUnits()
         for i = 1, 4 do
             local unit = partyTargetUnits[i]
             if unit and IsEnemyPlayer(unit) then
-                local slotIndex = GetRosterSlotByUnitID(state, unit)
+                local slotIndex = addon:GetRosterSlotByUnitID(state, unit)
                 if slotIndex and not state.unitAssignments[slotIndex] then
                     state.slotSeen = state.slotSeen or {}
                     state.slotSeen[slotIndex] = true
@@ -834,7 +840,7 @@ local function ScanEnemyUnits()
     for i = 1, 40 do
         local unit = nameplateUnits[i]
         if UnitExists(unit) and IsEnemyPlayer(unit) then
-            local slotIndex = GetRosterSlotByUnitID(state, unit)
+            local slotIndex = addon:GetRosterSlotByUnitID(state, unit)
             if slotIndex then
                 if AssignUnitToSlot(state, slotIndex, unit, "nameplate") then
                     changed = true
@@ -916,7 +922,7 @@ local function HandleNameplateAdded(unitID)
     if not state or state.rosterCount == 0 then return end
 
     ClearScanCycleCache()
-    local slotIndex = GetRosterSlotByUnitID(state, unitID)
+    local slotIndex = addon:GetRosterSlotByUnitID(state, unitID)
     if slotIndex and AssignUnitToSlot(state, slotIndex, unitID, "nameplate") then
         addon:RefreshEnemyFrames()
     end
@@ -940,7 +946,7 @@ local function HandleDirectUnitChanged(priorityKey, unitID)
     ClearPriorityFromSlots(state, priorityKey)
 
     if unitID and IsEnemyPlayer(unitID) then
-        local slotIndex = GetRosterSlotByUnitID(state, unitID)
+        local slotIndex = addon:GetRosterSlotByUnitID(state, unitID)
         if slotIndex then
             AssignUnitToSlot(state, slotIndex, unitID, priorityKey)
         end

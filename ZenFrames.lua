@@ -530,6 +530,10 @@ function addon:Initialize()
         self:InitializeGearCheck()
     end
 
+    if self.InitializeTabRebind then
+        self:InitializeTabRebind()
+    end
+
     C_Timer.After(1, function()
         self:ShowAnnouncement(self:GetCurrentAnnouncementId())
     end)
