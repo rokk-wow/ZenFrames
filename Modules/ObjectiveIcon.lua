@@ -132,14 +132,14 @@ local function UpdateObjectiveIcons()
 
     currentBgName = select(1, GetInstanceInfo())
 
+    local textures = GetObjectiveTextures()
+    if not textures then return end
+
     if currentBgName ~= lastLoggedBgName then
         lastLoggedBgName = currentBgName
         local hasMap = textures.carrierMap and textures.carrierMap[currentBgName] and true or false
         print("|cff00ccffOBJ|r bg=" .. tostring(currentBgName) .. " map=" .. tostring(hasMap))
     end
-
-    local textures = GetObjectiveTextures()
-    if not textures then return end
 
     local carrierSlots = {}
     local friendlyCarrierUnits = {}

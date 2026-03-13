@@ -118,10 +118,10 @@ function addon:GetDefaultConfig_Global()
 
         objectiveIcons = {
             orb = "worldquest-Capstone-questmarker-epic-supertrack",
-            hordeColor = "8c1616",
-            allianceColor = "162C57",
+            hordeColor = "94310a",
+            allianceColor = "0068f5",
             gemColor = "db0000",
-            orbBlueColor = "162C57",
+            orbBlueColor = "0068f5",
             orbGreenColor = "20d04c",
             orbOrangeColor = "ff7200",
             orbPurpleColor = "dd0af0",            carrierMap = {
