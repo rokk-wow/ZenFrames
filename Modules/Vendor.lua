@@ -55,35 +55,27 @@ function addon:InitializeTabRebind()
     local cfg = self.config and self.config.extras
     if not cfg or not cfg.rebindTabInPvP then return end
 
-    local savedKeys = {}
-
-    local eventFrame = CreateFrame("Frame")
-    eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-    eventFrame:SetScript("OnEvent", function()
+    function addon:OnZoneChange(zone)
         if InCombatLockdown() then return end
 
-        local zone = addon:GetCurrentZone()
         local isPvP = (zone == "arena" or zone == "battleground")
 
         if isPvP then
             local key1, key2 = GetBindingKey("TARGETNEARESTENEMY")
             if key1 or key2 then
-                wipe(savedKeys)
-                if key1 then savedKeys[#savedKeys + 1] = key1 end
-                if key2 then savedKeys[#savedKeys + 1] = key2 end
-                for _, key in ipairs(savedKeys) do
-                    SetBinding(key, "TARGETNEARESTENEMYPLAYER")
-                end
+                if key1 then SetBinding(key1, "TARGETNEARESTENEMYPLAYER") end
+                if key2 then SetBinding(key2, "TARGETNEARESTENEMYPLAYER") end
                 SaveBindings(GetCurrentBindingSet())
+                addon:Info("Tab rebound to enemy players (zone: " .. zone .. ")")
             end
         else
-            if #savedKeys > 0 then
-                for _, key in ipairs(savedKeys) do
-                    SetBinding(key, "TARGETNEARESTENEMY")
-                end
+            local key1, key2 = GetBindingKey("TARGETNEARESTENEMYPLAYER")
+            if key1 or key2 then
+                if key1 then SetBinding(key1, "TARGETNEARESTENEMY") end
+                if key2 then SetBinding(key2, "TARGETNEARESTENEMY") end
                 SaveBindings(GetCurrentBindingSet())
-                wipe(savedKeys)
+                addon:Info("Tab rebound to all enemies (zone: " .. zone .. ")")
             end
         end
-    end)
+    end
 end

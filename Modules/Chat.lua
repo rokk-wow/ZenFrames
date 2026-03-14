@@ -195,8 +195,15 @@ function addon:InitializeChat()
     end)
 
     if cfg.disableChatInArena then
-        self:RegisterEvent("ZONE_CHANGED_NEW_AREA", function()
-            ApplyArenaChatFilters(self:GetCurrentZone() == "arena")
+        eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
+        local originalOnEvent = eventFrame:GetScript("OnEvent")
+        eventFrame:SetScript("OnEvent", function(self, event, ...)
+            if event == "ZONE_CHANGED_NEW_AREA" then
+                ApplyArenaChatFilters(addon:GetCurrentZone() == "arena")
+                return
+            end
+            originalOnEvent(self, event, ...)
         end)
     end
 end
